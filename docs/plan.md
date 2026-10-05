@@ -1,0 +1,214 @@
+# BPS fetcher — build plan
+
+Crawl three BPS WebAPI sources into Postgres: **dynamic tables**, **strategic indicators**, **foreign trade**.
+API reference: [`bps-webapi.md`](bps-webapi.md).
+
+## How every slice runs
+
+Each slice is executed by **one subagent task**, one slice at a time, in order (slices depend on each other).
+The main session is the orchestrator: it hands the subagent the slice spec below, then reviews the result
+(diff, `make check` output, pushed commit) before starting the next slice.
+
+Inside the subagent:
+1. **Red** – write failing tests first (unit with recorded fixtures; DB tests against Postgres) and run them to see them fail.
+2. **Green** – implement the minimum to pass.
+3. **Build/test** – `make check` must pass: `ruff` + `mypy` + `pytest` + `uv build`.
+4. **Progress** – tick the slice in the table below and add a short note (date, anything learned).
+5. **Commit & push** – one commit per slice, message `S<n>: <title>`, pushed to `origin main`.
+
+The subagent reports back: files changed, test count, `make check` result, commit SHA, and any surprises or follow-ups.
+
+Live API tests are marked `@pytest.mark.live` and only run with `make live` (needs `BPS_API_KEY`). `make check` never calls the real API.
+
+**Environment:** no Docker locally. DB tests use a local Postgres 16 via `DATABASE_URL` (Homebrew `postgresql@16`, set up in S5) and are skipped when it isn't reachable.
+GitHub Actions CI (from S0) runs `make check` with a Postgres service container, plus `docker build`.
+Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never be committed).
+
+## Progress
+
+| # | Slice | Status | Notes |
+|---|---|---|---|
+| S0 | Repo scaffold | ☐ | |
+| S1 | Settings + key redaction | ☐ | |
+| S2 | HTTP client | ☐ | |
+| S3 | Pagination | ☐ | |
+| S4 | Fixture recorder | ☐ | |
+| S5 | DB schema + migrations | ☐ | |
+| S6 | Task queue | ☐ | |
+| S7 | Worker runner | ☐ | |
+| S8 | Domains | ☐ | |
+| S9 | Variable catalog | ☐ | |
+| S10 | Periods + data windows | ☐ | |
+| S11 | Dynamic data parser | ☐ | |
+| S12 | Observation loader | ☐ | |
+| S13 | CLI + national end-to-end | ☐ | |
+| S14 | Strategic indicators | ☐ | |
+| S15 | Trade: discovery | ☐ | |
+| S16 | Trade: fetch + load | ☐ | |
+| S17 | Labeled views | ☐ | |
+| S18 | Incremental refresh | ☐ | |
+| S19 | Provinces + regencies rollout | ☐ | |
+| S20 | Status / monitoring | ☐ | |
+| S21 | Scheduled deployment | ☐ | |
+
+---
+
+## Verified API facts the design depends on (2026-10-05)
+
+- Browser-like `User-Agent` required (WAF blocks curl/python defaults with an HTML page).
+- Errors arrive as HTTP 200 with `"status":"Error"` + `message`.
+- List endpoints are 10 per page; `perpage` is ignored for `var` and `th`.
+- `model=data` requires `th`; **max 3 periods per call** (`th=124:126`).
+- `datacontent` key = `vervar + var + turvar + th + turth` concatenated.
+- Data response has `last_update` (e.g. `2026-10-01 11:24:01`) → change detection.
+- Monthly vars use `turtahun` 1–12 (and possibly 13 = annual); `turth` filter param seems ignored — fetch all and filter locally.
+- Indicators: national 16, DKI Jakarta 28; the API returns only the **latest value** per indicator → we must keep history ourselves.
+- Trade: param is lowercase **`tahun`** (docs say `Tahun`). No pagination; whole result in one response. Data available **from 2015** (2013 and earlier: unavailable; 2014 unchecked). Monthly rows have `bulan: "[11] November"`; `kodehs: "[03] Fish, ..."`. 10 chapters monthly for one year ≈ 14k rows / 2.2 MB / 10 s. Full HS codes (`jenishs=2`) returned nothing for the codes tried — use 2-digit chapters.
+
+## Size estimate
+
+- Dynamic: ~125k vars across 549 domains. Per var: ~1 `th` call + ⌈years/3⌉ data calls (avg ~3) ≈ **~500k calls**, plus ~13k list pages. At 4 concurrent × ~1 s ≈ 1.5 days first load; national alone (1.75k vars) ≈ 30 min.
+- Indicators: 35 domains × 1–3 pages ≈ 100 calls per snapshot.
+- Trade: 2 flows × ~12 years × ~10 batches (10 chapters each), monthly ≈ **~240 calls**, ~2–3M rows.
+
+## Data model (target)
+
+```
+raw_response(id, task_id, endpoint, params jsonb, fetched_at, body jsonb, sha256)
+task(id, kind, params jsonb, params_hash, status, attempts, next_run_at, last_error, parent_id)
+     unique(kind, params_hash)
+
+domain(domain_id pk, name, url, level)                -- level: pusat/prov/kab
+variable(domain_id, var_id, title, unit, sub_id, sub_name, subcsa_id, def, notes,
+         decimal, vertical, last_update, pk(domain_id, var_id))
+period(domain_id, var_id, th_id, label)
+dim_vervar(domain_id, var_id, val, label, group_label)
+dim_turvar(domain_id, var_id, val, label)
+dim_turth(domain_id, var_id, val, label)
+observation(domain_id, var_id, vervar, turvar, th, turth, value numeric, fetched_at,
+            pk(domain_id, var_id, vervar, turvar, th, turth))
+
+indicator_snapshot(domain_id, indicator_id, var, title, name, value, unit, periode,
+                   category, data_source, first_seen, last_seen,
+                   pk(domain_id, indicator_id, periode, title))
+
+trade_flow(flow, period_type, year, month, hs2, port, country, value_usd, netweight_kg,
+           fetched_at, pk(flow, period_type, year, month, hs2, port, country))
+hs_chapter(hs2 pk, description)
+```
+
+---
+
+## Slices
+
+### S0 — Repo scaffold
+- **Tests first:** `test_smoke.py` imports package `bps_fetcher` and checks `__version__`.
+- **Build:** `uv init` (Python 3.12), `src/bps_fetcher/`, `pyproject` with ruff/mypy/pytest config, `Makefile` (`check`, `test`, `live`, `lint`), `docker-compose.yml` (Postgres 16 + app), `Dockerfile`, GitHub Actions workflow (`make check` with Postgres service + `docker build`). `.gitignore` already covers `.env`.
+- **Done when:** `make check` green locally; pushed; CI green.
+
+### S1 — Settings + key redaction
+- **Tests first:** settings load `BPS_API_KEY` from env / `.env`; missing key raises clear error; `redact(url)` removes `key=...` and `/key/<x>/`; log records never contain the key.
+- **Build:** `pydantic-settings` `Settings` (key, db url, concurrency, rps, user agent); logging filter for redaction.
+
+### S2 — HTTP client
+- **Tests first (respx):** sends UA + key; `/v1/api/` base; `status: Error` → `BpsApiError(message)`; key error → `BpsAuthError` (not retried); WAF HTML / 5xx / timeout → retried with backoff then `BpsTransientError`; rate limiter caps requests/sec.
+- **Build:** async `BpsClient.get(path, **params) -> dict` on `httpx` + `tenacity` + `aiolimiter`.
+
+### S3 — Pagination
+- **Tests first:** iterates `page=1..pages`; stops on `not-available`; yields items from `data[1]`; handles `pages` missing (domain endpoint).
+- **Build:** `async def paginate(client, model, **params)`.
+
+### S4 — Fixture recorder
+- **Tests first:** recorder strips key from stored URL and body; writes `tests/fixtures/<name>.json`.
+- **Build:** `scripts/record_fixture.py` (live). Record: `domain_all`, `var_0000_p1`, `th_0000_1804`, `data_0000_1804`, `data_0000_2263` (monthly), `indicators_0000_p1/p2`, `trade_exp_annual_03_2024`, `trade_exp_monthly_03_2024`, plus error samples (bad key, missing th, >3 years).
+
+### S5 — DB schema + migrations
+- **Setup:** `brew install postgresql@16`, create `bps` and `bps_test` databases; tests read `DATABASE_URL`/`TEST_DATABASE_URL`.
+- **Tests first (local Postgres; CI service container):** `alembic upgrade head` from empty creates all tables; downgrade works; unique constraints enforced.
+- **Build:** SQLAlchemy 2 Core table definitions + Alembic migration for `raw_response`, `task`, `domain`.
+
+### S6 — Task queue
+- **Tests first:** `enqueue` is idempotent on `(kind, params_hash)`; `claim(n)` uses `FOR UPDATE SKIP LOCKED` so two concurrent claimers never get the same task; `complete`; `fail` increments attempts and sets `next_run_at` with backoff; tasks over max attempts → `dead`.
+- **Build:** `queue.py`.
+
+### S7 — Worker runner
+- **Tests first:** with a fake handler registry: claims task → calls handler → stores raw response → enqueues returned child tasks → marks done, all in one transaction; handler exception → `fail`; stops when queue empty (`--drain`) or after N tasks.
+- **Build:** `worker.py` with `HANDLERS: dict[kind, handler]`, async concurrency = settings.
+
+### S8 — Domains
+- **Tests first:** handler `domains` parses `domain_all` fixture → 549 rows with level derived from id (`0000` pusat, `xx00` prov, else kab); upsert idempotent; emits `var_list` child per domain (filterable by level).
+- **Build:** `handlers/domains.py`, migration for `domain`.
+
+### S9 — Variable catalog
+- **Tests first:** `var_list(domain)` paginates and upserts `variable`; emits one `th_list` per var; HTML-escaped notes are unescaped; extra unknown fields ignored (pydantic `extra=ignore`).
+- **Build:** `handlers/variables.py`, migration for `variable`.
+
+### S10 — Periods + data windows
+- **Tests first:** `th_list` stores periods; `windows([110..126], 3)` → contiguous chunks of ≤3 sorted th_ids (gaps split chunks); emits one `data` task per window as `th=a:b` or `a;b`.
+- **Build:** `handlers/periods.py`, migration for `period`.
+
+### S11 — Dynamic data parser
+- **Tests first (pure, no DB):** using fixtures `data_0000_1804` (annual, vervar) and `data_0000_2263` (monthly, 39 regions): every `datacontent` key maps to exactly one `(vervar, turvar, th, turth)`; total count matches; values numeric; dimension label lists extracted; unknown key → reported, not silently dropped.
+- **Build:** `parse_data(resp) -> ParsedData(observations, dims, last_update)` by generating keys from dimension combinations.
+
+### S12 — Observation loader
+- **Tests first:** upsert observations + dims idempotently; re-running the same response writes 0 changed rows; `variable.last_update` updated; a newer `last_update` replaces values.
+- **Build:** `handlers/data.py`, migrations for `dim_*` and `observation` (index on `(domain_id, var_id, th)`).
+
+### S13 — CLI + national end-to-end
+- **Tests first:** `bps seed dynamic --domain 0000 --limit-vars 5` + `bps work --drain` against respx-mocked API (fixtures) fills all tables; CLI `--help` works. `live` test: real run for 3 national vars.
+- **Build:** `typer` CLI: `seed`, `work`, `status` (stub).
+- **Manual:** full national crawl (~30 min); record counts in Notes.
+
+### S14 — Strategic indicators
+- **Tests first:** parse both indicator pages; snapshot upsert keeps `first_seen`, bumps `last_seen`; new `periode` creates a new row (history); non-pusat/prov domain skipped.
+- **Build:** `handlers/indicators.py`, `bps seed indicators [--domain]`, migration for `indicator_snapshot`.
+
+### S15 — Trade: discovery
+- **Tests first:** `parse_bracket("[03] Fish, ...") -> ("03", "Fish, ...")`; `parse_bracket("[11] November") -> (11, ...)`; chapter list 01–99 excluding unused (77); batches of N chapters joined by `;`.
+- **Build:** `trade.py` helpers; live script to find the earliest available year (check 2014) and confirm whether `jenishs=2` works with any code format → write findings to Notes and `bps-webapi.md`.
+
+### S16 — Trade: fetch + load
+- **Tests first:** handler `trade(flow, period_type, year, chapters)` parses annual + monthly fixtures into `trade_flow` rows (month null for annual); `hs_chapter` upserted; reload of same year replaces rows for that (flow, period_type, year, chapters) atomically; `unavailable` → done with 0 rows.
+- **Build:** `handlers/trade.py`, `bps seed trade --from 2015 --to <current>`, migrations.
+
+### S17 — Labeled views
+- **Tests first:** on seeded rows, `v_observation` returns domain name, variable title, unit, vervar/turvar labels, year, month/period label, value; `v_trade` and `v_indicator_latest` return expected rows.
+- **Build:** SQL views in a migration (dbt optional later).
+
+### S18 — Incremental refresh
+- **Tests first:** `bps seed refresh` schedules: indicators daily; trade current + previous year weekly; var re-list weekly; data tasks only for vars whose `last_update` changed or whose latest `th` is new; completed tasks become re-runnable via `next_run_at`.
+- **Build:** refresh policies in `refresh.py`.
+
+### S19 — Provinces + regencies rollout
+- **Tests first:** seed by level (`--level prov|kab`) and by province (`kabbyprov`); concurrency/rps from settings respected (limiter test).
+- **Manual:** run provinces, then regencies; record durations, error rates, and any new API errors in Notes; tune rps.
+
+### S20 — Status / monitoring
+- **Tests first:** `bps status` prints task counts by kind/status, dead tasks with last error, rows per table, last successful run per source.
+- **Build:** status queries; exit code non-zero when dead tasks exceed a threshold (for alerting).
+
+### S21 — Scheduled deployment
+- **Tests first:** `docker compose run app bps --help` in CI; migration runs on container start.
+- **Build:** compose service with scheduled `refresh` + `work --drain` (cron or GitHub Actions schedule); README with setup.
+
+---
+
+## Tech stack
+
+| Concern | Choice |
+|---|---|
+| Language / deps | Python 3.12, `uv` |
+| HTTP | `httpx` (async), `tenacity`, `aiolimiter` |
+| Models / config | `pydantic` v2, `pydantic-settings` |
+| DB | PostgreSQL 16, SQLAlchemy 2 Core, Alembic, `psycopg` 3 |
+| Queue | Postgres `task` table (`FOR UPDATE SKIP LOCKED`) — no extra infra |
+| CLI | `typer` |
+| Tests | `pytest`, `pytest-asyncio`, `respx`; Postgres from local Homebrew / CI service |
+| Quality | `ruff`, `mypy --strict` |
+| Runtime | Docker Compose (postgres + app) |
+| BI (later) | Looker Studio on the `v_*` views; BigQuery sync only if needed |
+
+## Open questions
+
+- Final BI target (Looker Studio vs Looker/BigQuery) — affects only S21+.
