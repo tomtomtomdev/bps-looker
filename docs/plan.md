@@ -50,6 +50,14 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 | S19 | Provinces + regencies rollout | ☐ | |
 | S20 | Status / monitoring | ☐ | |
 | S21 | Scheduled deployment | ☐ | |
+| U0 | UI: read API scaffold | ☐ | |
+| U1 | UI: web scaffold | ☐ | |
+| U2 | UI: variable search | ☐ | |
+| U3 | UI: variable detail + chart | ☐ | |
+| U4 | UI: ranking + map | ☐ | |
+| U5 | UI: indicators dashboard | ☐ | |
+| U6 | UI: trade dashboard | ☐ | |
+| U7 | UI: deploy + e2e | ☐ | |
 
 ---
 
@@ -194,6 +202,63 @@ hs_chapter(hs2 pk, description)
 
 ---
 
+## UI (option C: custom web app)
+
+Layout: `web/` (Next.js app) next to the Python package; read API lives in `src/bps_fetcher/api/`.
+UI slices start after S17 (labeled views) and can interleave with S18–S21.
+`make check` grows to include `web` checks from U1: `pnpm lint` + `pnpm typecheck` + `pnpm test` (Vitest) + `pnpm build`; Playwright e2e runs in `make e2e` and in CI.
+
+### U0 — Read API scaffold
+- **Tests first (pytest + httpx `ASGITransport`):** `GET /health` → 200; `GET /domains?level=prov` returns seeded domains; OpenAPI schema generated; CORS allows the web origin from settings.
+- **Build:** FastAPI app (`bps serve`), DB session dependency, pydantic response models, `uvicorn` in compose.
+
+### U1 — Web scaffold
+- **Tests first (Vitest + Testing Library):** home page renders app shell (header, nav: Explorer / Indicators / Trade); typed API client generated from OpenAPI (`openapi-typescript`) compiles.
+- **Build:** Next.js (App Router) + TypeScript + Tailwind + shadcn/ui + TanStack Query, `pnpm`; `web` service in compose; CI job for web; `make check` extended.
+
+### U2 — Variable search
+- **API tests first:** `GET /variables?q=inflasi&domain=0000&page=` uses Postgres full-text (title + subject) with ranking and pagination; filters by subject and domain level.
+- **Web tests first:** search box debounces, shows results with unit + subject, empty and error states; Playwright: type "inflasi" → results → click → variable page URL.
+- **Build:** `tsvector` index migration, `/variables` endpoint, Explorer search page.
+
+### U3 — Variable detail + time-series chart
+- **API tests first:** `GET /variables/{domain}/{var}` returns metadata + dimensions (vervar/turvar/turth labels); `GET /variables/{domain}/{var}/series?vervar=&turvar=&turth=` returns `[{period, value}]` sorted, monthly periods resolved to dates.
+- **Web tests first:** dimension pickers (multi-select regions/categories) update URL state; ECharts line chart renders one series per selection; table view toggle; CSV download; notes rendered as sanitized HTML.
+- **Build:** endpoints + Explorer variable page with ECharts.
+
+### U4 — Region ranking + map
+- **Data:** Indonesia province + regency GeoJSON (BPS/BIG boundaries, simplified) stored in `web/public/geo/`, mapped by BPS domain/MFD code; test that every province domain has a shape.
+- **API tests first:** `GET /variables/{domain}/{var}/cross-section?th=&turvar=&turth=` returns value per vervar region with region code.
+- **Web tests first:** ranking bar chart sorted desc; choropleth colors by value with legend; period slider; clicking a region opens its series.
+- **Build:** cross-section endpoint + map/ranking tab.
+
+### U5 — Indicators dashboard
+- **API tests first:** `GET /indicators?domain=` latest snapshot per indicator; `GET /indicators/{domain}/{id}/history` from `indicator_snapshot`.
+- **Web tests first:** KPI tiles (value, unit, periode, change vs previous snapshot); province selector; tile click → history sparkline/chart and link to the underlying variable in Explorer.
+- **Build:** endpoints + Indicators page.
+
+### U6 — Trade dashboard
+- **API tests first:** `GET /trade/summary?flow=&year=&month=` totals; `GET /trade/breakdown?by=country|port|hs2&flow=&from=&to=&top=` with "others" bucket; `GET /trade/series?hs2=&country=` monthly series. Queries use indexes/materialized view (perf test on seeded 1M rows < 500 ms).
+- **Web tests first:** export/import toggle, year/month range, top-N bar charts (country, port, chapter), monthly trend line, trade balance; filters sync to URL.
+- **Build:** endpoints (+ materialized view migration if needed) + Trade page.
+
+### U7 — UI deploy + e2e
+- **Tests first:** Playwright smoke across Explorer, Indicators, Trade against compose stack seeded with fixtures (CI).
+- **Build:** production Dockerfiles for api + web, compose profile `ui`, README section; optional Vercel config for `web`.
+
+### UI stack
+
+| Concern | Choice |
+|---|---|
+| Read API | FastAPI, pydantic v2, uvicorn (reuses SQLAlchemy + `v_*` views) |
+| Frontend | Next.js (App Router) + TypeScript, `pnpm` |
+| UI kit | Tailwind CSS + shadcn/ui |
+| Data fetching | TanStack Query, `openapi-typescript` generated client |
+| Charts / maps | Apache ECharts (line, bar, geo choropleth) + Indonesia GeoJSON |
+| Tests | Vitest + Testing Library (unit), Playwright (e2e), pytest for API |
+
+---
+
 ## Tech stack
 
 | Concern | Choice |
@@ -211,4 +276,4 @@ hs_chapter(hs2 pk, description)
 
 ## Open questions
 
-- Final BI target (Looker Studio vs Looker/BigQuery) — affects only S21+.
+- BI target decided: custom web app (option C, slices U0–U7). Looker Studio / BigQuery not planned.
