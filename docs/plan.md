@@ -24,6 +24,17 @@ Live API tests are marked `@pytest.mark.live` and only run with `make live` (nee
 GitHub Actions CI (from S0) runs `make check` with a Postgres service container, plus `docker build`.
 Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never be committed).
 
+## Current status — paused 2026-10-05
+
+- **Done:** S0 (scaffold, CI green). Plan includes backend S0–S21 and UI U0–U7.
+- **Next:** S1 — Settings + key redaction. S1–S4 need no Postgres.
+- **Before S5:** ask the user before `brew install postgresql@16`.
+- **Pending follow-ups (fold into the next slice):**
+  - Bump `actions/checkout` and `astral-sh/setup-uv` to majors that drop the deprecated Node 20 runtime.
+  - `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19 — pin or re-verify CI then.
+  - `make live` exits 5 (no tests collected) until the first live test lands in S4.
+- **Resume:** start a subagent for the next ☐ slice with its spec from this file, review its result, repeat.
+
 ## Progress
 
 | # | Slice | Status | Notes |
