@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: bps
+      POSTGRES_PASSWORD: bps
+      POSTGRES_DB: bps
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bps -d bps"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+psycopg://bps:bps@postgres:5432/bps
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pgdata:

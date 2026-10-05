@@ -28,7 +28,7 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 
 | # | Slice | Status | Notes |
 |---|---|---|---|
-| S0 | Repo scaffold | ☐ | |
+| S0 | Repo scaffold | ☑ | 2026-10-05: uv + hatchling, src layout; ruff/mypy --strict/pytest (`live` marker excluded by default); Dockerfile + compose + CI (Postgres 16 service, docker build). Docker/compose only verified in CI. Note: `make live` exits 5 until live tests exist. |
 | S1 | Settings + key redaction | ☐ | |
 | S2 | HTTP client | ☐ | |
 | S3 | Pagination | ☐ | |

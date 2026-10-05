@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: bps
+          POSTGRES_PASSWORD: bps
+          POSTGRES_DB: bps_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U bps -d bps_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://bps:bps@localhost:5432/bps_test
+      TEST_DATABASE_URL: postgresql+psycopg://bps:bps@localhost:5432/bps_test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --frozen
+      - run: make check
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t bps-fetcher:ci .
+      - run: docker run --rm bps-fetcher:ci
