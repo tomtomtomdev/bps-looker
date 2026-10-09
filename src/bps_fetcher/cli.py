@@ -3,6 +3,8 @@
     bps migrate
     bps seed dynamic [--domain 0000 ...] [--level prov ...] [--limit-vars N]
     bps seed indicators [--domain 0000 ...] [--run LABEL]
+    bps seed trade [--from 2014] [--to YEAR] [--flow exp|imp ...] [--period annual|monthly ...]
+                   [--batch-size 10] [--run LABEL]
     bps work [--drain] [--max-tasks N] [--concurrency N] [--kind data ...]
     bps status
 
@@ -16,6 +18,7 @@ Commands touching the DB refuse to run (exit 2) until ``bps migrate`` has brough
 
 import asyncio
 import logging
+from datetime import date
 from typing import Annotated, Any
 
 import typer
@@ -30,7 +33,9 @@ from bps_fetcher.handlers.domains import KIND as DOMAINS_KIND
 from bps_fetcher.handlers.domains import domain_level
 from bps_fetcher.handlers.indicators import LEVELS as INDICATOR_LEVELS
 from bps_fetcher.handlers.indicators import seed_indicators
+from bps_fetcher.handlers.trade import seed_trade
 from bps_fetcher.redact import install_redaction, redact
+from bps_fetcher.trade import DEFAULT_BATCH_SIZE, EARLIEST_YEAR, EXPORT, IMPORT, MONTHLY, YEARLY
 
 log = logging.getLogger("bps_fetcher")
 
@@ -184,6 +189,68 @@ def indicators(
             raise typer.Exit(1)
         typer.echo(f"Warning: {hint}, or these tasks will fail.", err=True)
     typer.echo(f"Seeded {n} indicators task(s)" + ("" if n else " (already seeded)") + ".")
+
+
+_FLOW_NAMES = {"exp": EXPORT, "imp": IMPORT}
+_PERIOD_NAMES = {"monthly": MONTHLY, "annual": YEARLY}
+
+
+def _names(choices: dict[str, int]) -> Any:
+    def check(value: list[str] | None) -> list[str] | None:
+        for v in value or []:
+            if v not in choices:
+                raise typer.BadParameter(f"{v!r} is not one of {', '.join(choices)}")
+        return value
+
+    return check
+
+
+@seed_app.command()
+def trade(
+    from_year: Annotated[
+        int, typer.Option("--from", min=EARLIEST_YEAR, help="First year.")
+    ] = EARLIEST_YEAR,
+    to_year: Annotated[
+        int | None, typer.Option("--to", help="Last year (default: the current year).")
+    ] = None,
+    flow: Annotated[
+        list[str] | None,
+        typer.Option(help="exp or imp (repeatable); default: both.", callback=_names(_FLOW_NAMES)),
+    ] = None,
+    period: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="annual or monthly (repeatable); default: both.",
+            callback=_names(_PERIOD_NAMES),
+        ),
+    ] = None,
+    batch_size: Annotated[
+        int, typer.Option(min=1, help="HS chapters per request.")
+    ] = DEFAULT_BATCH_SIZE,
+    run: Annotated[
+        str | None,
+        typer.Option(help="Reload label (e.g. a date) so a repeat seed enqueues fresh tasks."),
+    ] = None,
+) -> None:
+    """Seed foreign-trade loads: one ``trade`` task per flow x period x year x chapter batch."""
+    _setup_logging()
+    kwargs: dict[str, Any] = {"batch_size": batch_size, "run": run}
+    if flow:
+        kwargs["flows"] = [_FLOW_NAMES[f] for f in flow]
+    if period:
+        kwargs["period_types"] = [_PERIOD_NAMES[p] for p in period]
+    last = date.today().year if to_year is None else to_year
+    engine = _engine()
+    try:
+        with engine.begin() as conn:
+            try:
+                n = seed_trade(conn, from_year, last, **kwargs)
+            except ValueError as exc:
+                typer.echo(f"Error: {exc}", err=True)
+                raise typer.Exit(1) from None
+    finally:
+        engine.dispose()
+    typer.echo(f"Seeded {n} trade task(s) for {from_year}..{last}.")
 
 
 @app.command()

@@ -23,6 +23,8 @@ ALL_TABLES = {
     "dim_turth",
     "observation",
     "indicator_snapshot",
+    "hs_chapter",
+    "trade_flow",
 }
 
 

@@ -57,6 +57,7 @@ def _count(engine: Engine, table: Any) -> int:
         ["seed"],
         ["seed", "dynamic"],
         ["seed", "indicators"],
+        ["seed", "trade"],
         ["work"],
         ["status"],
         ["migrate"],
@@ -175,6 +176,65 @@ def test_seed_indicators_empty_domain_table_hints_seed_dynamic(
     result = runner.invoke(app, ["seed", "indicators"])
     assert result.exit_code != 0
     assert "bps seed dynamic" in result.output
+    assert _count(db_engine, task) == 0
+
+
+def test_seed_trade_one_flow_period_year(cli_env: None, db_engine: Engine) -> None:
+    args = ["seed", "trade", "--from", "2024", "--to", "2024", "--flow", "exp"]
+    result = runner.invoke(app, [*args, "--period", "annual", "--batch-size", "50"])
+    assert result.exit_code == 0, result.output
+    assert "2" in result.output
+    with db_engine.connect() as conn:
+        rows = conn.execute(select(task.c.kind, task.c.params).order_by(task.c.id)).all()
+    assert [r.kind for r in rows] == ["trade", "trade"]
+    assert [(r.params["flow"], r.params["period_type"], r.params["year"]) for r in rows] == [
+        (1, 2, 2024),
+        (1, 2, 2024),
+    ]
+    assert rows[0].params["chapters"].startswith("01;02;")
+    assert "run" not in rows[0].params
+
+    again = runner.invoke(app, [*args, "--period", "annual", "--batch-size", "50"])
+    assert again.exit_code == 0, again.output
+    assert _count(db_engine, task) == 2
+
+
+def test_seed_trade_defaults_both_flows_and_periods(cli_env: None, db_engine: Engine) -> None:
+    result = runner.invoke(app, ["seed", "trade", "--from", "2023", "--to", "2024", "--run", "r1"])
+    assert result.exit_code == 0, result.output
+    with db_engine.connect() as conn:
+        params = conn.execute(select(task.c.params)).scalars().all()
+    # 2 flows x 2 period types x 2 years x 10 batches of 10 chapters (98 chapters)
+    assert len(params) == 80
+    assert {(p["flow"], p["period_type"]) for p in params} == {(1, 1), (1, 2), (2, 1), (2, 2)}
+    assert {p["run"] for p in params} == {"r1"}
+
+
+def test_seed_trade_to_defaults_to_current_year(cli_env: None, db_engine: Engine) -> None:
+    from datetime import date
+
+    year = date.today().year
+    args = ["seed", "trade", "--from", str(year), "--flow", "imp", "--period", "monthly"]
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    with db_engine.connect() as conn:
+        years = set(conn.execute(select(task.c.params["year"].as_integer())).scalars())
+    assert years == {year}
+
+
+@pytest.mark.parametrize(
+    "args",
+    [
+        ["--from", "2013"],
+        ["--from", "2024", "--to", "2023"],
+        ["--from", "2024", "--flow", "both"],
+        ["--from", "2024", "--period", "weekly"],
+        ["--from", "2024", "--batch-size", "0"],
+    ],
+)
+def test_seed_trade_rejects_bad_options(cli_env: None, db_engine: Engine, args: list[str]) -> None:
+    result = runner.invoke(app, ["seed", "trade", *args])
+    assert result.exit_code != 0, result.output
     assert _count(db_engine, task) == 0
 
 

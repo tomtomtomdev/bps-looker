@@ -15,6 +15,7 @@ from sqlalchemy import (
     Integer,
     MetaData,
     Numeric,
+    SmallInteger,
     String,
     Table,
     Text,
@@ -208,4 +209,44 @@ indicator_snapshot = Table(
     Column("data_source", Text),
     Column("first_seen", DateTime(timezone=True), nullable=False, server_default=func.now()),
     Column("last_seen", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)
+
+# HS 2-digit chapters (S16), from the ``kodehs`` labels of trade responses. Descriptions differ
+# by flow/year (2014 imports are Indonesian, exports English), so each row remembers where its
+# text came from: a later year replaces it, and in the same year an export (``source_flow`` 1)
+# beats an import (2).
+hs_chapter = Table(
+    "hs_chapter",
+    metadata,
+    Column("hs2", String(2), primary_key=True),
+    Column("description", Text, nullable=False),
+    Column("source_flow", SmallInteger, nullable=False),
+    Column("source_year", SmallInteger, nullable=False),
+    CheckConstraint("hs2 ~ '^[0-9]{2}$'", name="hs2"),
+)
+
+# Foreign trade (S16), from ``dataexim/``: ``flow`` 1 export / 2 import (API ``sumber``),
+# ``period_type`` 1 monthly / 2 annual (API ``periode``). Primary-key columns can't be NULL, so
+# annual rows use ``month = 0`` and a missing port (``pod: null``) is stored as ``''``.
+# A task replaces all rows of its (flow, period_type, year, chapters) scope.
+trade_flow = Table(
+    "trade_flow",
+    metadata,
+    Column("flow", SmallInteger, primary_key=True),
+    Column("period_type", SmallInteger, primary_key=True),
+    Column("year", SmallInteger, primary_key=True),
+    Column("month", SmallInteger, primary_key=True),
+    Column("hs2", String(2), ForeignKey("hs_chapter.hs2"), primary_key=True),
+    Column("port", Text, primary_key=True),
+    Column("country", Text, primary_key=True),
+    Column("value_usd", Numeric),
+    Column("netweight_kg", Numeric),
+    Column("fetched_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    CheckConstraint("flow IN (1, 2)", name="flow"),
+    CheckConstraint(
+        "(period_type = 2 AND month = 0) OR (period_type = 1 AND month BETWEEN 1 AND 12)",
+        name="period_month",
+    ),
+    Index("ix_trade_flow_hs2_year", "hs2", "year"),
+    Index("ix_trade_flow_country_year", "country", "year"),
 )
