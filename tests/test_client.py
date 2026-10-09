@@ -12,6 +12,7 @@ from bps_fetcher.client import (
     BpsApiError,
     BpsAuthError,
     BpsClient,
+    BpsNullResponseError,
     BpsTransientError,
 )
 
@@ -129,6 +130,20 @@ async def test_non_json_object_raises_api_error(client: BpsClient) -> None:
     respx.get(f"{BASE_URL}list").mock(return_value=httpx.Response(200, json=[1, 2]))
     with pytest.raises(BpsApiError):
         await client.get("list", model="var")
+
+
+@respx.mock
+async def test_json_null_raises_null_response_error_not_retried(client: BpsClient) -> None:
+    # Seen live (S13): too-large data windows answer HTTP 200 with the JSON literal ``null``.
+    route = respx.get(f"{BASE_URL}list").mock(
+        return_value=httpx.Response(
+            200, content=b"null", headers={"content-type": "application/json"}
+        )
+    )
+    with pytest.raises(BpsNullResponseError, match="null"):
+        await client.get("list", model="data", domain="0000", var=2096, th="118:120")
+    assert route.call_count == 1
+    assert issubclass(BpsNullResponseError, BpsApiError)
 
 
 @respx.mock

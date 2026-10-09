@@ -1,0 +1,21 @@
+{
+ "name": "data_list_not_available",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=data&domain=0000&var=698&th=86%3A88&key=***",
+  "path": "list",
+  "params": {
+   "model": "data",
+   "domain": "0000",
+   "var": "698",
+   "th": "86:88"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "OK",
+  "data-availability": "list-not-available",
+  "data": ""
+ }
+}

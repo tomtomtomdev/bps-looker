@@ -47,6 +47,11 @@ class BpsApiError(BpsError):
         self.message = message
 
 
+class BpsNullResponseError(BpsApiError):
+    """The API answered HTTP 200 with the JSON literal ``null`` — seen for data windows whose
+    response would be too large (e.g. 514 regions x 41 categories x 3 years). Not retried."""
+
+
 class BpsAuthError(BpsApiError):
     """The API rejected the key. Not retried."""
 
@@ -176,6 +181,10 @@ class BpsClient:
                 f"HTTP {response.status_code} non-JSON body "
                 f"({response.headers.get('content-type', '?')})"
             ) from None
+        if body is None:
+            raise BpsNullResponseError(
+                f"BPS returned JSON null from {response.url.path} (response likely too large)"
+            )
         if not isinstance(body, dict):
             raise BpsApiError(f"unexpected JSON {type(body).__name__} from {response.url.path}")
         if body.get("status") == "Error" or response.is_client_error:

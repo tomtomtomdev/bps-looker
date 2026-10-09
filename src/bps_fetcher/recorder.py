@@ -37,6 +37,18 @@ FIXTURES: tuple[FixtureSpec, ...] = (
     FixtureSpec(
         "data_0000_2263", "list", {"model": "data", "domain": "0000", "var": 2263, "th": 124}
     ),
+    # Seen in the S13 national crawl: an empty window answers "list-not-available" with data "",
+    # and a too-large window (514 regions x 41 categories x 3 years) answers JSON ``null``.
+    FixtureSpec(
+        "data_list_not_available",
+        "list",
+        {"model": "data", "domain": "0000", "var": 698, "th": "86:88"},
+    ),
+    FixtureSpec(
+        "data_null_too_large",
+        "list",
+        {"model": "data", "domain": "0000", "var": 2096, "th": "118:120"},
+    ),
     FixtureSpec("indicators_0000_p1", "list", {"model": "indicators", "domain": "0000", "page": 1}),
     FixtureSpec("indicators_0000_p2", "list", {"model": "indicators", "domain": "0000", "page": 2}),
     FixtureSpec(

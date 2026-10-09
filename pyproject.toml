@@ -12,7 +12,11 @@ dependencies = [
     "pydantic-settings>=2.15.0",
     "sqlalchemy>=2.1.4",
     "tenacity>=9.2.1",
+    "typer>=0.27.3",
 ]
+
+[project.scripts]
+bps = "bps_fetcher.cli:main"
 
 [dependency-groups]
 dev = [

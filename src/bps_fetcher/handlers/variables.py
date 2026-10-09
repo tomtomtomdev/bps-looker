@@ -2,7 +2,9 @@
 fan out one ``th_list`` task per variable.
 
 Task params: ``domain`` (required, 4-digit id; the ``domain`` row must already exist — run the
-``domains`` task first). Every page's response is kept as a raw response.
+``domains`` task first); optional ``limit_vars`` (positive int) keeps only the first N variables
+of the listing — paging stops once N are seen, and only those are stored and fanned out (for
+smoke runs: ``bps seed dynamic --limit-vars``). Every page's response is kept as a raw response.
 
 Items are validated with :class:`VarItem` (unknown fields ignored). The API HTML-escapes
 ``notes`` (``&lt;p&gt;…``) and sometimes ``def``; both are unescaped, and empty strings become
@@ -11,6 +13,7 @@ Items are validated with :class:`VarItem` (unknown fields ignored). The API HTML
 
 import html
 from collections.abc import Iterable
+from contextlib import aclosing
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -18,7 +21,8 @@ from sqlalchemy import Connection, exists, select
 from sqlalchemy.dialects.postgresql import insert
 
 from bps_fetcher.db.schema import domain, variable
-from bps_fetcher.paginate import NOT_AVAILABLE, items_of, paginate_pages
+from bps_fetcher.handlers.domains import limit_vars_param
+from bps_fetcher.paginate import is_not_available, items_of, paginate_pages
 from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
 
 KIND = "var_list"
@@ -113,21 +117,30 @@ def _domain_id(params: dict[str, Any]) -> str:
 @register(KIND)
 async def var_list(ctx: TaskContext) -> HandlerResult:
     domain_id = _domain_id(ctx.params)
+    limit = limit_vars_param(ctx.params.get("limit_vars"))
     if not ctx.conn.execute(select(exists().where(domain.c.domain_id == domain_id))).scalar():
         raise LookupError(f"domain {domain_id!r} not in the domain table; run 'domains' first")
 
     result = HandlerResult()
     items: list[VarItem] = []
-    async for request, body in paginate_pages(ctx.client, MODEL, domain=domain_id):
-        result.raw.append(RawResponse("list", request, body))
-        if body.get("data-availability") == NOT_AVAILABLE:
-            break
-        items.extend(VarItem.model_validate(i) for i in items_of(body, MODEL)[1])
+    seen: set[int] = set()
+    pages = paginate_pages(ctx.client, MODEL, domain=domain_id)
+    async with aclosing(pages):
+        async for request, body in pages:
+            result.raw.append(RawResponse("list", request, body))
+            if is_not_available(body):
+                break
+            for i in items_of(body, MODEL)[1]:
+                item = VarItem.model_validate(i)
+                if item.var_id not in seen:
+                    seen.add(item.var_id)
+                    items.append(item)
+            if limit is not None and len(items) >= limit:
+                items = items[:limit]
+                break
 
     upsert_variables(ctx.conn, domain_id, items)
-    seen: set[int] = set()
-    for item in items:
-        if item.var_id not in seen:
-            seen.add(item.var_id)
-            result.children.append(Child(CHILD_KIND, {"domain": domain_id, "var": item.var_id}))
+    result.children = [
+        Child(CHILD_KIND, {"domain": domain_id, "var": item.var_id}) for item in items
+    ]
     return result

@@ -1,0 +1,17 @@
+{
+ "name": "data_null_too_large",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=data&domain=0000&var=2096&th=118%3A120&key=***",
+  "path": "list",
+  "params": {
+   "model": "data",
+   "domain": "0000",
+   "var": "2096",
+   "th": "118:120"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": null
+}

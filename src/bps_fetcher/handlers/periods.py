@@ -18,7 +18,7 @@ from sqlalchemy import Connection, and_, exists, select
 from sqlalchemy.dialects.postgresql import insert
 
 from bps_fetcher.db.schema import period, variable
-from bps_fetcher.paginate import NOT_AVAILABLE, items_of, paginate_pages
+from bps_fetcher.paginate import is_not_available, items_of, paginate_pages
 from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
 
 KIND = "th_list"
@@ -101,7 +101,7 @@ async def th_list(ctx: TaskContext) -> HandlerResult:
     items: list[ThItem] = []
     async for request, body in paginate_pages(ctx.client, MODEL, domain=domain_id, var=var_id):
         result.raw.append(RawResponse("list", request, body))
-        if body.get("data-availability") == NOT_AVAILABLE:
+        if is_not_available(body):
             break
         items.extend(ThItem.model_validate(i) for i in items_of(body, MODEL)[1])
 

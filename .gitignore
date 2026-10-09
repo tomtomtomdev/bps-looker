@@ -20,3 +20,4 @@ htmlcov/
 
 # OS
 .DS_Store
+.claude/worktrees/

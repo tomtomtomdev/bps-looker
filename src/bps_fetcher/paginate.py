@@ -1,11 +1,20 @@
 """Iterate the items of a paginated BPS list endpoint."""
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator, AsyncIterator
 from typing import Any, Protocol
 
 from bps_fetcher.client import BpsApiError
 
 NOT_AVAILABLE = "not-available"
+# "Nothing here" markers in ``data-availability``; ``list-not-available`` (with ``data: ""``) was
+# seen live for empty ``model=data`` windows (S13 national crawl).
+NOT_AVAILABLE_VALUES = frozenset({NOT_AVAILABLE, "list-not-available"})
+
+
+def is_not_available(body: Any) -> bool:
+    """True when a response says there is no data (any :data:`NOT_AVAILABLE_VALUES` marker)."""
+    return isinstance(body, dict) and body.get("data-availability") in NOT_AVAILABLE_VALUES
+
 
 # Models served by their own path instead of ``/list?model=...``; not paginated.
 _OWN_PATH_MODELS = frozenset({"domain"})
@@ -24,13 +33,13 @@ async def paginate(client: _Getter, model: str, **params: Any) -> AsyncIterator[
     """
     if model in _OWN_PATH_MODELS:
         body = await client.get(model, **params)
-        if body.get("data-availability") != NOT_AVAILABLE:
+        if not is_not_available(body):
             for item in items_of(body, model)[1]:
                 yield item
         return
 
     async for _, body in paginate_pages(client, model, **params):
-        if body.get("data-availability") == NOT_AVAILABLE:
+        if is_not_available(body):
             return
         for item in items_of(body, model)[1]:
             yield item
@@ -38,7 +47,7 @@ async def paginate(client: _Getter, model: str, **params: Any) -> AsyncIterator[
 
 async def paginate_pages(
     client: _Getter, model: str, **params: Any
-) -> AsyncIterator[tuple[dict[str, Any], dict[str, Any]]]:
+) -> AsyncGenerator[tuple[dict[str, Any], dict[str, Any]]]:
     """Yield ``(request_params, body)`` for every page of ``/list?model=…`` — for callers that
     keep raw responses. The last body may be a ``not-available`` one; malformed bodies raise.
     """
@@ -47,7 +56,7 @@ async def paginate_pages(
         request = {"model": model, **params, "page": page}
         body = await client.get("list", **request)
         yield request, body
-        if body.get("data-availability") == NOT_AVAILABLE:
+        if is_not_available(body):
             return
         meta, _ = items_of(body, model)
         pages = meta.get("pages")

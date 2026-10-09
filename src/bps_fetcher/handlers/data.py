@@ -22,8 +22,10 @@ Windows of one variable share its ``last_update``, so equal stamps must (and do)
 Entries the parser couldn't place (``unmatched``/``ambiguous``/``non_numeric``) are not loaded;
 their counts are logged as a warning and returned in :class:`LoadStats`.
 
-A ``data-availability: not-available`` response loads nothing and completes the task. API errors
-(e.g. more than 3 periods) raise :class:`~bps_fetcher.client.BpsApiError` and fail the task.
+A ``data-availability: not-available`` (or ``list-not-available``) response loads nothing and
+completes the task. A JSON ``null`` answer (too-large window) on a multi-period window completes
+the task with one ``data`` child per period instead; on a single period it fails the task. API
+errors (e.g. more than 3 periods) raise :class:`~bps_fetcher.client.BpsApiError` and fail the task.
 """
 
 import logging
@@ -35,10 +37,11 @@ from typing import Any
 from sqlalchemy import Connection, Table, and_, func, literal_column, or_, select, update
 from sqlalchemy.dialects.postgresql import Insert, insert
 
+from bps_fetcher.client import BpsNullResponseError
 from bps_fetcher.db.schema import dim_turth, dim_turvar, dim_vervar, observation, variable
-from bps_fetcher.paginate import NOT_AVAILABLE
+from bps_fetcher.paginate import is_not_available
 from bps_fetcher.parse_data import DimItem, Observation, ParsedData, parse_data
-from bps_fetcher.worker import HandlerResult, RawResponse, TaskContext, register
+from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
 
 log = logging.getLogger(__name__)
 
@@ -202,6 +205,16 @@ def _params(params: dict[str, Any]) -> tuple[str, int, str]:
     return domain_id, var_id, th
 
 
+def _th_ids(th: str) -> list[int]:
+    """Period ids of a ``th`` param: ``"117"`` or the inclusive range ``"117:119"``."""
+    lo, sep, hi = th.partition(":")
+    try:
+        first, last = int(lo), int(hi) if sep else int(lo)
+    except ValueError:
+        return []
+    return list(range(first, last + 1))
+
+
 def _sample(keys: Iterable[str], n: int = 5) -> str:
     keys = list(keys)
     more = f" (+{len(keys) - n} more)" if len(keys) > n else ""
@@ -218,10 +231,22 @@ async def data(ctx: TaskContext) -> HandlerResult:
         raise LookupError(f"variable {domain_id}/{var_id} not in the variable table; run var_list")
 
     request = {"model": MODEL, "domain": domain_id, "var": var_id, "th": th}
-    body = await ctx.client.get("list", **request)
-    result = HandlerResult(raw=[RawResponse("list", request, body)])
     where = f"{domain_id}/{var_id} th={th}"
-    if body.get("data-availability") == NOT_AVAILABLE:
+    try:
+        body = await ctx.client.get("list", **request)
+    except BpsNullResponseError:
+        periods = _th_ids(th)
+        if len(periods) < 2:
+            raise
+        # A too-large window answers ``null``; single periods do work — split the window.
+        log.warning("data %s: API returned null; splitting into %d periods", where, len(periods))
+        return HandlerResult(
+            children=[
+                Child(KIND, {"domain": domain_id, "var": var_id, "th": str(t)}) for t in periods
+            ]
+        )
+    result = HandlerResult(raw=[RawResponse("list", request, body)])
+    if is_not_available(body):
         log.info("data %s: not available", where)
         return result
 

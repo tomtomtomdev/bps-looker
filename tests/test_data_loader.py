@@ -12,7 +12,7 @@ import pytest
 from sqlalchemy import Engine, Table, insert, select, text
 
 from bps_fetcher import queue, worker
-from bps_fetcher.client import BpsApiError
+from bps_fetcher.client import BpsApiError, BpsNullResponseError
 from bps_fetcher.db.schema import (
     dim_turth,
     dim_turvar,
@@ -278,6 +278,55 @@ async def test_not_available_stores_raw_only(db_engine: Engine) -> None:
     assert _obs(db_engine) == {}
     var = _variable(db_engine)
     assert (var.decimal, var.last_update) == (None, None)
+
+
+async def test_list_not_available_fixture_stores_raw_only(
+    db_engine: Engine, fixture_body: Body
+) -> None:
+    body = fixture_body("data_list_not_available")
+    _seed_variable(db_engine, var_id=698)
+    _, result = await _handle(db_engine, body, {"domain": "0000", "var": 698, "th": "86:88"})
+    assert [r.body for r in result.raw] == [body]
+    assert result.children == []
+    assert _obs(db_engine) == {}
+
+
+class NullClient:
+    """Answers ``null`` (BpsNullResponseError) for multi-period windows, a body otherwise."""
+
+    def __init__(self, single: dict[str, Any] | None) -> None:
+        self.single = single
+        self.calls: list[dict[str, Any]] = []
+
+    async def get(self, path: str, **params: Any) -> dict[str, Any]:
+        self.calls.append(params)
+        if ":" in str(params["th"]) or self.single is None:
+            raise BpsNullResponseError("BPS returned JSON null from /v1/api/list")
+        return self.single
+
+
+async def test_null_response_on_window_splits_into_single_periods(db_engine: Engine) -> None:
+    _seed_variable(db_engine, var_id=2096)
+    params = {"domain": "0000", "var": 2096, "th": "118:120"}
+    with db_engine.begin() as conn:
+        result = await data(TaskContext(_task(params), NullClient(None), conn))
+    assert result.raw == []
+    assert result.children == [
+        worker.Child("data", {"domain": "0000", "var": 2096, "th": str(th)})
+        for th in (118, 119, 120)
+    ]
+    assert _obs(db_engine) == {}
+
+
+async def test_null_response_on_single_period_fails_clearly(db_engine: Engine) -> None:
+    _seed_variable(db_engine, var_id=2096)
+    params = {"domain": "0000", "var": 2096, "th": "118"}
+    with db_engine.begin() as conn, pytest.raises(BpsNullResponseError, match="null"):
+        await data(TaskContext(_task(params), NullClient(None), conn))
+
+
+async def test_null_fixture_is_json_null(fixture_body: Body) -> None:
+    assert fixture_body("data_null_too_large") is None
 
 
 async def test_report_buckets_logged(

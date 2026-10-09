@@ -3,7 +3,7 @@ from typing import Any
 import pytest
 
 from bps_fetcher.client import BpsApiError
-from bps_fetcher.paginate import paginate
+from bps_fetcher.paginate import is_not_available, paginate
 
 
 class FakeClient:
@@ -67,6 +67,16 @@ async def test_stops_on_not_available_first_page() -> None:
     client = FakeClient([NOT_AVAILABLE])
     assert await collect(client, "var", domain="9999") == []
     assert len(client.calls) == 1
+
+
+async def test_stops_on_list_not_available() -> None:
+    # Seen live (S13): ``{"status": "OK", "data-availability": "list-not-available", "data": ""}``
+    body = {"status": "OK", "data-availability": "list-not-available", "data": ""}
+    client = FakeClient([body])
+    assert await collect(client, "th", domain="0000", var=698) == []
+    assert is_not_available(body)
+    assert is_not_available(NOT_AVAILABLE)
+    assert not is_not_available({"status": "OK", "data-availability": "available"})
 
 
 async def test_stops_on_not_available_mid_way() -> None:

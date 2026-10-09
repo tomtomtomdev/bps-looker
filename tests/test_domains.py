@@ -219,3 +219,47 @@ async def test_end_to_end_through_worker(db_engine: Engine, domain_body: dict[st
     assert raw.endpoint == "domain"
     assert raw.params == {"type": "all"}
     assert raw.body == domain_body
+
+
+# --- S13: seed restrictions ----------------------------------------------------------------------
+
+
+async def test_domains_param_restricts_children_but_all_rows_stored(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    _, result = await _handle(db_engine, domain_body, {"domains": ["0000", "3100"]})
+    assert len(_rows(db_engine)) == 549
+    assert result.children == [
+        Child("var_list", {"domain": "0000"}),
+        Child("var_list", {"domain": "3100"}),
+    ]
+
+
+async def test_domains_param_combines_with_level(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    params = {"domains": ["0000", "3100"], "level": "prov"}
+    _, result = await _handle(db_engine, domain_body, params)
+    assert result.children == [Child("var_list", {"domain": "3100"})]
+
+
+async def test_unknown_requested_domain_fails(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    with pytest.raises(LookupError, match="9999"):
+        await _handle(db_engine, domain_body, {"domains": ["0000", "9999"]})
+
+
+async def test_limit_vars_passed_to_var_list_children(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    _, result = await _handle(db_engine, domain_body, {"domains": ["0000"], "limit_vars": 5})
+    assert result.children == [Child("var_list", {"domain": "0000", "limit_vars": 5})]
+
+
+@pytest.mark.parametrize("bad", [0, -1, "5", True])
+async def test_bad_limit_vars_rejected(
+    db_engine: Engine, domain_body: dict[str, Any], bad: Any
+) -> None:
+    with pytest.raises(ValueError, match="limit_vars"):
+        await _handle(db_engine, domain_body, {"limit_vars": bad})

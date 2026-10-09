@@ -263,3 +263,37 @@ async def test_end_to_end_through_worker(db_engine: Engine) -> None:
         (parent, "list", 2),
     ]
     assert raws[0].body == p1
+
+
+# --- S13: limit_vars -----------------------------------------------------------------------------
+
+
+async def test_limit_vars_caps_rows_children_and_stops_paging(db_engine: Engine) -> None:
+    _seed_domain(db_engine, "3100")
+    pages = {
+        1: _page(1, 3, [_item(1), _item(2), _item(3)]),
+        2: _page(2, 3, [_item(4), _item(5), _item(6)]),
+        3: _page(3, 3, [_item(7)]),
+    }
+    client, result = await _handle(db_engine, pages, {"domain": "3100", "limit_vars": 4})
+
+    assert [c[1]["page"] for c in client.calls] == [1, 2]
+    assert "limit_vars" not in client.calls[0][1]
+    assert set(_rows(db_engine)) == {("3100", v) for v in (1, 2, 3, 4)}
+    assert [c.params["var"] for c in result.children] == [1, 2, 3, 4]
+    assert all("limit_vars" not in c.params for c in result.children)
+    assert len(result.raw) == 2
+
+
+async def test_limit_vars_larger_than_catalog_is_harmless(db_engine: Engine) -> None:
+    _seed_domain(db_engine, "3100")
+    pages = {1: _page(1, 1, [_item(1), _item(2)])}
+    _, result = await _handle(db_engine, pages, {"domain": "3100", "limit_vars": 50})
+    assert [c.params["var"] for c in result.children] == [1, 2]
+
+
+@pytest.mark.parametrize("bad", [0, -3, "5", True])
+async def test_bad_limit_vars_rejected(db_engine: Engine, bad: Any) -> None:
+    _seed_domain(db_engine, "3100")
+    with pytest.raises(ValueError, match="limit_vars"):
+        await _handle(db_engine, {}, {"domain": "3100", "limit_vars": bad})
