@@ -42,3 +42,7 @@ export type SeriesPoint = Schemas["SeriesPoint"];
 export type CrossSection = Schemas["CrossSection"];
 export type CrossSectionRegion = Schemas["CrossSectionRegion"];
 export type CrossSectionPeriod = Schemas["CrossSectionPeriod"];
+export type Indicator = Schemas["Indicator"];
+export type IndicatorList = Schemas["IndicatorList"];
+export type IndicatorHistory = Schemas["IndicatorHistory"];
+export type IndicatorPoint = Schemas["IndicatorPoint"];

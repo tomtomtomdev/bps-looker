@@ -21,6 +21,7 @@ OPENAPI_TAGS = [
     {"name": "meta", "description": "Service health."},
     {"name": "domains", "description": "BPS domains: national (pusat), provinces, regencies."},
     {"name": "variables", "description": "Dynamic-table variables: search, metadata, data."},
+    {"name": "indicators", "description": "Strategic indicators: latest values and history."},
 ]
 
 

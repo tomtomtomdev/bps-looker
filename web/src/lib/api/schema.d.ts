@@ -132,6 +132,49 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/indicators": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Latest strategic indicators of a domain, with change vs the previous periode
+         * @description Every indicator's latest snapshot (``v_indicator_latest``) plus the previous periode's
+         *     value and the change (``null`` when unknown); ``variable`` links to the Explorer when the
+         *     underlying variable is crawled. A known domain without indicators → empty ``items``.
+         */
+        get: operations["listIndicators"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/indicators/{domain}/{indicator_id}/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Every recorded periode of one strategic indicator
+         * @description The latest snapshot (as in ``GET /indicators``) plus one point per periode seen by the
+         *     crawler, oldest first (sighting order: ``periode`` is free text).
+         */
+        get: operations["getIndicatorHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -214,6 +257,130 @@ export interface components {
             database: "ok" | "unreachable";
             /** Revision */
             revision?: string | null;
+        };
+        /**
+         * Indicator
+         * @description A strategic indicator's latest snapshot (``v_indicator_latest``) and its change vs the
+         *     previous periode (periodes are ordered by when they were seen — see ``api/indicators.py``).
+         */
+        Indicator: {
+            /** Domain Id */
+            domain_id: string;
+            /** Indicator Id */
+            indicator_id: number;
+            /** Title */
+            title: string;
+            /** Label */
+            label: string;
+            /** Name */
+            name?: string | null;
+            /** Value */
+            value: number | null;
+            /** Unit */
+            unit?: string | null;
+            /** Periode */
+            periode: string;
+            /** Category */
+            category?: number | null;
+            /** Subject Csa */
+            subject_csa?: number | null;
+            /** Data Source */
+            data_source?: string | null;
+            /**
+             * First Seen
+             * Format: date-time
+             */
+            first_seen: string;
+            /**
+             * Last Seen
+             * Format: date-time
+             */
+            last_seen: string;
+            /** Var */
+            var?: number | null;
+            variable: components["schemas"]["VariableRef"] | null;
+            previous: components["schemas"]["IndicatorPrevious"] | null;
+            /** Change */
+            change: number | null;
+            /** Change Pct */
+            change_pct: number | null;
+        };
+        /** IndicatorHistory */
+        IndicatorHistory: {
+            /** Domain Id */
+            domain_id: string;
+            /** Indicator Id */
+            indicator_id: number;
+            /** Title */
+            title: string;
+            /** Label */
+            label: string;
+            /** Name */
+            name?: string | null;
+            /** Value */
+            value: number | null;
+            /** Unit */
+            unit?: string | null;
+            /** Periode */
+            periode: string;
+            /** Category */
+            category?: number | null;
+            /** Subject Csa */
+            subject_csa?: number | null;
+            /** Data Source */
+            data_source?: string | null;
+            /**
+             * First Seen
+             * Format: date-time
+             */
+            first_seen: string;
+            /**
+             * Last Seen
+             * Format: date-time
+             */
+            last_seen: string;
+            /** Var */
+            var?: number | null;
+            variable: components["schemas"]["VariableRef"] | null;
+            previous: components["schemas"]["IndicatorPrevious"] | null;
+            /** Change */
+            change: number | null;
+            /** Change Pct */
+            change_pct: number | null;
+            /** Points */
+            points: components["schemas"]["IndicatorPoint"][];
+        };
+        /** IndicatorList */
+        IndicatorList: {
+            domain: components["schemas"]["Domain"];
+            /** Items */
+            items: components["schemas"]["Indicator"][];
+        };
+        /** IndicatorPoint */
+        IndicatorPoint: {
+            /** Periode */
+            periode: string;
+            /** Title */
+            title: string;
+            /** Value */
+            value: number | null;
+            /**
+             * First Seen
+             * Format: date-time
+             */
+            first_seen: string;
+            /**
+             * Last Seen
+             * Format: date-time
+             */
+            last_seen: string;
+        };
+        /** IndicatorPrevious */
+        IndicatorPrevious: {
+            /** Periode */
+            periode: string;
+            /** Value */
+            value: number | null;
         };
         /** PeriodMember */
         PeriodMember: {
@@ -341,6 +508,18 @@ export interface components {
             page: number;
             /** Page Size */
             page_size: number;
+        };
+        /**
+         * VariableRef
+         * @description A crawled dynamic-table variable (link target in the Explorer).
+         */
+        VariableRef: {
+            /** Domain Id */
+            domain_id: string;
+            /** Var Id */
+            var_id: number;
+            /** Title */
+            title: string;
         };
         /**
          * VariableSummary
@@ -614,6 +793,86 @@ export interface operations {
                 };
             };
             /** @description Unknown variable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    listIndicators: {
+        parameters: {
+            query?: {
+                /** @description National `0000` (default) or a province domain. */
+                domain?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndicatorList"];
+                };
+            };
+            /** @description Unknown domain */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getIndicatorHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Domain id, e.g. `0000`. */
+                domain: string;
+                /** @description BPS indicator id within the domain. */
+                indicator_id: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IndicatorHistory"];
+                };
+            };
+            /** @description Unknown indicator */
             404: {
                 headers: {
                     [name: string]: unknown;

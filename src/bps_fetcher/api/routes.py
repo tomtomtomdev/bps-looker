@@ -10,12 +10,15 @@ from sqlalchemy import Engine, select
 from sqlalchemy.exc import DBAPIError
 
 from bps_fetcher.api.deps import Conn, get_engine
+from bps_fetcher.api.indicators import domain_row, load_history, load_indicators
 from bps_fetcher.api.models import (
     CrossSection,
     Domain,
     DomainLevel,
     Freq,
     Health,
+    IndicatorHistory,
+    IndicatorList,
     SeriesResponse,
     VariableDetail,
     VariablePage,
@@ -206,3 +209,48 @@ def get_variable_cross_section(
     return CrossSection.model_validate(
         load_cross_section(conn, domain, var, th=th, turvar=turvar, turth=turth, freq=freq)
     )
+
+
+@router.get(
+    "/indicators",
+    operation_id="listIndicators",
+    tags=["indicators"],
+    summary="Latest strategic indicators of a domain, with change vs the previous periode",
+    response_model=IndicatorList,
+    responses={status.HTTP_404_NOT_FOUND: {"description": "Unknown domain"}},
+)
+def list_indicators(
+    conn: Conn,
+    domain: Annotated[
+        str,
+        Query(pattern=r"^\d{4}$", description="National `0000` (default) or a province domain."),
+    ] = "0000",
+) -> IndicatorList:
+    """Every indicator's latest snapshot (``v_indicator_latest``) plus the previous periode's
+    value and the change (``null`` when unknown); ``variable`` links to the Explorer when the
+    underlying variable is crawled. A known domain without indicators → empty ``items``."""
+    row = domain_row(conn, domain)
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Domain not found")
+    return IndicatorList.model_validate({"domain": row, "items": load_indicators(conn, domain)})
+
+
+@router.get(
+    "/indicators/{domain}/{indicator_id}/history",
+    operation_id="getIndicatorHistory",
+    tags=["indicators"],
+    summary="Every recorded periode of one strategic indicator",
+    response_model=IndicatorHistory,
+    responses={status.HTTP_404_NOT_FOUND: {"description": "Unknown indicator"}},
+)
+def get_indicator_history(
+    conn: Conn,
+    domain: DomainId,
+    indicator_id: Annotated[int, Path(description="BPS indicator id within the domain.")],
+) -> IndicatorHistory:
+    """The latest snapshot (as in ``GET /indicators``) plus one point per periode seen by the
+    crawler, oldest first (sighting order: ``periode`` is free text)."""
+    history = load_history(conn, domain, indicator_id)
+    if history is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Indicator not found")
+    return IndicatorHistory.model_validate(history)

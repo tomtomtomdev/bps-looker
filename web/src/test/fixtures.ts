@@ -1,4 +1,4 @@
-import type { VariableDetail } from "@/lib/api/client";
+import type { Indicator, VariableDetail } from "@/lib/api/client";
 
 /** Test data shaped like the read API's responses. */
 const MONTHS = ["Januari", "Februari", "Maret"];
@@ -33,3 +33,27 @@ export function variableDetail(overrides: Partial<VariableDetail> = {}): Variabl
   };
 }
 
+
+export function indicator(overrides: Partial<Indicator> = {}): Indicator {
+  return {
+    domain_id: "0000",
+    indicator_id: 3,
+    title: "Inflasi Year on Year, September 2026",
+    label: "Inflasi Year on Year",
+    name: "Pada September 2026 terjadi inflasi year-on-year sebesar 3,28 persen",
+    value: 3.28,
+    unit: "Persen",
+    periode: "September 2026",
+    category: 2,
+    subject_csa: 536,
+    data_source: "BPS",
+    first_seen: "2026-10-07T09:00:00Z",
+    last_seen: "2026-10-09T09:00:00Z",
+    var: 2263,
+    variable: { domain_id: "0000", var_id: 2263, title: "Inflasi Tahunan (Y-on-Y)" },
+    previous: { periode: "Agustus 2026", value: 3.1 },
+    change: 0.18,
+    change_pct: 5.806,
+    ...overrides,
+  };
+}

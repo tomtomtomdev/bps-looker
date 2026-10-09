@@ -25,6 +25,8 @@ describe("generated schema", () => {
       | "/variables/{domain}/{var}"
       | "/variables/{domain}/{var}/series"
       | "/variables/{domain}/{var}/cross-section"
+      | "/indicators"
+      | "/indicators/{domain}/{indicator_id}/history"
     >();
     expectTypeOf<components["schemas"]["Domain"]["level"]>().toEqualTypeOf<
       "pusat" | "prov" | "kab"
@@ -36,6 +38,8 @@ describe("generated schema", () => {
       | "getVariable"
       | "getVariableSeries"
       | "getVariableCrossSection"
+      | "listIndicators"
+      | "getIndicatorHistory"
     >();
     expectTypeOf<components["schemas"]["TurthMember"]["freq"]>().toEqualTypeOf<
       "month" | "quarter" | "semester" | "year" | "other"

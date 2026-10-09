@@ -558,6 +558,116 @@
           }
         }
       }
+    },
+    "/indicators": {
+      "get": {
+        "tags": [
+          "indicators"
+        ],
+        "summary": "Latest strategic indicators of a domain, with change vs the previous periode",
+        "description": "Every indicator's latest snapshot (``v_indicator_latest``) plus the previous periode's\nvalue and the change (``null`` when unknown); ``variable`` links to the Explorer when the\nunderlying variable is crawled. A known domain without indicators → empty ``items``.",
+        "operationId": "listIndicators",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "National `0000` (default) or a province domain.",
+              "default": "0000",
+              "title": "Domain"
+            },
+            "description": "National `0000` (default) or a province domain."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndicatorList"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown domain"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/indicators/{domain}/{indicator_id}/history": {
+      "get": {
+        "tags": [
+          "indicators"
+        ],
+        "summary": "Every recorded periode of one strategic indicator",
+        "description": "The latest snapshot (as in ``GET /indicators``) plus one point per periode seen by the\ncrawler, oldest first (sighting order: ``periode`` is free text).",
+        "operationId": "getIndicatorHistory",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "Domain id, e.g. `0000`.",
+              "title": "Domain"
+            },
+            "description": "Domain id, e.g. `0000`."
+          },
+          {
+            "name": "indicator_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "BPS indicator id within the domain.",
+              "title": "Indicator Id"
+            },
+            "description": "BPS indicator id within the domain."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndicatorHistory"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown indicator"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -817,6 +927,440 @@
           "database"
         ],
         "title": "Health"
+      },
+      "Indicator": {
+        "properties": {
+          "domain_id": {
+            "type": "string",
+            "title": "Domain Id"
+          },
+          "indicator_id": {
+            "type": "integer",
+            "title": "Indicator Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "periode": {
+            "type": "string",
+            "title": "Periode"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "subject_csa": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Csa"
+          },
+          "data_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Source"
+          },
+          "first_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen"
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen"
+          },
+          "var": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Var"
+          },
+          "variable": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VariableRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IndicatorPrevious"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change"
+          },
+          "change_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Pct"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain_id",
+          "indicator_id",
+          "title",
+          "label",
+          "value",
+          "periode",
+          "first_seen",
+          "last_seen",
+          "variable",
+          "previous",
+          "change",
+          "change_pct"
+        ],
+        "title": "Indicator",
+        "description": "A strategic indicator's latest snapshot (``v_indicator_latest``) and its change vs the\nprevious periode (periodes are ordered by when they were seen — see ``api/indicators.py``)."
+      },
+      "IndicatorHistory": {
+        "properties": {
+          "domain_id": {
+            "type": "string",
+            "title": "Domain Id"
+          },
+          "indicator_id": {
+            "type": "integer",
+            "title": "Indicator Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "periode": {
+            "type": "string",
+            "title": "Periode"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "subject_csa": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Csa"
+          },
+          "data_source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Source"
+          },
+          "first_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen"
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen"
+          },
+          "var": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Var"
+          },
+          "variable": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/VariableRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "previous": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IndicatorPrevious"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "change": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change"
+          },
+          "change_pct": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Change Pct"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/IndicatorPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain_id",
+          "indicator_id",
+          "title",
+          "label",
+          "value",
+          "periode",
+          "first_seen",
+          "last_seen",
+          "variable",
+          "previous",
+          "change",
+          "change_pct",
+          "points"
+        ],
+        "title": "IndicatorHistory"
+      },
+      "IndicatorList": {
+        "properties": {
+          "domain": {
+            "$ref": "#/components/schemas/Domain"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/Indicator"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain",
+          "items"
+        ],
+        "title": "IndicatorList"
+      },
+      "IndicatorPoint": {
+        "properties": {
+          "periode": {
+            "type": "string",
+            "title": "Periode"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          },
+          "first_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "First Seen"
+          },
+          "last_seen": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Seen"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periode",
+          "title",
+          "value",
+          "first_seen",
+          "last_seen"
+        ],
+        "title": "IndicatorPoint"
+      },
+      "IndicatorPrevious": {
+        "properties": {
+          "periode": {
+            "type": "string",
+            "title": "Periode"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "periode",
+          "value"
+        ],
+        "title": "IndicatorPrevious"
       },
       "PeriodMember": {
         "properties": {
@@ -1220,6 +1764,30 @@
         ],
         "title": "VariablePage"
       },
+      "VariableRef": {
+        "properties": {
+          "domain_id": {
+            "type": "string",
+            "title": "Domain Id"
+          },
+          "var_id": {
+            "type": "integer",
+            "title": "Var Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain_id",
+          "var_id",
+          "title"
+        ],
+        "title": "VariableRef",
+        "description": "A crawled dynamic-table variable (link target in the Explorer)."
+      },
       "VariableSummary": {
         "properties": {
           "domain_id": {
@@ -1347,6 +1915,10 @@
     {
       "name": "variables",
       "description": "Dynamic-table variables: search, metadata, data."
+    },
+    {
+      "name": "indicators",
+      "description": "Strategic indicators: latest values and history."
     }
   ]
 }

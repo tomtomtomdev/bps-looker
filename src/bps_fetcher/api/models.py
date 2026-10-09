@@ -156,3 +156,71 @@ class CrossSection(BaseModel):
     aggregate."""
     national: CrossSectionRegion | None
     """The national aggregate (vervar 9999 / ``INDONESIA``), if the variable has one."""
+
+
+class VariableRef(BaseModel):
+    """A crawled dynamic-table variable (link target in the Explorer)."""
+
+    domain_id: str
+    var_id: int
+    title: str
+
+
+class IndicatorPrevious(BaseModel):
+    periode: str
+    value: float | None
+    """``None`` when BPS published a non-numeric value."""
+
+
+class Indicator(BaseModel):
+    """A strategic indicator's latest snapshot (``v_indicator_latest``) and its change vs the
+    previous periode (periodes are ordered by when they were seen — see ``api/indicators.py``)."""
+
+    domain_id: str
+    indicator_id: int
+    title: str
+    """BPS title, usually ending in the period: ``Inflasi Year on Year, September 2026``."""
+    label: str
+    """The title without its trailing period: ``Inflasi Year on Year``."""
+    name: str | None = None
+    """BPS's longer description (may be a sentence or source notes)."""
+    value: float | None
+    """``None`` when BPS published a non-numeric value."""
+    unit: str | None = None
+    periode: str
+    """Free text: ``September 2026``, ``Triwulan II 2026``, ``Semester 1 (Maret) 2026``."""
+    category: int | None = None
+    subject_csa: int | None = None
+    data_source: str | None = None
+    first_seen: datetime
+    last_seen: datetime
+    var: int | None = None
+    """BPS's underlying dynamic-table variable id."""
+    variable: VariableRef | None
+    """That variable when it is crawled in the same domain (Explorer link), else ``None``."""
+    previous: IndicatorPrevious | None
+    """The periode seen before the latest one; ``None`` with a single periode."""
+    change: float | None
+    """``value - previous.value`` (``None`` unless both are numbers)."""
+    change_pct: float | None
+    """Change in % of ``|previous.value|`` (``None`` also when the previous value is 0)."""
+
+
+class IndicatorList(BaseModel):
+    domain: Domain
+    items: list[Indicator]
+    """Ordered by ``indicator_id``."""
+
+
+class IndicatorPoint(BaseModel):
+    periode: str
+    title: str
+    value: float | None
+    first_seen: datetime
+    """Earliest sighting of this periode."""
+    last_seen: datetime
+
+
+class IndicatorHistory(Indicator):
+    points: list[IndicatorPoint]
+    """One per periode, oldest first; the last is the latest snapshot."""
