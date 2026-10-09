@@ -56,5 +56,14 @@ jobs:
           docker compose logs scheduler
           docker compose ps --status running --services | grep -qx scheduler
           docker compose logs scheduler | grep -q "scheduler: sleeping 600s"
+      - name: Read API answers /health
+        run: |
+          docker compose up -d api
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:8000/health && exit 0
+            sleep 2
+          done
+          docker compose logs api
+          exit 1
       - if: always()
         run: docker compose down -v

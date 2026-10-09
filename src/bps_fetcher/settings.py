@@ -58,3 +58,17 @@ def get_settings() -> Settings:
                 "BPS_API_KEY is not set. Export it or add it to .env (see .env.example)."
             ) from None
         raise
+
+
+DEFAULT_WEB_ORIGIN = "http://localhost:3000"
+
+
+class ApiSettings(DatabaseSettings):
+    """Read API (``bps serve``) settings — database + CORS origins, no ``BPS_API_KEY`` needed."""
+
+    web_origin: str = Field(default=DEFAULT_WEB_ORIGIN, validation_alias="BPS_WEB_ORIGIN")
+
+    @property
+    def web_origins(self) -> list[str]:
+        """``BPS_WEB_ORIGIN`` split on commas (trailing ``/`` dropped: browsers never send it)."""
+        return [o.strip().rstrip("/") for o in self.web_origin.split(",") if o.strip()]

@@ -27,7 +27,7 @@ is ignored inside containers.
 ### Start
 
 ```sh
-docker compose up -d          # db + scheduler
+docker compose up -d          # db + scheduler + api
 docker compose logs -f scheduler
 ```
 
@@ -35,6 +35,7 @@ docker compose logs -f scheduler
 |-------------|--------------|
 | `db`        | Postgres 16, data in the `pgdata` volume, published on `127.0.0.1:5432` only. |
 | `scheduler` | Loop: `bps seed refresh` → `bps work --drain --drain-wait 300` → `bps status`, then sleeps `BPS_SCHEDULE_INTERVAL` (default 3600 s). |
+| `api`       | Read-only HTTP API for the web UI (`bps serve`), on `127.0.0.1:8000` (`BPS_API_PORT`). Skips migrate-on-start (the scheduler migrates). |
 | `app`       | One-off commands (`tools` profile, not started by `up`): `docker compose run --rm app bps …`. |
 
 Every container runs `python -m bps_fetcher.entrypoint` first: it migrates the database to head
@@ -83,6 +84,22 @@ e.g. `docker compose run --rm -T app bps status --max-dead 0 || notify "bps: dea
 scheduler also logs `scheduler: status ALERT` each run while the threshold (`BPS_MAX_DEAD`) is
 exceeded.
 
+### Read API
+
+`bps serve` runs a read-only FastAPI app (uvicorn) over the database — the backend of the web UI.
+It needs only `DATABASE_URL` (no `BPS_API_KEY`) and opens every transaction `READ ONLY`.
+
+```sh
+uv run bps serve --host 127.0.0.1 --port 8000     # local; compose runs it as the `api` service
+curl -s localhost:8000/health                      # {"status":"ok","database":"ok","revision":"0009"}; 503 if the DB is down
+curl -s 'localhost:8000/domains?level=prov'        # level: pusat | prov | kab
+```
+
+Interactive docs at `/docs`, schema at `/openapi.json`. CORS allows only the origins in
+`BPS_WEB_ORIGIN` (comma-separated, default `http://localhost:3000`), GET only.
+The schema is committed as `web/openapi.json` (input of the web client generator): after changing
+an endpoint run `make openapi` (= `uv run bps openapi`) — a test fails while it is out of date.
+
 ### Backups
 
 Logical dump (works while running; restore into any Postgres 16):
@@ -127,6 +144,8 @@ uv run bps --help
 | `make test`    | pytest only; DB tests use `TEST_DATABASE_URL` (default local `bps_test`) and skip if Postgres is down. |
 | `make live`    | tests marked `live` against the real API (needs `BPS_API_KEY`). |
 | `make format`  | ruff fix + format. |
+| `make serve`   | `bps serve` (read API on 127.0.0.1:8000 against `DATABASE_URL`). |
+| `make openapi` | regenerate `web/openapi.json` from the API (committed). |
 
 CI (GitHub Actions) runs `make check` against a Postgres service and builds/runs the compose stack
 (`bps --help`, migrate-on-start against a fresh DB, scheduler loop).

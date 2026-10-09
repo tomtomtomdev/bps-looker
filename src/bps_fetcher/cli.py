@@ -9,6 +9,8 @@
                      [--as-of ISO-DATETIME] [--dry-run]
     bps work [--drain] [--drain-wait SECONDS] [--max-tasks N] [--concurrency N] [--kind data ...]
     bps status [--max-dead N] [--dead-limit N] [--json]
+    bps serve [--host 127.0.0.1] [--port 8000]
+    bps openapi [--out web/openapi.json]
 
 ``seed dynamic`` enqueues one ``domains`` task: it fetches ``/domain`` and upserts every domain
 row first, then fans out ``var_list`` only for the requested domains/levels — so the ``domain``
@@ -28,6 +30,7 @@ import asyncio
 import json
 import logging
 from datetime import UTC, date, datetime
+from pathlib import Path
 from typing import Annotated, Any
 
 import typer
@@ -416,6 +419,39 @@ def status(
     if snap.dead_total > max_dead:
         typer.echo(f"ALERT: {snap.dead_total} dead task(s) > --max-dead {max_dead}.", err=True)
         raise typer.Exit(status_mod.ALERT_EXIT)
+
+
+DEFAULT_OPENAPI_OUT = Path("web/openapi.json")
+
+
+@app.command()
+def serve(
+    host: Annotated[str, typer.Option(help="Interface to bind.")] = "127.0.0.1",
+    port: Annotated[int, typer.Option(min=1, max=65535, help="Port to listen on.")] = 8000,
+) -> None:
+    """Run the read-only HTTP API (uvicorn). Needs DATABASE_URL, not BPS_API_KEY."""
+    import uvicorn
+
+    from bps_fetcher.api import create_app
+
+    _setup_logging()
+    uvicorn.run(create_app(), host=host, port=port, log_config=None)
+
+
+@app.command()
+def openapi(
+    out: Annotated[
+        Path, typer.Option(help="Where to write the OpenAPI JSON.")
+    ] = DEFAULT_OPENAPI_OUT,
+) -> None:
+    """Write the API's OpenAPI schema (input of the web client generator)."""
+    from bps_fetcher.api import openapi_schema
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(
+        json.dumps(openapi_schema(), indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+    )
+    typer.echo(f"Wrote {out}.")
 
 
 def main() -> None:

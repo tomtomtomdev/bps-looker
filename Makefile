@@ -1,4 +1,4 @@
-.PHONY: lint format typecheck test live build check migrate
+.PHONY: lint format typecheck test live build check migrate serve openapi
 
 lint:
 	uv run ruff check .
@@ -24,3 +24,10 @@ check: lint typecheck test build
 
 migrate:
 	uv run alembic upgrade head
+
+serve:
+	uv run bps serve
+
+# Regenerate web/openapi.json (committed; tests fail when it drifts from the API).
+openapi:
+	uv run bps openapi
