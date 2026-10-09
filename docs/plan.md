@@ -26,8 +26,8 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 
 ## Current status — 2026-10-09
 
-- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client). Plan includes backend S0–S21 and UI U0–U7.
-- **Next:** S3 — Pagination. S3–S4 need no Postgres.
+- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client), S3 (pagination). Plan includes backend S0–S21 and UI U0–U7.
+- **Next:** S4 — Fixture recorder. S4 needs no Postgres.
 - **Before S5:** ask the user before `brew install postgresql@16`.
 - **Pending follow-ups (fold into the next slice):**
   - `make live` exits 5 (no tests collected) until the first live test lands in S4.
@@ -40,7 +40,7 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 | S0 | Repo scaffold | ☑ | 2026-10-05: uv + hatchling, src layout; ruff/mypy --strict/pytest (`live` marker excluded by default); Dockerfile + compose + CI (Postgres 16 service, docker build). Docker/compose only verified in CI. Note: `make live` exits 5 until live tests exist. |
 | S1 | Settings + key redaction | ☑ | 2026-10-09: `settings.py` (`Settings` via pydantic-settings; env `BPS_API_KEY` as SecretStr, `DATABASE_URL`, `BPS_CONCURRENCY`=4, `BPS_RPS`=2.0, `BPS_USER_AGENT`; cached `get_settings()` raises `MissingApiKeyError`), `redact.py` (`redact()` masks `key=` / `/key/<x>` + known secrets; `RedactingFilter` scrubs msg, args, traceback; `install_redaction()` on root handlers). pydantic mypy plugin enabled. CI: checkout@v7, setup-uv@v10.2.0 (no floating major tags since v8, so pinned exact), runners pinned to ubuntu-24.04. |
 | S2 | HTTP client | ☑ | 2026-10-09: `client.py` `BpsClient.get(path, **params)` (httpx + tenacity + aiolimiter; `from_settings()`, async ctx manager). Errors: `BpsApiError(message)`, `BpsAuthError` ("re-check your key"/"not allowed", not retried), `BpsTransientError` after `max_attempts` (5xx, non-JSON/WAF HTML, transport errors/timeouts). 4xx JSON → `BpsApiError`. Limiter is strict `1 token / (1/rps)` (no burst). Backoff `wait` injectable (`wait_none()` in tests). Surprise: httpx logs full request URL incl. `key=` at INFO — client attaches a `RedactingFilter` to the `httpx`/`httpcore` loggers. |
-| S3 | Pagination | ☐ | |
+| S3 | Pagination | ☑ | 2026-10-09: `paginate.py` `paginate(client, model, **params)` async generator: `GET list?model=…&page=N` from `page` (default 1) to `data[0].pages`; yields `data[1]` items; stops on `data-availability: not-available` or missing `pages`. `model="domain"` hits `/domain` (own path, single call, no `page`). Malformed `data` → `BpsApiError`. Client typed via a `get` Protocol so tests use a fake client. Domain response meta shape not yet verified live — check in S4 fixture. |
 | S4 | Fixture recorder | ☐ | |
 | S5 | DB schema + migrations | ☐ | |
 | S6 | Task queue | ☐ | |
