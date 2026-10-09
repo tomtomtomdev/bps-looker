@@ -8,7 +8,7 @@
     bps seed refresh [--domain 0000 ...] [--source indicators|trade|dynamic ...]
                      [--as-of ISO-DATETIME] [--dry-run]
     bps work [--drain] [--drain-wait SECONDS] [--max-tasks N] [--concurrency N] [--kind data ...]
-    bps status
+    bps status [--max-dead N] [--dead-limit N] [--json]
 
 ``seed dynamic`` enqueues one ``domains`` task: it fetches ``/domain`` and upserts every domain
 row first, then fans out ``var_list`` only for the requested domains/levels — so the ``domain``
@@ -19,10 +19,13 @@ variables (smoke runs). Seeding is idempotent: the same seed twice is one task.
 trade current + previous year weekly, variable re-list weekly, per-variable data probes by age —
 see :mod:`bps_fetcher.refresh`); running it twice in a row schedules nothing new.
 
+``status`` exits 1 when more than ``--max-dead`` (default 0) tasks are dead, for alerting.
+
 Commands touching the DB refuse to run (exit 2) until ``bps migrate`` has brought it to head.
 """
 
 import asyncio
+import json
 import logging
 from datetime import UTC, date, datetime
 from typing import Annotated, Any
@@ -34,6 +37,7 @@ from sqlalchemy import Engine, create_engine, func, select
 
 from bps_fetcher import queue
 from bps_fetcher import refresh as refresh_mod
+from bps_fetcher import status as status_mod
 from bps_fetcher.db.migrate import alembic_config, database_url, upgrade
 from bps_fetcher.db.schema import DOMAIN_LEVELS, domain, task
 from bps_fetcher.handlers.domains import KIND as DOMAINS_KIND
@@ -387,35 +391,31 @@ def work(
 
 
 @app.command()
-def status() -> None:
-    """Task counts by kind and status."""
+def status(
+    max_dead: Annotated[
+        int, typer.Option(min=0, help=f"Exit {status_mod.ALERT_EXIT} when dead tasks exceed N.")
+    ] = 0,
+    dead_limit: Annotated[
+        int, typer.Option(min=0, help="Show at most N dead tasks.")
+    ] = status_mod.DEFAULT_DEAD_LIMIT,
+    as_json: Annotated[bool, typer.Option("--json", help="Machine-readable JSON output.")] = False,
+) -> None:
+    """Task counts, dead tasks, rows per table and last successful run per source."""
     _setup_logging()
     engine = _engine()
     try:
         with engine.connect() as conn:
-            rows = conn.execute(
-                select(task.c.kind, task.c.status, func.count())
-                .group_by(task.c.kind, task.c.status)
-                .order_by(task.c.kind, task.c.status)
-            ).all()
-            waiting = conn.execute(
-                select(func.count(), func.min(task.c.next_run_at)).where(
-                    task.c.status == queue.PENDING, task.c.next_run_at > func.now()
-                )
-            ).one()
+            snap = status_mod.collect(conn, dead_limit=dead_limit)
     finally:
         engine.dispose()
-    if not rows:
-        typer.echo("No tasks.")
-        return
-    width = max(len("kind"), *(len(r[0]) for r in rows))
-    typer.echo(f"{'kind':<{width}}  {'status':<8}  count")
-    for kind_, status_, n in rows:
-        typer.echo(f"{kind_:<{width}}  {status_:<8}  {n}")
-    if waiting[0]:
-        typer.echo(
-            f"{waiting[0]} pending task(s) not due yet (next at {waiting[1]:%Y-%m-%d %H:%M:%S %Z})."
-        )
+    if as_json:
+        typer.echo(json.dumps(snap.to_json(), indent=2, ensure_ascii=False))
+    else:
+        for line in status_mod.render(snap):
+            typer.echo(line)
+    if snap.dead_total > max_dead:
+        typer.echo(f"ALERT: {snap.dead_total} dead task(s) > --max-dead {max_dead}.", err=True)
+        raise typer.Exit(status_mod.ALERT_EXIT)
 
 
 def main() -> None:

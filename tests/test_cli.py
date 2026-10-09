@@ -349,7 +349,7 @@ def test_status_counts_by_kind_and_status(cli_env: None, db_engine: Engine) -> N
                 " ('th_list', '{}', 'c', 'pending', NULL)"
             )
         )
-    result = runner.invoke(app, ["status"])
+    result = runner.invoke(app, ["status", "--max-dead", "1"])
     assert result.exit_code == 0, result.output
     lines = [line.split() for line in result.output.splitlines()]
     assert ["data", "done", "1"] in lines
