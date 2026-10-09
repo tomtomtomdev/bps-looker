@@ -24,14 +24,12 @@ Live API tests are marked `@pytest.mark.live` and only run with `make live` (nee
 GitHub Actions CI (from S0) runs `make check` with a Postgres service container, plus `docker build`.
 Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never be committed).
 
-## Current status — paused 2026-10-05
+## Current status — 2026-10-09
 
-- **Done:** S0 (scaffold, CI green). Plan includes backend S0–S21 and UI U0–U7.
-- **Next:** S1 — Settings + key redaction. S1–S4 need no Postgres.
+- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction). Plan includes backend S0–S21 and UI U0–U7.
+- **Next:** S2 — HTTP client. S2–S4 need no Postgres.
 - **Before S5:** ask the user before `brew install postgresql@16`.
 - **Pending follow-ups (fold into the next slice):**
-  - Bump `actions/checkout` and `astral-sh/setup-uv` to majors that drop the deprecated Node 20 runtime.
-  - `ubuntu-latest` moves to Ubuntu 26 on 2026-10-19 — pin or re-verify CI then.
   - `make live` exits 5 (no tests collected) until the first live test lands in S4.
 - **Resume:** start a subagent for the next ☐ slice with its spec from this file, review its result, repeat.
 
@@ -40,7 +38,7 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 | # | Slice | Status | Notes |
 |---|---|---|---|
 | S0 | Repo scaffold | ☑ | 2026-10-05: uv + hatchling, src layout; ruff/mypy --strict/pytest (`live` marker excluded by default); Dockerfile + compose + CI (Postgres 16 service, docker build). Docker/compose only verified in CI. Note: `make live` exits 5 until live tests exist. |
-| S1 | Settings + key redaction | ☐ | |
+| S1 | Settings + key redaction | ☑ | 2026-10-09: `settings.py` (`Settings` via pydantic-settings; env `BPS_API_KEY` as SecretStr, `DATABASE_URL`, `BPS_CONCURRENCY`=4, `BPS_RPS`=2.0, `BPS_USER_AGENT`; cached `get_settings()` raises `MissingApiKeyError`), `redact.py` (`redact()` masks `key=` / `/key/<x>` + known secrets; `RedactingFilter` scrubs msg, args, traceback; `install_redaction()` on root handlers). pydantic mypy plugin enabled. CI: checkout@v7, setup-uv@v10.2.0 (no floating major tags since v8, so pinned exact), runners pinned to ubuntu-24.04. |
 | S2 | HTTP client | ☐ | |
 | S3 | Pagination | ☐ | |
 | S4 | Fixture recorder | ☐ | |

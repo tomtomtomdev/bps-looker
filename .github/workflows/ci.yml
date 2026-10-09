@@ -8,7 +8,7 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     services:
       postgres:
         image: postgres:16
@@ -27,8 +27,8 @@ jobs:
       DATABASE_URL: postgresql+psycopg://bps:bps@localhost:5432/bps_test
       TEST_DATABASE_URL: postgresql+psycopg://bps:bps@localhost:5432/bps_test
     steps:
-      - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v6
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.2.0
         with:
           enable-cache: true
       - run: uv python install 3.12
@@ -36,8 +36,8 @@ jobs:
       - run: make check
 
   docker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: docker build -t bps-fetcher:ci .
       - run: docker run --rm bps-fetcher:ci

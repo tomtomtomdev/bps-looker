@@ -3,7 +3,10 @@ name = "bps-fetcher"
 version = "0.1.0"
 description = "Crawl the BPS (Statistics Indonesia) WebAPI into Postgres"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.14.0",
+    "pydantic-settings>=2.15.0",
+]
 
 [dependency-groups]
 dev = [
@@ -33,6 +36,12 @@ python_version = "3.12"
 strict = true
 files = ["src", "tests"]
 mypy_path = "src"
+plugins = ["pydantic.mypy"]
+
+[tool.pydantic-mypy]
+init_forbid_extra = true
+init_typed = true
+warn_required_dynamic_aliases = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
