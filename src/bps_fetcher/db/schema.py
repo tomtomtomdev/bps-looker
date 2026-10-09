@@ -14,6 +14,7 @@ from sqlalchemy import (
     Index,
     Integer,
     MetaData,
+    Numeric,
     String,
     Table,
     Text,
@@ -119,4 +120,65 @@ period = Table(
         ["variable.domain_id", "variable.var_id"],
         ondelete="CASCADE",
     ),
+)
+
+
+def _var_fk() -> ForeignKeyConstraint:
+    return ForeignKeyConstraint(
+        ["domain_id", "var_id"],
+        ["variable.domain_id", "variable.var_id"],
+        ondelete="CASCADE",
+    )
+
+
+# Dimension labels of a variable, from its data responses (S12). ``val`` is BPS's item code;
+# ``group_label`` is the vervar dimension's title (``labelvervar``).
+dim_vervar = Table(
+    "dim_vervar",
+    metadata,
+    Column("domain_id", String(4), primary_key=True),
+    Column("var_id", Integer, primary_key=True),
+    Column("val", Integer, primary_key=True),
+    Column("label", Text, nullable=False),
+    Column("group_label", Text),
+    _var_fk(),
+)
+
+dim_turvar = Table(
+    "dim_turvar",
+    metadata,
+    Column("domain_id", String(4), primary_key=True),
+    Column("var_id", Integer, primary_key=True),
+    Column("val", Integer, primary_key=True),
+    Column("label", Text, nullable=False),
+    _var_fk(),
+)
+
+dim_turth = Table(
+    "dim_turth",
+    metadata,
+    Column("domain_id", String(4), primary_key=True),
+    Column("var_id", Integer, primary_key=True),
+    Column("val", Integer, primary_key=True),
+    Column("label", Text, nullable=False),
+    _var_fk(),
+)
+
+# One cell of a dynamic table (S12). ``last_update`` is the response's ``last_update`` the value
+# came from (an older response never overwrites a newer one); ``fetched_at`` is when the row was
+# last inserted/changed (re-loading an identical response leaves it alone).
+observation = Table(
+    "observation",
+    metadata,
+    Column("domain_id", String(4), primary_key=True),
+    Column("var_id", Integer, primary_key=True),
+    Column("vervar", Integer, primary_key=True),
+    Column("turvar", Integer, primary_key=True),
+    Column("th", Integer, primary_key=True),
+    Column("turth", Integer, primary_key=True),
+    Column("value", Numeric, nullable=False),
+    Column("last_update", DateTime(timezone=False)),
+    Column("fetched_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    _var_fk(),
+    Index("ix_observation_domain_id_var_id_th", "domain_id", "var_id", "th"),
 )
