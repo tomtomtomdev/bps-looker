@@ -39,5 +39,22 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
-      - run: docker build -t bps-fetcher:ci .
-      - run: docker run --rm bps-fetcher:ci
+      - run: docker compose config --quiet
+      - run: docker compose build
+      - name: Image runs as non-root
+        run: test "$(docker compose run --rm -T --no-deps -e BPS_MIGRATE_ON_START=0 app id -u)" != "0"
+      - name: bps --help (migrates on start)
+        run: docker compose run --rm app bps --help
+      - name: Fresh DB is migrated on container start
+        run: |
+          docker compose down -v
+          docker compose run --rm app bps status --max-dead 0
+      - name: Scheduler loop starts and keeps running
+        run: |
+          BPS_SCHEDULE_INTERVAL=600 docker compose up -d scheduler
+          sleep 20
+          docker compose logs scheduler
+          docker compose ps --status running --services | grep -qx scheduler
+          docker compose logs scheduler | grep -q "scheduler: sleeping 600s"
+      - if: always()
+        run: docker compose down -v

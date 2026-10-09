@@ -1,28 +1,64 @@
+# Services:
+#   db         Postgres 16, data in the `pgdata` volume (only published on 127.0.0.1).
+#   app        one-off commands: `docker compose run --rm app bps seed indicators` etc.
+#   scheduler  long-running loop: `bps seed refresh` + `bps work --drain` every BPS_SCHEDULE_INTERVAL s.
+# Every container migrates the DB to head on start (bps_fetcher.entrypoint), then runs its command.
+# Secrets come from .env (never baked into the image); DATABASE_URL always points at `db`.
+
+x-bps: &bps
+  build: .
+  image: bps-fetcher:latest
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bps}:${POSTGRES_PASSWORD:-bps}@db:5432/${POSTGRES_DB:-bps}
+  depends_on:
+    db:
+      condition: service_healthy
+  init: true
+
 services:
-  postgres:
+  db:
     image: postgres:16
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: bps
-      POSTGRES_PASSWORD: bps
-      POSTGRES_DB: bps
+      POSTGRES_USER: ${POSTGRES_USER:-bps}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-bps}
+      POSTGRES_DB: ${POSTGRES_DB:-bps}
     ports:
-      - "5432:5432"
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bps -d bps"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   app:
-    build: .
-    env_file: .env
-    environment:
-      DATABASE_URL: postgresql+psycopg://bps:bps@postgres:5432/bps
-    depends_on:
-      postgres:
-        condition: service_healthy
+    <<: *bps
+    profiles: ["tools"]
+    command: ["bps", "--help"]
+
+  scheduler:
+    <<: *bps
+    restart: unless-stopped
+    # One iteration: schedule what is due, drain the queue (also picks up anything seeded by
+    # hand), log status. A failing step never stops the loop; the next iteration retries.
+    # BPS_* knobs are interpolated by compose from the shell env or .env.
+    command:
+      - sh
+      - -c
+      - |
+        while true; do
+          echo "scheduler: run started $$(date -u +%FT%TZ)"
+          bps seed refresh
+          bps work --drain --drain-wait ${BPS_DRAIN_WAIT:-300}
+          bps status --max-dead ${BPS_MAX_DEAD:-0} || echo "scheduler: status ALERT (exit $$?)"
+          echo "scheduler: sleeping ${BPS_SCHEDULE_INTERVAL:-3600}s"
+          sleep ${BPS_SCHEDULE_INTERVAL:-3600}
+        done
 
 volumes:
   pgdata:
