@@ -205,7 +205,13 @@ Response has `metadata` (field descriptions) and `data` rows: `value` (USD), `ne
 
 Example: `/dataexim/?sumber=1&periode=2&kodehs=03&jenishs=1&tahun=2024&key=KEY`
 
-Verified: no pagination (whole result in one response); data from **2015** onward (2013 and earlier unavailable); monthly rows add `bulan: "[11] November"`; `kodehs` is `"[03] Fish, ..."`; 10 chapters monthly for one year ≈ 14k rows / 2.2 MB / 10 s. `jenishs=2` with codes like `0301`, `030211`, `03021100` returned `Data tidak tersedia`.
+Verified: no pagination (whole result in one response); monthly rows add `bulan: "[11] November"`; `kodehs` is `"[03] Fish, ..."`; 10 chapters monthly for one year ≈ 14k rows / 2.2 MB / 10 s.
+
+Discovery (2026-10-09, `scripts/trade_discovery.py`):
+- **Earliest year is 2014** (exports and imports, annual and monthly). 2013, 2012, 2010 → HTTP 200 `{"status": "OK", "data-availability": "unavailable"}`.
+- Chapter **77** → unavailable (reserved in HS). Chapters **98** ("Incompletely knocked down motor vehicles…") and **99** ("Software, digital product, and parcel goods") have data — crawl 01–99 except 77.
+- `jenishs=2` works with **8-digit** national codes: `kodehs=03011110` → rows with `kodehs: "[03011110] Live fry freshwater ornamental fish"` and an extra field `jenishs: "hs2022"`. `03`, `0301`, `030111` and dotted `0301.11.10` → unavailable. `;`-joined 8-digit codes are accepted.
+- Descriptions vary: 2014 import rows say `"[03] Ikan dan krustasea, …"` (Indonesian) while exports say `"[03] Fish, crustaceans and mollusca"`.
 
 ---
 

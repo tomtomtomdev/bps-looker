@@ -7,6 +7,7 @@ from bps_fetcher.client import BpsAuthError, BpsClient
 from bps_fetcher.paginate import paginate
 from bps_fetcher.recorder import BAD_KEY
 from bps_fetcher.settings import get_settings
+from bps_fetcher.trade import EARLIEST_YEAR, EXPORT, YEARLY, parse_hs
 
 pytestmark = pytest.mark.live
 
@@ -54,3 +55,13 @@ def test_live_cli_national_three_vars(monkeypatch: pytest.MonkeyPatch, db_engine
     assert n_vars == 3
     assert n_th == 3
     assert n_obs > 0
+
+
+async def test_live_trade_earliest_year() -> None:
+    params = {"sumber": EXPORT, "periode": YEARLY, "kodehs": "03", "jenishs": 1}
+    async with BpsClient.from_settings(get_settings()) as client:
+        first = await client.get("dataexim/", tahun=EARLIEST_YEAR, **params)
+        before = await client.get("dataexim/", tahun=EARLIEST_YEAR - 1, **params)
+    assert first["data-availability"] == "available"
+    assert {parse_hs(r["kodehs"])[0] for r in first["data"]} == {"03"}
+    assert before["data-availability"] == "unavailable"
