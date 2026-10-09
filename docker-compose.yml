@@ -3,6 +3,7 @@
 #   app        one-off commands: `docker compose run --rm app bps seed indicators` etc.
 #   scheduler  long-running loop: `bps seed refresh` + `bps work --drain` every BPS_SCHEDULE_INTERVAL s.
 #   api        read-only HTTP API for the web UI (`bps serve`), published on 127.0.0.1:8000.
+#   web        Next.js UI (web/), published on 127.0.0.1:3000; its browser code calls the api.
 # Every container migrates the DB to head on start (bps_fetcher.entrypoint), then runs its command.
 # Secrets come from .env (never baked into the image); DATABASE_URL always points at `db`.
 
@@ -82,6 +83,21 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  web:
+    # Simple build + `next start` (web/Dockerfile); production image + e2e come in U7.
+    build:
+      context: ./web
+      args:
+        # Inlined at build time: the API URL as seen from the *browser*, not from the container.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+    image: bps-web:latest
+    restart: unless-stopped
+    init: true
+    depends_on:
+      - api
+    ports:
+      - "127.0.0.1:${BPS_WEB_PORT:-3000}:3000"
 
 volumes:
   pgdata:

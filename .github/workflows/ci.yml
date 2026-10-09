@@ -33,7 +33,33 @@ jobs:
           enable-cache: true
       - run: uv python install 3.12
       - run: uv sync --frozen
-      - run: make check
+      # = `make check` minus web-check, which the `web` job runs.
+      - run: make lint typecheck test build
+
+  web:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: web
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: web/.node-version
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      # Generated client (src/lib/api/schema.d.ts) must match openapi.json.
+      - run: pnpm check:api
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build
 
   docker:
     runs-on: ubuntu-24.04
@@ -64,6 +90,15 @@ jobs:
             sleep 2
           done
           docker compose logs api
+          exit 1
+      - name: Web UI serves the app shell
+        run: |
+          docker compose up -d web
+          for i in $(seq 1 30); do
+            curl -fsS http://127.0.0.1:3000/ | grep -q "BPS Looker" && exit 0
+            sleep 2
+          done
+          docker compose logs web
           exit 1
       - if: always()
         run: docker compose down -v

@@ -8,3 +8,5 @@ dist
 .pytest_cache
 .mypy_cache
 .ruff_cache
+# The Next.js app has its own image (web/Dockerfile, context ./web).
+web

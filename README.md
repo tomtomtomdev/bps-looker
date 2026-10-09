@@ -27,7 +27,7 @@ is ignored inside containers.
 ### Start
 
 ```sh
-docker compose up -d          # db + scheduler + api
+docker compose up -d          # db + scheduler + api + web
 docker compose logs -f scheduler
 ```
 
@@ -36,6 +36,7 @@ docker compose logs -f scheduler
 | `db`        | Postgres 16, data in the `pgdata` volume, published on `127.0.0.1:5432` only. |
 | `scheduler` | Loop: `bps seed refresh` → `bps work --drain --drain-wait 300` → `bps status`, then sleeps `BPS_SCHEDULE_INTERVAL` (default 3600 s). |
 | `api`       | Read-only HTTP API for the web UI (`bps serve`), on `127.0.0.1:8000` (`BPS_API_PORT`). Skips migrate-on-start (the scheduler migrates). |
+| `web`       | Next.js web UI on `127.0.0.1:3000` (`BPS_WEB_PORT`); calls the api from the browser at `NEXT_PUBLIC_API_URL` (build arg, default `http://localhost:8000`). |
 | `app`       | One-off commands (`tools` profile, not started by `up`): `docker compose run --rm app bps …`. |
 
 Every container runs `python -m bps_fetcher.entrypoint` first: it migrates the database to head
@@ -140,12 +141,44 @@ uv run bps --help
 
 | Command        | Runs |
 |----------------|------|
-| `make check`   | ruff + mypy --strict + pytest (no live API) + `uv build` — must pass before every commit. |
+| `make check`   | ruff + mypy --strict + pytest (no live API) + `uv build` + `make web-check` — must pass before every commit. |
 | `make test`    | pytest only; DB tests use `TEST_DATABASE_URL` (default local `bps_test`) and skip if Postgres is down. |
 | `make live`    | tests marked `live` against the real API (needs `BPS_API_KEY`). |
 | `make format`  | ruff fix + format. |
 | `make serve`   | `bps serve` (read API on 127.0.0.1:8000 against `DATABASE_URL`). |
 | `make openapi` | regenerate `web/openapi.json` from the API (committed). |
+| `make web-api` | `make openapi` + regenerate the TS client `web/src/lib/api/schema.d.ts` (committed). |
 
-CI (GitHub Actions) runs `make check` against a Postgres service and builds/runs the compose stack
-(`bps --help`, migrate-on-start against a fresh DB, scheduler loop).
+CI (GitHub Actions) runs the Python checks against a Postgres service, the web checks in a `web`
+job, and builds/runs the compose stack (`bps --help`, migrate-on-start against a fresh DB,
+scheduler loop, api `/health`, web home page).
+
+### Web UI (`web/`)
+
+Next.js (App Router) + TypeScript (strict) + Tailwind + shadcn/ui + TanStack Query, managed with
+pnpm. Node version in `web/.node-version`, pnpm in `packageManager` (`web/package.json`).
+
+```sh
+brew install node pnpm                # Node 26, pnpm 12
+make web-install                      # = pnpm --dir web install --frozen-lockfile
+make serve                            # read API on :8000 (other terminal)
+cd web && pnpm dev                    # http://localhost:3000
+```
+
+| Env var               | Default                 | Used by |
+|-----------------------|-------------------------|---------|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | web: read API base URL as seen from the **browser**; inlined at build time (compose build arg). |
+| `BPS_WEB_ORIGIN`      | `http://localhost:3000` | api: CORS origins (comma-separated) — must include the web UI's origin. |
+| `BPS_WEB_PORT`        | `3000`                  | compose: host port of the `web` service. |
+
+| Command (in `web/`) | Runs |
+|---------------------|------|
+| `pnpm dev`          | dev server on :3000. |
+| `pnpm test`         | Vitest + Testing Library (jsdom); `pnpm test:watch` to watch. |
+| `pnpm lint` / `pnpm typecheck` / `pnpm build` | ESLint (Next config), `next typegen` + `tsc`, production build. |
+| `pnpm gen:api`      | regenerate `src/lib/api/schema.d.ts` from `openapi.json` (`openapi-typescript`); `pnpm check:api` fails when it is stale. |
+| `pnpm e2e`          | Playwright against `pnpm start` (`make e2e`; specs arrive with U2, browsers: `pnpm exec playwright install chromium`). |
+
+The API client is `openapi-fetch` over the generated types (`src/lib/api/client.ts`): after changing
+an endpoint run `make web-api` and commit both `web/openapi.json` and `schema.d.ts`.
+Compose's `web` service is a simple build + `next start` image (production image in U7).
