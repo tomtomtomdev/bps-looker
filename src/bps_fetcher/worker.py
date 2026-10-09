@@ -84,8 +84,20 @@ class TaskContext:
 
 Handler = Callable[[TaskContext], Awaitable[HandlerResult]]
 
-# kind -> handler. Filled by later slices (domains, var_list, th_list, data, ...).
+# kind -> handler, filled by ``@register`` in ``bps_fetcher.handlers`` (imported at the bottom).
 HANDLERS: dict[str, Handler] = {}
+
+
+def register(kind: str) -> Callable[[Handler], Handler]:
+    """Decorator: add a handler to :data:`HANDLERS` under ``kind``."""
+
+    def deco(fn: Handler) -> Handler:
+        if kind in HANDLERS and HANDLERS[kind] is not fn:
+            raise ValueError(f"handler for {kind!r} already registered")
+        HANDLERS[kind] = fn
+        return fn
+
+    return deco
 
 
 @dataclass(slots=True)
@@ -251,5 +263,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     return 0
 
 
+# Register the real handlers (after HANDLERS/register exist: handlers import this module).
+from bps_fetcher import handlers as _handlers  # noqa: E402, F401
+
 if __name__ == "__main__":  # pragma: no cover
-    raise SystemExit(main())
+    # Under ``python -m`` this file is ``__main__``, but handlers register into the importable
+    # ``bps_fetcher.worker`` module — run that module's main so its HANDLERS are used.
+    from bps_fetcher.worker import main as _main
+
+    raise SystemExit(_main())
