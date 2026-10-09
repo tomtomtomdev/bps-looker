@@ -69,6 +69,12 @@ FIXTURES: tuple[FixtureSpec, ...] = (
         "list",
         {"model": "data", "domain": "0000", "var": 1804, "th": "113:119"},
     ),
+    # S19: province domains accept only 2 periods per call (national: 3).
+    FixtureSpec(
+        "error_data_prov_max_2_th",
+        "list",
+        {"model": "data", "domain": "1200", "var": 297, "th": "110:112"},
+    ),
 )
 
 

@@ -11,7 +11,14 @@ from sqlalchemy import Engine, insert, select
 from bps_fetcher import queue, worker
 from bps_fetcher.client import BpsApiError
 from bps_fetcher.db.schema import domain, period, raw_response, task, variable
-from bps_fetcher.handlers.periods import MAX_TH_PER_CALL, th_list, th_param, windows
+from bps_fetcher.handlers.domains import domain_level
+from bps_fetcher.handlers.periods import (
+    MAX_TH_PER_CALL,
+    max_th_per_call,
+    th_list,
+    th_param,
+    windows,
+)
 from bps_fetcher.worker import Child, TaskContext
 
 NOT_AVAILABLE = {"status": "OK", "data-availability": "not-available"}
@@ -116,7 +123,7 @@ def _task(params: dict[str, Any]) -> queue.Task:
 
 def _seed_variable(engine: Engine, domain_id: str = "0000", var_id: int = 1804) -> None:
     with engine.begin() as conn:
-        level = "pusat" if domain_id == "0000" else "prov"
+        level = domain_level(domain_id)
         conn.execute(insert(domain).values(domain_id=domain_id, name="D", level=level))
         conn.execute(insert(variable).values(domain_id=domain_id, var_id=var_id, title="V"))
 
@@ -170,8 +177,22 @@ async def test_paginates_and_splits_gaps(db_engine: Engine) -> None:
     assert [c[1]["page"] for c in client.calls] == [1, 2]
     assert len(_rows(db_engine)) == 7
     assert [(r.params["page"], r.body) for r in result.raw] == [(1, p1), (2, p2)]
-    assert [c.params["th"] for c in result.children] == ["119:121", "122:123", "125:126"]
+    # S19: province (and regency) domains allow only 2 periods per data call
+    assert [c.params["th"] for c in result.children] == ["119:120", "121:122", "123", "125:126"]
     assert all(c.kind == "data" for c in result.children)
+
+
+def test_max_th_per_call_by_domain_level() -> None:
+    assert max_th_per_call("0000") == MAX_TH_PER_CALL == 3
+    assert max_th_per_call("3100") == 2  # recorded: error_data_prov_max_2_th
+    assert max_th_per_call("3401") == 2  # verified live for 3401 (2026-10-09)
+
+
+async def test_regency_windows_use_two_periods(db_engine: Engine) -> None:
+    _seed_variable(db_engine, "3401", 109)
+    page = _page(1, 1, [_th(t) for t in range(114, 119)])
+    _, result = await _handle(db_engine, {1: page}, {"domain": "3401", "var": 109})
+    assert [c.params["th"] for c in result.children] == ["114:115", "116:117", "118"]
 
 
 async def test_upsert_idempotent_and_updates_label(db_engine: Engine) -> None:

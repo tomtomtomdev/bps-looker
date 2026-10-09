@@ -345,6 +345,65 @@ async def test_report_buckets_logged(
         assert part in msg
 
 
+async def test_village_level_vervar_codes_fit(db_engine: Engine, fixture_body: Body) -> None:
+    """S19: regency vars list villages as vervar (10-digit codes, e.g. 3401010001 > 2^31)."""
+    body = copy.deepcopy(fixture_body("data_0000_1804"))
+    village = {1: 3401010001, 2: 3401010002, 3: 3499999999}
+    body["vervar"] = [{"val": village[int(v["val"])], "label": v["label"]} for v in body["vervar"]]
+    body["datacontent"] = {
+        f"{village[int(k[0])]}{k[1:]}": v for k, v in body["datacontent"].items()
+    }
+    _seed_variable(db_engine)
+    await _handle(db_engine, body)
+    obs = _obs(db_engine)
+    assert len(obs) == 9
+    assert {k[0] for k in obs} == set(village.values())
+    with db_engine.connect() as conn:
+        vals = set(conn.execute(select(dim_vervar.c.val)).scalars())
+    assert vals == set(village.values())
+
+
+class MaxPeriodsClient:
+    """Answers every call with a recorded ``maximum allowed number of years`` error."""
+
+    def __init__(self, message: str) -> None:
+        self.message = message
+        self.calls: list[dict[str, Any]] = []
+
+    async def get(self, path: str, **params: Any) -> dict[str, Any]:
+        self.calls.append(params)
+        raise BpsApiError(self.message)
+
+
+@pytest.mark.parametrize(
+    ("th", "expected"),
+    [("110:112", ["110:111", "112"]), ("110:113", ["110:111", "112:113"])],
+)
+async def test_max_periods_error_splits_window_into_allowed_chunks(
+    db_engine: Engine, fixture_body: Body, th: str, expected: list[str]
+) -> None:
+    """S19: province/regency domains allow 2 periods per call (national 3) — split, don't fail."""
+    message = fixture_body("error_data_prov_max_2_th")["message"]
+    _seed_variable(db_engine, "1200", 297)
+    params = {"domain": "1200", "var": 297, "th": th}
+    with db_engine.begin() as conn:
+        result = await data(TaskContext(_task(params), MaxPeriodsClient(message), conn))
+    assert result.raw == []
+    assert result.children == [
+        worker.Child("data", {"domain": "1200", "var": 297, "th": t}) for t in expected
+    ]
+
+
+async def test_max_periods_error_on_allowed_width_still_fails(
+    db_engine: Engine, fixture_body: Body
+) -> None:
+    message = fixture_body("error_data_prov_max_2_th")["message"]
+    _seed_variable(db_engine, "1200", 297)
+    params = {"domain": "1200", "var": 297, "th": "110:111"}  # already within the limit
+    with db_engine.begin() as conn, pytest.raises(BpsApiError, match="maximum allowed"):
+        await data(TaskContext(_task(params), MaxPeriodsClient(message), conn))
+
+
 async def test_api_error_propagates(db_engine: Engine, fixture_body: Body) -> None:
     _seed_variable(db_engine)
     with pytest.raises(BpsApiError, match="maximum allowed"):
@@ -373,7 +432,7 @@ async def test_end_to_end_th_list_then_data(db_engine: Engine, fixture_body: Bod
     _seed_variable(db_engine)
     with db_engine.begin() as conn:
         queue.enqueue(conn, "th_list", {"domain": "0000", "var": 1804})
-        bad = queue.enqueue(conn, "data", {"domain": "0000", "var": 1804, "th": "113:119"})
+        queue.enqueue(conn, "data", {"domain": "0000", "var": 1804, "th": "113:119"})
 
     def answer(params: dict[str, Any]) -> dict[str, Any]:
         if params["model"] == "th":
@@ -385,15 +444,14 @@ async def test_end_to_end_th_list_then_data(db_engine: Engine, fixture_body: Bod
     client = FakeClient(answer)
     stats = await worker.run_worker(db_engine, client=client, idle_sleep=0.01)
 
-    assert (stats.done, stats.failed) == (4, 1)  # th_list + 3 windows; the >3-years task fails
+    # S19: the >3-years window is split into the canonical windows (no duplicates), not failed.
+    assert (stats.done, stats.failed) == (5, 0)
     assert len(_obs(db_engine)) == 9
     with db_engine.connect() as conn:
         tasks = conn.execute(select(task).order_by(task.c.id)).all()
         raws = conn.execute(select(raw_response.c.params)).scalars().all()
     windows = {t.params["th"]: t.status for t in tasks if t.kind == "data"}
-    assert windows == {"113:115": "done", "116:118": "done", "119": "done", "113:119": "pending"}
-    (failed,) = [t for t in tasks if t.id == bad]
-    assert failed.attempts == 1
-    assert "BpsApiError" in failed.last_error
+    assert windows == {"113:115": "done", "116:118": "done", "119": "done", "113:119": "done"}
+    assert len([t for t in tasks if t.kind == "data"]) == 4
     assert sorted(r["th"] for r in raws if r["model"] == "data") == ["113:115", "116:118", "119"]
     assert _variable(db_engine).last_update == datetime(2020, 3, 26)

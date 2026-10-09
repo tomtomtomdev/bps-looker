@@ -128,6 +128,45 @@ def test_seed_dynamic_level_and_validation(cli_env: None, db_engine: Engine) -> 
     assert runner.invoke(app, ["seed", "dynamic", "--limit-vars", "0"]).exit_code != 0
 
 
+def test_seed_dynamic_by_province(cli_env: None, db_engine: Engine) -> None:
+    args = ["seed", "dynamic", "--prov", "3400", "--prov", "3100", "--level", "kab"]
+    result = runner.invoke(app, args)
+    assert result.exit_code == 0, result.output
+    with db_engine.connect() as conn:
+        params = conn.execute(select(task.c.params)).scalar_one()
+    assert params == {"type": "all", "provs": ["3100", "3400"], "level": ["kab"]}
+
+    for bad in ("3401", "0000", "34"):
+        bad_result = runner.invoke(app, ["seed", "dynamic", "--prov", bad])
+        assert bad_result.exit_code != 0, bad
+        assert "prov" in bad_result.output.lower()
+
+
+def test_work_uses_concurrency_and_rps_from_settings(
+    cli_env: None, db_engine: Engine, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import bps_fetcher.worker as worker_mod
+
+    monkeypatch.setenv("BPS_RPS", "3.5")
+    monkeypatch.setenv("BPS_CONCURRENCY", "6")
+    get_settings.cache_clear()
+    seen: dict[str, Any] = {}
+
+    async def fake_run_worker(engine: Engine, *, client: Any, concurrency: int, **kw: Any) -> Any:
+        seen["rps"] = client.rps
+        seen["concurrency"] = concurrency
+        return worker_mod.Stats()
+
+    monkeypatch.setattr(worker_mod, "run_worker", fake_run_worker)
+    result = runner.invoke(app, ["work", "--drain"])
+    assert result.exit_code == 0, result.output
+    assert seen == {"rps": 3.5, "concurrency": 6}
+
+    result = runner.invoke(app, ["work", "--drain", "--concurrency", "2"])
+    assert result.exit_code == 0, result.output
+    assert seen == {"rps": 3.5, "concurrency": 2}
+
+
 def _add_domains(engine: Engine, *ids: str) -> None:
     from bps_fetcher.handlers.domains import domain_level
 

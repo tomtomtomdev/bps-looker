@@ -263,3 +263,40 @@ async def test_bad_limit_vars_rejected(
 ) -> None:
     with pytest.raises(ValueError, match="limit_vars"):
         await _handle(db_engine, domain_body, {"limit_vars": bad})
+
+
+# --- S19: seed by province -----------------------------------------------------------------------
+
+
+async def test_provs_param_restricts_children_to_province_and_its_regencies(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    _, result = await _handle(db_engine, domain_body, {"provs": ["3400"]})
+    assert len(_rows(db_engine)) == 549  # every domain row is still stored
+    ids = [c.params["domain"] for c in result.children]
+    # DI Yogyakarta + its 4 regencies and 1 city (kabbyprov 3400 lists the same 5)
+    assert ids == ["3400", "3401", "3402", "3403", "3404", "3471"]
+
+
+async def test_provs_param_combines_with_level(
+    db_engine: Engine, domain_body: dict[str, Any]
+) -> None:
+    params = {"provs": ["3400", "3100"], "level": ["kab"]}
+    _, result = await _handle(db_engine, domain_body, params)
+    ids = [c.params["domain"] for c in result.children]
+    jakarta = ["3101", "3171", "3172", "3173", "3174", "3175"]
+    yogyakarta = ["3401", "3402", "3403", "3404", "3471"]
+    assert ids == [*jakarta, *yogyakarta]
+
+
+@pytest.mark.parametrize("bad", ["3401", "0000", "34", ["3400", "x"], []])
+async def test_provs_param_rejects_non_province_ids(
+    db_engine: Engine, domain_body: dict[str, Any], bad: Any
+) -> None:
+    with pytest.raises(ValueError, match="prov"):
+        await _handle(db_engine, domain_body, {"provs": bad})
+
+
+async def test_unknown_province_fails(db_engine: Engine, domain_body: dict[str, Any]) -> None:
+    with pytest.raises(LookupError, match="9900"):
+        await _handle(db_engine, domain_body, {"provs": ["9900"]})

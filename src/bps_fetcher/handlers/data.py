@@ -35,6 +35,7 @@ errors (e.g. more than 3 periods) raise :class:`~bps_fetcher.client.BpsApiError`
 """
 
 import logging
+import re
 from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -44,8 +45,9 @@ from sqlalchemy import Connection, Table, and_, exists, func, literal_column, or
 from sqlalchemy.dialects.postgresql import Insert, insert
 
 from bps_fetcher import queue
-from bps_fetcher.client import BpsNullResponseError
+from bps_fetcher.client import BpsApiError, BpsNullResponseError
 from bps_fetcher.db.schema import dim_turth, dim_turvar, dim_vervar, observation, task, variable
+from bps_fetcher.handlers.periods import th_param, windows
 from bps_fetcher.paginate import is_not_available
 from bps_fetcher.parse_data import DimItem, Observation, ParsedData, parse_data
 from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
@@ -57,6 +59,7 @@ MODEL = "data"
 TH_LIST_KIND = "th_list"
 # Rows per INSERT ... VALUES statement (9 bind params each; well under Postgres' 65535 limit).
 BATCH_SIZE = 2000
+_MAX_PERIODS_RE = re.compile(r"maximum allowed number of years for the 'th' parameter is (\d+)")
 
 
 @dataclass(frozen=True, slots=True)
@@ -279,6 +282,19 @@ async def data(ctx: TaskContext) -> HandlerResult:
         return HandlerResult(
             children=[
                 Child(KIND, {"domain": domain_id, "var": var_id, "th": str(t)}) for t in periods
+            ]
+        )
+    except BpsApiError as exc:
+        match = _MAX_PERIODS_RE.search(exc.message)
+        periods = _th_ids(th)
+        if match is None or len(periods) <= int(match.group(1)) or int(match.group(1)) < 1:
+            raise
+        limit = int(match.group(1))
+        log.warning("data %s: API allows %d periods per call; splitting the window", where, limit)
+        return HandlerResult(
+            children=[
+                Child(KIND, {"domain": domain_id, "var": var_id, "th": th_param(w)})
+                for w in windows(periods, limit)
             ]
         )
     result = HandlerResult(raw=[RawResponse("list", request, body)])

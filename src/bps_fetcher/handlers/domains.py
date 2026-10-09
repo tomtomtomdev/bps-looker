@@ -8,6 +8,10 @@ Task params (all optional):
   get a ``var_list`` child. Every fetched domain is stored regardless.
 - ``domains`` — list of domain ids; only these get a ``var_list`` child (combined with ``level``).
   An id the API doesn't return fails the task (``LookupError``).
+- ``provs`` — list of province ids (``xx00``); only the province and its regencies/cities (ids
+  sharing the first two digits — the same set ``/domain?type=kabbyprov&prov=xx00`` lists) get a
+  ``var_list`` child (combined with ``level``/``domains``). A province the API doesn't return
+  fails the task (``LookupError``).
 - ``limit_vars`` — positive int passed to every ``var_list`` child (caps its ``th_list`` fan-out).
 
 ``bps seed dynamic`` enqueues this task, so the ``domain`` rows exist before any ``var_list`` runs.
@@ -111,6 +115,24 @@ def _only(value: Any) -> frozenset[str] | None:
     return frozenset(str(d) for d in ids)
 
 
+def _provs(value: Any) -> frozenset[str] | None:
+    """Validate a ``provs`` param: ``None`` or a non-empty list of province ids (``xx00``)."""
+    if value is None:
+        return None
+    ids = [value] if isinstance(value, str) else list(value)
+    if not ids:
+        raise ValueError("provs must list at least one province id")
+    for d in ids:
+        if not isinstance(d, str) or not _ID_RE.fullmatch(d) or domain_level(d) != "prov":
+            raise ValueError(f"{d!r} is not a province domain id (xx00, not 0000)")
+    return frozenset(ids)
+
+
+def in_provinces(domain_id: str, provs: frozenset[str]) -> bool:
+    """Whether ``domain_id`` is one of ``provs`` or a regency/city inside one of them."""
+    return domain_id[:2] + "00" in provs
+
+
 def limit_vars_param(value: Any) -> int | None:
     """Validate a ``limit_vars`` param: ``None`` or a positive int."""
     if value is None:
@@ -124,6 +146,7 @@ def limit_vars_param(value: Any) -> int | None:
 async def domains(ctx: TaskContext) -> HandlerResult:
     levels = _levels(ctx.params.get("level"))
     only = _only(ctx.params.get("domains"))
+    provs = _provs(ctx.params.get("provs"))
     limit = limit_vars_param(ctx.params.get("limit_vars"))
     api_params = {k: ctx.params[k] for k in _API_PARAMS if k in ctx.params}
     api_params.setdefault("type", "all")
@@ -133,6 +156,10 @@ async def domains(ctx: TaskContext) -> HandlerResult:
         missing = only - {r.domain_id for r in rows}
         if missing:
             raise LookupError(f"requested domains not returned by /domain: {sorted(missing)}")
+    if provs is not None:
+        missing = provs - {r.domain_id for r in rows}
+        if missing:
+            raise LookupError(f"requested provinces not returned by /domain: {sorted(missing)}")
     upsert_domains(ctx.conn, rows)
     extra = {} if limit is None else {"limit_vars": limit}
     return HandlerResult(
@@ -140,6 +167,8 @@ async def domains(ctx: TaskContext) -> HandlerResult:
         children=[
             Child(CHILD_KIND, {"domain": r.domain_id, **extra})
             for r in rows
-            if r.level in levels and (only is None or r.domain_id in only)
+            if r.level in levels
+            and (only is None or r.domain_id in only)
+            and (provs is None or in_provinces(r.domain_id, provs))
         ],
     )

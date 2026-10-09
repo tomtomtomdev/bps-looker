@@ -1,0 +1,20 @@
+{
+ "name": "error_data_prov_max_2_th",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=data&domain=1200&var=297&th=110%3A112&key=***",
+  "path": "list",
+  "params": {
+   "model": "data",
+   "domain": "1200",
+   "var": "297",
+   "th": "110:112"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "Error",
+  "message": "The maximum allowed number of years for the 'th' parameter is 2. You provided 3. Please reduce the number of years accordingly."
+ }
+}

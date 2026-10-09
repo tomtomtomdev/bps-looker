@@ -27,6 +27,14 @@ Policies (by ``source``):
     :data:`WARM_AGE` → every 4 weeks, older or never loaded → every 13 weeks. Variables whose
     latest window isn't ``done`` (pending, running, dead) are skipped.
 
+    **Staggered** (S19): a crawl completes all its windows within hours, so plain "done more than
+    one interval ago" would make every probe due on the same day. Instead each variable has a
+    fixed phase (:func:`probe_phase`, a hash of domain + var id) within its interval, and a probe
+    is due once a phase boundary ``epoch + phase*every + k*every`` lies in ``(done, now]``. So the
+    first probes after a crawl are spread evenly over one interval, a probe is never due later
+    than one interval after the window completed, and a var probed at its boundary keeps it
+    (no drift). The cost: a var completed just before its boundary is probed again soon after.
+
 ``--domain`` scopes ``indicators``, ``var_list`` and ``data_probe``; trade is national.
 """
 
@@ -34,7 +42,7 @@ from collections.abc import Iterable, Sequence
 from datetime import UTC, datetime, timedelta, timezone
 from typing import Any, Final
 
-from sqlalchemy import Connection, Integer, case, func, literal, select
+from sqlalchemy import BigInteger, Connection, Float, Integer, case, func, literal, select
 from sqlalchemy.dialects.postgresql import distinct_on
 
 from bps_fetcher import queue
@@ -64,6 +72,34 @@ PROBE_COLD_EVERY: Final = timedelta(days=91)
 
 # ``variable.last_update`` is BPS wall-clock time (WIB, stored naive).
 BPS_TZ: Final = timezone(timedelta(hours=7))
+
+
+_PHASE_MULT: Final = 2654435761  # Knuth's multiplicative hash
+_PHASE_MOD: Final = 2**32
+_PHASE_DOMAIN_MULT: Final = 65599
+
+
+def probe_phase(domain_id: str, var_id: int) -> float:
+    """A variable's fixed position in ``[0, 1)`` of its probe interval (deterministic, spread).
+
+    Mirrored in SQL by :func:`_phase_sql`; both use bigint-safe integer arithmetic."""
+    key = int(domain_id) * _PHASE_DOMAIN_MULT + var_id
+    return (key * _PHASE_MULT) % _PHASE_MOD / _PHASE_MOD
+
+
+def _phase_sql(domain_id: Any, var_id: Any) -> Any:
+    key = domain_id.cast(BigInteger) * _PHASE_DOMAIN_MULT + var_id.cast(BigInteger)
+    return ((key * _PHASE_MULT) % _PHASE_MOD).cast(Float) / float(_PHASE_MOD)
+
+
+def _staggered_due(done_at: Any, now: datetime, every: Any, phase: Any) -> Any:
+    """SQL: a phase boundary (``phase`` x ``every`` + k x ``every`` after the epoch) lies in
+    ``(done_at, now]``."""
+    every_s = func.extract("epoch", every)
+    offset = phase * every_s
+    return func.floor((literal(now.timestamp()) - offset) / every_s) > func.floor(
+        (func.extract("epoch", done_at) - offset) / every_s
+    )
 
 
 def _domain_filter(domains: Sequence[str] | None) -> Any:
@@ -151,7 +187,12 @@ def refresh_data_probes(conn: Connection, now: datetime, domains: Sequence[str] 
             (variable.c.domain_id == latest.c.domain_id) & (variable.c.var_id == latest.c.var_id),
             isouter=True,
         )
-        .where(latest.c.status == queue.DONE, latest.c.updated_at <= literal(now) - every)
+        .where(
+            latest.c.status == queue.DONE,
+            _staggered_due(
+                latest.c.updated_at, now, every, _phase_sql(latest.c.domain_id, latest.c.var_id)
+            ),
+        )
     )
     if domains is not None:
         q = q.where(latest.c.domain_id.in_(list(domains)))

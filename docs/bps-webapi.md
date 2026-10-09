@@ -58,7 +58,7 @@ curl -s -A "Mozilla/5.0" \
 | `type` | yes | `all` · `prov` · `kab` · `kabbyprov` |
 | `prov` | with `kabbyprov` | 4-digit province ID, e.g. `3100` |
 
-Item: `domain_id`, `domain_name`, `domain_url`. `type=all` → 549 domains; `type=prov` → 34 (verified). Not paginated; `data[0]` is `{"page": 1, "pages": 1, "total": 549}` (verified 2026-10-09).
+Item: `domain_id`, `domain_name`, `domain_url`. `type=all` → 549 domains; `type=prov` → 34 (verified). Not paginated; `data[0]` is `{"page": 1, "pages": 1, "total": 549}` (verified 2026-10-09). `type=kabbyprov&prov=3400` lists the province's regencies/cities (not the province itself) — exactly the `type=all` ids sharing its first two digits (checked for 3400 → 5 and 9400 → 29, 2026-10-09); `bps seed dynamic --prov` uses that id prefix.
 
 ### Subject categories — `GET /list?model=subcat`
 Params: `domain`, `lang`, `page`. Item: `subcat_id`, `title`.
@@ -111,7 +111,7 @@ Params: `domain`, `var` (opt), `page`. Item: `vervar_id`, `vervar`, `item_ver_id
 |---|---|---|
 | `domain` | yes | |
 | `var` | yes | |
-| `th` | **yes** | single `117`, list `117;119`, range `117:119`. **Max 3 periods per call** (verified: `The maximum allowed number of years for the 'th' parameter is 3`) |
+| `th` | **yes** | single `117`, list `117;119`, range `117:119`. **Max periods per call depend on the domain:** national `0000` → 3 (`…parameter is 3`); province and regency domains → **2** (`The maximum allowed number of years for the 'th' parameter is 2. You provided 3.` — `1200/297`, `3401/109`; lists `a;b;c` count the same; verified 2026-10-09/10, national still accepts 3 at the same time) |
 | `turvar`, `vervar`, `turth` | opt | same syntax |
 | `lang` | opt | |
 

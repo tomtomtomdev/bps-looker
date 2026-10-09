@@ -209,7 +209,7 @@ def probe_vars(db_engine: Engine) -> dict[str, int]:
 @pytest.mark.parametrize(
     ("days", "expected"),
     [
-        (6, []),
+        (0, []),  # staggered (S19): before a full interval only some vars are due
         (8, ["1/123"]),
         (29, ["1/123", "2/126"]),
         (92, ["1/123", "2/126", "3/100", "4/90"]),
@@ -245,6 +245,106 @@ def test_data_probe_domain_scope(db_engine: Engine, probe_vars: dict[str, int]) 
     assert got["data_probe"] == 1
     assert _status(db_engine, other).status == "pending"
     assert _status(db_engine, probe_vars["1/123"]).status == "done"
+
+
+# --- S19: probes are staggered across their interval ---------------------------------------------
+
+
+def test_probe_phase_is_deterministic_spread_and_in_unit_range() -> None:
+    phases = [refresh.probe_phase("3400", v) for v in range(1, 2001)]
+    assert phases == [refresh.probe_phase("3400", v) for v in range(1, 2001)]
+    assert all(0.0 <= p < 1.0 for p in phases)
+    # roughly uniform: every tenth of the interval gets 10 % +- 3 % of the vars
+    for decile in range(10):
+        share = sum(decile / 10 <= p < (decile + 1) / 10 for p in phases) / len(phases)
+        assert 0.07 <= share <= 0.13, (decile, share)
+    assert refresh.probe_phase("3400", 7) != refresh.probe_phase("3401", 7)
+
+
+def _bulk_hot_vars(engine: Engine, n: int, *, domain_id: str = "3400") -> dict[int, int]:
+    """``n`` hot vars (updated 10 days before T0) whose single window completed at T0."""
+    _domains(engine, domain_id)
+    stamp = _bps_local(T0 - timedelta(days=10))
+    ids: dict[int, int] = {}
+    with engine.begin() as conn:
+        conn.execute(
+            insert(variable),
+            [
+                {"domain_id": domain_id, "var_id": v, "title": f"V{v}", "last_update": stamp}
+                for v in range(1, n + 1)
+            ],
+        )
+        for v in range(1, n + 1):
+            tid = queue.enqueue(conn, "data", {"domain": domain_id, "var": v, "th": "120"})
+            assert tid is not None
+            ids[v] = tid
+        conn.execute(update(task).values(status=queue.DONE, updated_at=T0))
+    return ids
+
+
+def _expected_due(domain_id: str, var_ids: range, done: datetime, now: datetime) -> set[int]:
+    """Python model of the stagger: due once a phase boundary lies in ``(done, now]``."""
+    every = refresh.PROBE_HOT_EVERY.total_seconds()
+    out = set()
+    for v in var_ids:
+        phase = refresh.probe_phase(domain_id, v) * every
+        if (now.timestamp() - phase) // every > (done.timestamp() - phase) // every:
+            out.add(v)
+    return out
+
+
+def test_data_probes_are_staggered_across_the_interval(db_engine: Engine) -> None:
+    n = 300
+    ids = _bulk_hot_vars(db_engine, n)
+    status = {tid: v for v, tid in ids.items()}
+
+    def due_after(delta: timedelta) -> set[int]:
+        with db_engine.connect() as conn:
+            txn = conn.begin()
+            refresh.refresh(conn, now=T0 + delta, sources=["dynamic"])
+            got = conn.execute(
+                select(task.c.id).where(task.c.status == queue.PENDING, task.c.kind == "data")
+            ).scalars()
+            due = {status[t] for t in got}
+            txn.rollback()
+        return due
+
+    assert due_after(timedelta(0)) == set()
+    one_day = due_after(timedelta(days=1))
+    assert one_day == _expected_due("3400", range(1, n + 1), T0, T0 + timedelta(days=1))
+    assert 0.07 * n <= len(one_day) <= 0.22 * n  # ~1/7 of the week, not all at once
+    half = due_after(timedelta(days=3, hours=12))
+    assert one_day < half
+    assert 0.35 * n <= len(half) <= 0.65 * n
+    assert due_after(PROBE_WEEK) == set(range(1, n + 1))  # never later than one interval
+
+
+PROBE_WEEK = refresh.PROBE_HOT_EVERY
+
+
+def test_staggered_probe_keeps_its_phase(db_engine: Engine) -> None:
+    """A var probed at its boundary is next due exactly one interval later (no drift)."""
+    ids = _bulk_hot_vars(db_engine, 1)
+    every = PROBE_WEEK.total_seconds()
+    phase = refresh.probe_phase("3400", 1) * every
+    # The first boundary after T0:
+    k = (T0.timestamp() - phase) // every + 1
+    boundary = datetime.fromtimestamp(k * every + phase, UTC)
+    assert T0 < boundary <= T0 + PROBE_WEEK
+
+    second = timedelta(seconds=1)
+    assert _refresh(db_engine, boundary - second, sources=["dynamic"])["data_probe"] == 0
+    assert _refresh(db_engine, boundary + second, sources=["dynamic"])["data_probe"] == 1
+    # The probe runs and completes a minute after the boundary.
+    with db_engine.begin() as conn:
+        conn.execute(
+            update(task)
+            .where(task.c.id == ids[1])
+            .values(status=queue.DONE, updated_at=boundary + timedelta(minutes=1))
+        )
+    nxt = boundary + PROBE_WEEK
+    assert _refresh(db_engine, nxt - second, sources=["dynamic"])["data_probe"] == 0
+    assert _refresh(db_engine, nxt + second, sources=["dynamic"])["data_probe"] == 1
 
 
 # --- cascade: a probe that sees a newer last_update re-runs the var -----------------------------

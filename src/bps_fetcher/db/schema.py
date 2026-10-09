@@ -169,7 +169,8 @@ dim_vervar = Table(
     metadata,
     Column("domain_id", String(4), primary_key=True),
     Column("var_id", Integer, primary_key=True),
-    Column("val", Integer, primary_key=True),
+    # bigint: regency vars list villages, whose 10-digit codes (3401010001) exceed int32 (S19).
+    Column("val", BigInteger, primary_key=True),
     Column("label", Text, nullable=False),
     Column("group_label", Text),
     _var_fk(),
@@ -203,7 +204,7 @@ observation = Table(
     metadata,
     Column("domain_id", String(4), primary_key=True),
     Column("var_id", Integer, primary_key=True),
-    Column("vervar", Integer, primary_key=True),
+    Column("vervar", BigInteger, primary_key=True),  # village codes, see dim_vervar
     Column("turvar", Integer, primary_key=True),
     Column("th", Integer, primary_key=True),
     Column("turth", Integer, primary_key=True),

@@ -50,8 +50,10 @@ def test_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("BPS_API_KEY", FAKE_KEY)
     settings = Settings(_env_file=None)
     assert settings.database_url.startswith("postgresql+psycopg://")
-    assert settings.concurrency == 4
-    assert settings.rps > 0
+    # S19 tuning: 5 req/s held ~95k province requests with no WAF block; 10 slots keep the
+    # limiter saturated with ~1-2 s data calls.
+    assert settings.concurrency == 10
+    assert settings.rps == 5.0
     assert "Mozilla/5.0" in settings.user_agent
 
 

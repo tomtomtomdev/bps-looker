@@ -1,7 +1,7 @@
 """``bps`` command line: migrate the DB, seed crawl tasks, run the worker, show queue status.
 
     bps migrate
-    bps seed dynamic [--domain 0000 ...] [--level prov ...] [--limit-vars N]
+    bps seed dynamic [--domain 0000 ...] [--level prov ...] [--prov 3400 ...] [--limit-vars N]
     bps seed indicators [--domain 0000 ...] [--run LABEL]
     bps seed trade [--from 2014] [--to YEAR] [--flow exp|imp ...] [--period annual|monthly ...]
                    [--batch-size 10] [--run LABEL]
@@ -16,8 +16,10 @@
 
 ``seed dynamic`` enqueues one ``domains`` task: it fetches ``/domain`` and upserts every domain
 row first, then fans out ``var_list`` only for the requested domains/levels — so the ``domain``
-FK that ``var_list`` needs always exists. ``--limit-vars`` caps each ``var_list`` to the first N
-variables (smoke runs). Seeding is idempotent: the same seed twice is one task.
+FK that ``var_list`` needs always exists. ``--prov 3400`` limits it to a province and its
+regencies/cities (add ``--level kab`` for the regencies only). ``--limit-vars`` caps each
+``var_list`` to the first N variables (smoke runs). Seeding is idempotent: the same seed twice
+is one task.
 
 ``seed refresh`` re-runs what was crawled before once its refresh policy is due (indicators daily,
 trade current + previous year weekly, variable re-list weekly, per-variable data probes by age —
@@ -115,6 +117,17 @@ def _check_domain(value: list[str] | None) -> list[str] | None:
     return value
 
 
+def _check_prov(value: list[str] | None) -> list[str] | None:
+    for d in value or []:
+        try:
+            level = domain_level(d)
+        except ValueError as exc:
+            raise typer.BadParameter(str(exc)) from None
+        if level != "prov":
+            raise typer.BadParameter(f"{d!r} is not a province domain id (xx00, not 0000)")
+    return value
+
+
 def _check_level(value: list[str] | None) -> list[str] | None:
     for lv in value or []:
         if lv not in DOMAIN_LEVELS:
@@ -137,6 +150,13 @@ def dynamic(
             callback=_check_level,
         ),
     ] = None,
+    prov: Annotated[
+        list[str] | None,
+        typer.Option(
+            help="Only this province and its regencies/cities (repeatable), e.g. 3400.",
+            callback=_check_prov,
+        ),
+    ] = None,
     limit_vars: Annotated[
         int | None, typer.Option(min=1, help="Only the first N variables of each domain.")
     ] = None,
@@ -146,6 +166,8 @@ def dynamic(
     params: dict[str, Any] = {"type": "all"}
     if domain:
         params["domains"] = sorted(set(domain))
+    if prov:
+        params["provs"] = sorted(set(prov))
     if level:
         params["level"] = sorted(set(level))
     if limit_vars is not None:

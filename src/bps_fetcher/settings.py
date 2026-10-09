@@ -30,8 +30,8 @@ class DatabaseSettings(BaseSettings):
 
 class Settings(DatabaseSettings):
     api_key: SecretStr = Field(validation_alias="BPS_API_KEY")
-    concurrency: int = Field(default=4, ge=1, validation_alias="BPS_CONCURRENCY")
-    rps: float = Field(default=2.0, gt=0, validation_alias="BPS_RPS")
+    concurrency: int = Field(default=10, ge=1, validation_alias="BPS_CONCURRENCY")
+    rps: float = Field(default=5.0, gt=0, validation_alias="BPS_RPS")
     user_agent: str = Field(
         default=DEFAULT_USER_AGENT,
         min_length=1,

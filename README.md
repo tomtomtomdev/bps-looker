@@ -61,7 +61,7 @@ yourself to start right away). Seeding the same thing twice is a no-op.
 ```sh
 run() { docker compose run --rm app "$@"; }
 
-run bps seed dynamic --domain 0000        # national dynamic tables (~9.4k requests, ~1.5 h at 2 rps)
+run bps seed dynamic --domain 0000        # national dynamic tables (~9.4k requests, ~35 min at 5 rps)
 run bps seed indicators                    # strategic indicators, every national/province domain
 run bps seed trade --from 2014             # exports + imports, annual + monthly, 2014 → this year
 run bps seed dynamic --level prov          # all province domains

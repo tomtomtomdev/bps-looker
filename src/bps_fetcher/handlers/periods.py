@@ -1,13 +1,15 @@
 """``th_list`` task: page through ``/list?model=th`` for one variable, upsert ``period``, fan out
-one ``data`` task per window of at most :data:`MAX_TH_PER_CALL` contiguous periods.
+one ``data`` task per window of at most :func:`max_th_per_call` contiguous periods.
 
 Task params: ``domain`` (4-digit id) and ``var`` (int); the ``variable`` row must already exist
 (run ``var_list`` first). Every page's response is kept as a raw response.
 
-``model=data`` accepts at most 3 periods per call (``The maximum allowed number of years for the
-'th' parameter is 3``). Windows are runs of consecutive ``th_id``s chunked from the lowest id, so
-each ``data`` task's ``th`` is a single id (``117``) or a range (``117:119``). Chunking from the
-low end keeps existing windows stable when newer periods appear: only the last window changes.
+``model=data`` accepts at most 3 periods per call on the national domain and only 2 on province
+and regency domains (``The maximum allowed number of years for the 'th' parameter is 2``, found in
+S19; the ``data`` handler also splits a window that hits this error). Windows are runs of
+consecutive ``th_id``s chunked from the lowest id, so each ``data`` task's ``th`` is a single id
+(``117``) or a range (``117:119``). Chunking from the low end keeps existing windows stable when
+newer periods appear: only the last window changes.
 """
 
 from collections.abc import Iterable, Sequence
@@ -18,13 +20,20 @@ from sqlalchemy import Connection, and_, exists, select
 from sqlalchemy.dialects.postgresql import insert
 
 from bps_fetcher.db.schema import period, variable
+from bps_fetcher.handlers.domains import domain_level
 from bps_fetcher.paginate import is_not_available, items_of, paginate_pages
 from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
 
 KIND = "th_list"
 CHILD_KIND = "data"
 MODEL = "th"
-MAX_TH_PER_CALL = 3
+MAX_TH_PER_CALL = 3  # national (pusat)
+MAX_TH_PER_CALL_REGIONAL = 2  # province + regency domains (verified 2026-10-09)
+
+
+def max_th_per_call(domain_id: str) -> int:
+    """Most periods one ``model=data`` call accepts on this domain."""
+    return MAX_TH_PER_CALL if domain_level(domain_id) == "pusat" else MAX_TH_PER_CALL_REGIONAL
 
 
 class ThItem(BaseModel):
@@ -108,6 +117,6 @@ async def th_list(ctx: TaskContext) -> HandlerResult:
     upsert_periods(ctx.conn, domain_id, var_id, items)
     result.children = [
         Child(CHILD_KIND, {"domain": domain_id, "var": var_id, "th": th_param(w)})
-        for w in windows(i.th_id for i in items)
+        for w in windows((i.th_id for i in items), max_th_per_call(domain_id))
     ]
     return result
