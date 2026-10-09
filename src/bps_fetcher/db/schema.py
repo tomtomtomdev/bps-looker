@@ -9,6 +9,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     ForeignKey,
+    ForeignKeyConstraint,
     Identity,
     Index,
     Integer,
@@ -102,4 +103,20 @@ variable = Table(
     Column("decimal", Integer),
     Column("vertical", Integer),
     Column("last_update", DateTime(timezone=False)),
+)
+
+# Periods (``th``) a variable has data for, from ``/list?model=th`` (S10). ``th_id`` is BPS's
+# period code (e.g. ``117``), ``label`` its year text (``"2017"``).
+period = Table(
+    "period",
+    metadata,
+    Column("domain_id", String(4), primary_key=True),
+    Column("var_id", Integer, primary_key=True),
+    Column("th_id", Integer, primary_key=True),
+    Column("label", Text, nullable=False),
+    ForeignKeyConstraint(
+        ["domain_id", "var_id"],
+        ["variable.domain_id", "variable.var_id"],
+        ondelete="CASCADE",
+    ),
 )

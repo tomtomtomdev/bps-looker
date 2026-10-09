@@ -12,7 +12,7 @@ from bps_fetcher.db.migrate import alembic_config, downgrade, upgrade
 from bps_fetcher.db.schema import domain, metadata, raw_response, task
 
 # Every table the migrations create; grows with each slice that adds one.
-ALL_TABLES = {"raw_response", "task", "domain", "variable"}
+ALL_TABLES = {"raw_response", "task", "domain", "variable", "period"}
 
 
 def _tables(url: str) -> set[str]:
