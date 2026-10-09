@@ -5,13 +5,22 @@ import logging
 from typing import Annotated
 
 from alembic.runtime.migration import MigrationContext
-from fastapi import APIRouter, Depends, Query, Response, status
+from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, status
 from sqlalchemy import Engine, select
 from sqlalchemy.exc import DBAPIError
 
 from bps_fetcher.api.deps import Conn, get_engine
-from bps_fetcher.api.models import Domain, DomainLevel, Health, VariablePage, VariableSummary
+from bps_fetcher.api.models import (
+    Domain,
+    DomainLevel,
+    Health,
+    SeriesResponse,
+    VariableDetail,
+    VariablePage,
+    VariableSummary,
+)
 from bps_fetcher.api.search import search_query
+from bps_fetcher.api.series import MAX_SERIES, dimensions, load_series, variable_row
 from bps_fetcher.db.schema import domain
 from bps_fetcher.redact import redact
 
@@ -95,4 +104,66 @@ def search_variables(
         total=total,
         page=page,
         page_size=page_size,
+    )
+
+
+DomainId = Annotated[str, Path(pattern=r"^\d{4}$", description="Domain id, e.g. `0000`.")]
+VarId = Annotated[int, Path(description="Variable id within the domain.")]
+
+
+def _require_variable(conn: Conn, domain_id: str, var_id: int) -> dict[str, object]:
+    row = variable_row(conn, domain_id, var_id)
+    if row is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Variable not found")
+    return row
+
+
+@router.get(
+    "/variables/{domain}/{var}",
+    operation_id="getVariable",
+    tags=["variables"],
+    summary="A variable's metadata and dimensions",
+    response_model=VariableDetail,
+    responses={status.HTTP_404_NOT_FOUND: {"description": "Unknown variable"}},
+)
+def get_variable(conn: Conn, domain: DomainId, var: VarId) -> VariableDetail:
+    """Title, unit, subject, definition/notes (BPS HTML — sanitize before rendering), decimals,
+    last update, plus every dimension member: vervar (regions/categories), turvar, turth
+    (sub-periods with their ``freq`` and ``has_data``) and periods (``th`` = year)."""
+    row = _require_variable(conn, domain, var)
+    return VariableDetail.model_validate({**row, **dimensions(conn, domain, var)})
+
+
+@router.get(
+    "/variables/{domain}/{var}/series",
+    operation_id="getVariableSeries",
+    tags=["variables"],
+    summary="Time series of a variable, one per vervar x turvar",
+    response_model=SeriesResponse,
+    responses={status.HTTP_404_NOT_FOUND: {"description": "Unknown variable"}},
+)
+def get_variable_series(
+    conn: Conn,
+    domain: DomainId,
+    var: VarId,
+    vervar: Annotated[
+        list[int] | None,
+        Query(description="Vervar members (repeat the parameter); default: all."),
+    ] = None,
+    turvar: Annotated[
+        list[int] | None,
+        Query(description="Turvar members (repeat the parameter); default: all."),
+    ] = None,
+    turth: Annotated[
+        list[int] | None,
+        Query(description="Only these sub-periods, e.g. months `1`-`12`; default: all."),
+    ] = None,
+) -> SeriesResponse:
+    """One series per vervar x turvar combination (request order), at most ``max_series``
+    (``truncated`` when more were asked for); points sorted by time, each with its period
+    (``2024-03``, ``2024-Q2``, ``2024-S1``, ``2024``) and start date."""
+    _require_variable(conn, domain, var)
+    series, truncated = load_series(conn, domain, var, vervars=vervar, turvars=turvar, turths=turth)
+    return SeriesResponse.model_validate(
+        {"series": series, "truncated": truncated, "max_series": MAX_SERIES}
     )

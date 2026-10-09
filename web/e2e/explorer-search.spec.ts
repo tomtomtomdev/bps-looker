@@ -46,6 +46,26 @@ async function mockApi(page: Page) {
       headers: cors,
     });
   });
+  // The variable page the first result opens (detail only; its series are empty).
+  await page.route(`${API}/variables/0000/2263`, (route) =>
+    route.fulfill({
+      json: {
+        ...INFLASI[0],
+        definition: null,
+        notes: null,
+        decimal: 2,
+        last_update: null,
+        vervars: [{ val: 9999, label: "INDONESIA", group_label: null }],
+        turvars: [{ val: 0, label: "Tidak ada" }],
+        turths: [{ val: 1, label: "Januari", freq: "month", has_data: true }],
+        periods: [{ th: 124, label: "2024" }],
+      },
+      headers: cors,
+    }),
+  );
+  await page.route(`${API}/variables/0000/2263/series?**`, (route) =>
+    route.fulfill({ json: { series: [], truncated: false, max_series: 20 }, headers: cors }),
+  );
 }
 
 test("search inflasi, open a variable", async ({ page }) => {
@@ -62,7 +82,9 @@ test("search inflasi, open a variable", async ({ page }) => {
 
   await results.getByRole("link", { name: "Inflasi Bulanan (M-to-M) Indonesia" }).click();
   await expect(page).toHaveURL(/\/explorer\/0000\/2263$/);
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Variable 2263 · domain 0000");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Inflasi Bulanan (M-to-M) Indonesia",
+  );
 });
 
 test("a shared search URL restores the results", async ({ page }) => {

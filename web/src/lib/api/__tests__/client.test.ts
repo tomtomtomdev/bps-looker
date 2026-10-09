@@ -18,12 +18,21 @@ describe("apiBaseUrl", () => {
 
 describe("generated schema", () => {
   it("types the endpoints", () => {
-    expectTypeOf<keyof paths>().toEqualTypeOf<"/health" | "/domains" | "/variables">();
+    expectTypeOf<keyof paths>().toEqualTypeOf<
+      | "/health"
+      | "/domains"
+      | "/variables"
+      | "/variables/{domain}/{var}"
+      | "/variables/{domain}/{var}/series"
+    >();
     expectTypeOf<components["schemas"]["Domain"]["level"]>().toEqualTypeOf<
       "pusat" | "prov" | "kab"
     >();
     expectTypeOf<keyof operations>().toEqualTypeOf<
-      "getHealth" | "listDomains" | "searchVariables"
+      "getHealth" | "listDomains" | "searchVariables" | "getVariable" | "getVariableSeries"
+    >();
+    expectTypeOf<components["schemas"]["TurthMember"]["freq"]>().toEqualTypeOf<
+      "month" | "quarter" | "semester" | "year" | "other"
     >();
     expectTypeOf<
       NonNullable<operations["searchVariables"]["parameters"]["query"]>

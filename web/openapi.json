@@ -236,10 +236,211 @@
           }
         }
       }
+    },
+    "/variables/{domain}/{var}": {
+      "get": {
+        "tags": [
+          "variables"
+        ],
+        "summary": "A variable's metadata and dimensions",
+        "description": "Title, unit, subject, definition/notes (BPS HTML — sanitize before rendering), decimals,\nlast update, plus every dimension member: vervar (regions/categories), turvar, turth\n(sub-periods with their ``freq`` and ``has_data``) and periods (``th`` = year).",
+        "operationId": "getVariable",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "Domain id, e.g. `0000`.",
+              "title": "Domain"
+            },
+            "description": "Domain id, e.g. `0000`."
+          },
+          {
+            "name": "var",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "Variable id within the domain.",
+              "title": "Var"
+            },
+            "description": "Variable id within the domain."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariableDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown variable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/variables/{domain}/{var}/series": {
+      "get": {
+        "tags": [
+          "variables"
+        ],
+        "summary": "Time series of a variable, one per vervar x turvar",
+        "description": "One series per vervar x turvar combination (request order), at most ``max_series``\n(``truncated`` when more were asked for); points sorted by time, each with its period\n(``2024-03``, ``2024-Q2``, ``2024-S1``, ``2024``) and start date.",
+        "operationId": "getVariableSeries",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "Domain id, e.g. `0000`.",
+              "title": "Domain"
+            },
+            "description": "Domain id, e.g. `0000`."
+          },
+          {
+            "name": "var",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "Variable id within the domain.",
+              "title": "Var"
+            },
+            "description": "Variable id within the domain."
+          },
+          {
+            "name": "vervar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Vervar members (repeat the parameter); default: all.",
+              "title": "Vervar"
+            },
+            "description": "Vervar members (repeat the parameter); default: all."
+          },
+          {
+            "name": "turvar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Turvar members (repeat the parameter); default: all.",
+              "title": "Turvar"
+            },
+            "description": "Turvar members (repeat the parameter); default: all."
+          },
+          {
+            "name": "turth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only these sub-periods, e.g. months `1`-`12`; default: all.",
+              "title": "Turth"
+            },
+            "description": "Only these sub-periods, e.g. months `1`-`12`; default: all."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SeriesResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown variable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "DimMember": {
+        "properties": {
+          "val": {
+            "type": "integer",
+            "title": "Val"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "val",
+          "label"
+        ],
+        "title": "DimMember"
+      },
       "Domain": {
         "properties": {
           "domain_id": {
@@ -329,6 +530,177 @@
         ],
         "title": "Health"
       },
+      "PeriodMember": {
+        "properties": {
+          "th": {
+            "type": "integer",
+            "title": "Th"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "th",
+          "label"
+        ],
+        "title": "PeriodMember"
+      },
+      "Series": {
+        "properties": {
+          "vervar": {
+            "type": "integer",
+            "title": "Vervar"
+          },
+          "vervar_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Vervar Label"
+          },
+          "turvar": {
+            "type": "integer",
+            "title": "Turvar"
+          },
+          "turvar_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turvar Label"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/SeriesPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vervar",
+          "vervar_label",
+          "turvar",
+          "turvar_label",
+          "points"
+        ],
+        "title": "Series"
+      },
+      "SeriesPoint": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "th": {
+            "type": "integer",
+            "title": "Th"
+          },
+          "turth": {
+            "type": "integer",
+            "title": "Turth"
+          },
+          "value": {
+            "type": "number",
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "date",
+          "th",
+          "turth",
+          "value"
+        ],
+        "title": "SeriesPoint"
+      },
+      "SeriesResponse": {
+        "properties": {
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/Series"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "truncated": {
+            "type": "boolean",
+            "title": "Truncated"
+          },
+          "max_series": {
+            "type": "integer",
+            "title": "Max Series"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "truncated",
+          "max_series"
+        ],
+        "title": "SeriesResponse"
+      },
+      "TurthMember": {
+        "properties": {
+          "val": {
+            "type": "integer",
+            "title": "Val"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "freq": {
+            "type": "string",
+            "enum": [
+              "month",
+              "quarter",
+              "semester",
+              "year",
+              "other"
+            ],
+            "title": "Freq"
+          },
+          "has_data": {
+            "type": "boolean",
+            "title": "Has Data"
+          }
+        },
+        "type": "object",
+        "required": [
+          "val",
+          "label",
+          "freq",
+          "has_data"
+        ],
+        "title": "TurthMember",
+        "description": "A sub-period member (month, quarter, …, or the annual total)."
+      },
       "ValidationError": {
         "properties": {
           "loc": {
@@ -368,6 +740,166 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VariableDetail": {
+        "properties": {
+          "domain_id": {
+            "type": "string",
+            "title": "Domain Id"
+          },
+          "domain_name": {
+            "type": "string",
+            "title": "Domain Name"
+          },
+          "domain_level": {
+            "type": "string",
+            "enum": [
+              "pusat",
+              "prov",
+              "kab"
+            ],
+            "title": "Domain Level"
+          },
+          "var_id": {
+            "type": "integer",
+            "title": "Var Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "definition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Definition"
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notes"
+          },
+          "decimal": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decimal"
+          },
+          "last_update": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Update"
+          },
+          "vervars": {
+            "items": {
+              "$ref": "#/components/schemas/VervarMember"
+            },
+            "type": "array",
+            "title": "Vervars"
+          },
+          "turvars": {
+            "items": {
+              "$ref": "#/components/schemas/DimMember"
+            },
+            "type": "array",
+            "title": "Turvars"
+          },
+          "turths": {
+            "items": {
+              "$ref": "#/components/schemas/TurthMember"
+            },
+            "type": "array",
+            "title": "Turths"
+          },
+          "periods": {
+            "items": {
+              "$ref": "#/components/schemas/PeriodMember"
+            },
+            "type": "array",
+            "title": "Periods"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain_id",
+          "domain_name",
+          "domain_level",
+          "var_id",
+          "title",
+          "vervars",
+          "turvars",
+          "turths",
+          "periods"
+        ],
+        "title": "VariableDetail",
+        "description": "A variable's metadata and dimensions. ``definition``/``notes`` are BPS HTML: sanitize\nbefore rendering."
       },
       "VariablePage": {
         "properties": {
@@ -482,6 +1014,36 @@
         ],
         "title": "VariableSummary",
         "description": "A dynamic-table variable as listed by search (no definition/notes — see U3 detail)."
+      },
+      "VervarMember": {
+        "properties": {
+          "val": {
+            "type": "integer",
+            "title": "Val"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "group_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Group Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "val",
+          "label"
+        ],
+        "title": "VervarMember",
+        "description": "A vertical-variable member (usually a region or a category)."
       }
     }
   },

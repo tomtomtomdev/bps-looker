@@ -65,10 +65,61 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/variables/{domain}/{var}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * A variable's metadata and dimensions
+         * @description Title, unit, subject, definition/notes (BPS HTML — sanitize before rendering), decimals,
+         *     last update, plus every dimension member: vervar (regions/categories), turvar, turth
+         *     (sub-periods with their ``freq`` and ``has_data``) and periods (``th`` = year).
+         */
+        get: operations["getVariable"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/variables/{domain}/{var}/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Time series of a variable, one per vervar x turvar
+         * @description One series per vervar x turvar combination (request order), at most ``max_series``
+         *     (``truncated`` when more were asked for); points sorted by time, each with its period
+         *     (``2024-03``, ``2024-Q2``, ``2024-S1``, ``2024``) and start date.
+         */
+        get: operations["getVariableSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** DimMember */
+        DimMember: {
+            /** Val */
+            val: number;
+            /** Label */
+            label: string;
+        };
         /** Domain */
         Domain: {
             /** Domain Id */
@@ -103,6 +154,65 @@ export interface components {
             /** Revision */
             revision?: string | null;
         };
+        /** PeriodMember */
+        PeriodMember: {
+            /** Th */
+            th: number;
+            /** Label */
+            label: string;
+        };
+        /** Series */
+        Series: {
+            /** Vervar */
+            vervar: number;
+            /** Vervar Label */
+            vervar_label: string | null;
+            /** Turvar */
+            turvar: number;
+            /** Turvar Label */
+            turvar_label: string | null;
+            /** Points */
+            points: components["schemas"]["SeriesPoint"][];
+        };
+        /** SeriesPoint */
+        SeriesPoint: {
+            /** Period */
+            period: string;
+            /** Date */
+            date: string | null;
+            /** Th */
+            th: number;
+            /** Turth */
+            turth: number;
+            /** Value */
+            value: number;
+        };
+        /** SeriesResponse */
+        SeriesResponse: {
+            /** Series */
+            series: components["schemas"]["Series"][];
+            /** Truncated */
+            truncated: boolean;
+            /** Max Series */
+            max_series: number;
+        };
+        /**
+         * TurthMember
+         * @description A sub-period member (month, quarter, …, or the annual total).
+         */
+        TurthMember: {
+            /** Val */
+            val: number;
+            /** Label */
+            label: string;
+            /**
+             * Freq
+             * @enum {string}
+             */
+            freq: "month" | "quarter" | "semester" | "year" | "other";
+            /** Has Data */
+            has_data: boolean;
+        };
         /** ValidationError */
         ValidationError: {
             /** Location */
@@ -115,6 +225,50 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /**
+         * VariableDetail
+         * @description A variable's metadata and dimensions. ``definition``/``notes`` are BPS HTML: sanitize
+         *     before rendering.
+         */
+        VariableDetail: {
+            /** Domain Id */
+            domain_id: string;
+            /** Domain Name */
+            domain_name: string;
+            /**
+             * Domain Level
+             * @enum {string}
+             */
+            domain_level: "pusat" | "prov" | "kab";
+            /** Var Id */
+            var_id: number;
+            /** Title */
+            title: string;
+            /** Unit */
+            unit?: string | null;
+            /** Subject Id */
+            subject_id?: number | null;
+            /** Subject */
+            subject?: string | null;
+            /** Category */
+            category?: string | null;
+            /** Definition */
+            definition?: string | null;
+            /** Notes */
+            notes?: string | null;
+            /** Decimal */
+            decimal?: number | null;
+            /** Last Update */
+            last_update?: string | null;
+            /** Vervars */
+            vervars: components["schemas"]["VervarMember"][];
+            /** Turvars */
+            turvars: components["schemas"]["DimMember"][];
+            /** Turths */
+            turths: components["schemas"]["TurthMember"][];
+            /** Periods */
+            periods: components["schemas"]["PeriodMember"][];
         };
         /** VariablePage */
         VariablePage: {
@@ -153,6 +307,18 @@ export interface components {
             subject?: string | null;
             /** Category */
             category?: string | null;
+        };
+        /**
+         * VervarMember
+         * @description A vertical-variable member (usually a region or a category).
+         */
+        VervarMember: {
+            /** Val */
+            val: number;
+            /** Label */
+            label: string;
+            /** Group Label */
+            group_label?: string | null;
         };
     };
     responses: never;
@@ -253,6 +419,95 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["VariablePage"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getVariable: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Domain id, e.g. `0000`. */
+                domain: string;
+                /** @description Variable id within the domain. */
+                var: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VariableDetail"];
+                };
+            };
+            /** @description Unknown variable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getVariableSeries: {
+        parameters: {
+            query?: {
+                /** @description Vervar members (repeat the parameter); default: all. */
+                vervar?: number[] | null;
+                /** @description Turvar members (repeat the parameter); default: all. */
+                turvar?: number[] | null;
+                /** @description Only these sub-periods, e.g. months `1`-`12`; default: all. */
+                turth?: number[] | null;
+            };
+            header?: never;
+            path: {
+                /** @description Domain id, e.g. `0000`. */
+                domain: string;
+                /** @description Variable id within the domain. */
+                var: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SeriesResponse"];
+                };
+            };
+            /** @description Unknown variable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
