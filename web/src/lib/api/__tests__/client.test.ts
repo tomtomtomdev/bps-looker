@@ -14,6 +14,11 @@ describe("apiBaseUrl", () => {
     vi.stubEnv("NEXT_PUBLIC_API_URL", "https://api.example.test/");
     expect(apiBaseUrl()).toBe("https://api.example.test");
   });
+
+  it("accepts a same-origin path (the production image uses /api)", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_URL", "/api/");
+    expect(apiBaseUrl()).toBe("/api");
+  });
 });
 
 describe("generated schema", () => {

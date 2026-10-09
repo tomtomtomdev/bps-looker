@@ -27,7 +27,8 @@ is ignored inside containers.
 ### Start
 
 ```sh
-docker compose up -d          # db + scheduler + api + web
+docker compose up -d                  # db + scheduler (the crawler)
+docker compose --profile ui up -d     # + api + web (the UI): http://localhost:3000
 docker compose logs -f scheduler
 ```
 
@@ -35,8 +36,8 @@ docker compose logs -f scheduler
 |-------------|--------------|
 | `db`        | Postgres 16, data in the `pgdata` volume, published on `127.0.0.1:5432` only. |
 | `scheduler` | Loop: `bps seed refresh` → `bps work --drain --drain-wait 300` → `bps status`, then sleeps `BPS_SCHEDULE_INTERVAL` (default 3600 s). |
-| `api`       | Read-only HTTP API for the web UI (`bps serve`), on `127.0.0.1:8000` (`BPS_API_PORT`). Skips migrate-on-start (the scheduler migrates). |
-| `web`       | Next.js web UI on `127.0.0.1:3000` (`BPS_WEB_PORT`); calls the api from the browser at `NEXT_PUBLIC_API_URL` (build arg, default `http://localhost:8000`). |
+| `api`       | `ui` profile. Read-only HTTP API (`bps serve --workers $BPS_API_WORKERS`, default 2 uvicorn workers) on `127.0.0.1:8000` (`BPS_API_PORT`). Skips migrate-on-start (the scheduler migrates). |
+| `web`       | `ui` profile. Next.js UI (standalone production image) on `127.0.0.1:3000` (`BPS_WEB_PORT`); proxies `/api/*` to the `api` service. See [Web UI in production](#web-ui-in-production). |
 | `app`       | One-off commands (`tools` profile, not started by `up`): `docker compose run --rm app bps …`. |
 
 Every container runs `python -m bps_fetcher.entrypoint` first: it migrates the database to head
@@ -122,6 +123,42 @@ docker compose start
 
 `docker compose down -v` **deletes** the volume — use plain `down` to keep the data.
 
+### Web UI in production
+
+```sh
+docker compose --profile ui up -d --build     # api + web (+ db, scheduler); waits on healthchecks
+open http://localhost:3000
+```
+
+**How the browser reaches the API.** The `web` image is built with
+`NEXT_PUBLIC_API_URL=/api`, so the browser only ever calls **same-origin** `/api/*`. The Next
+server proxies those requests (route handler `web/src/app/api/[...path]/route.ts`, GET/HEAD only,
+no cookies forwarded) to `BPS_API_INTERNAL_URL`, which is read **at runtime** (compose:
+`http://api:8000`). So one image works under any hostname, the API needs no public port and no
+CORS, and changing where the API lives needs no rebuild. (`NEXT_PUBLIC_*` values are inlined at
+build time; a relative path keeps that harmless.)
+
+| Env var                | Default (image / compose) | Used by |
+|------------------------|---------------------------|---------|
+| `BPS_API_INTERNAL_URL` | `http://api:8000`         | web (runtime): where `/api/*` is proxied to. |
+| `NEXT_PUBLIC_API_URL`  | `/api`                    | web (**build** arg): API base URL as the browser sees it. Set an absolute URL only to make the browser call the API directly (then add the web origin to `BPS_WEB_ORIGIN`). |
+| `BPS_API_WORKERS`      | `2`                       | api: uvicorn worker processes (`bps serve --workers`). |
+| `BPS_WEB_PORT` / `BPS_API_PORT` | `3000` / `8000`  | compose: host ports, bound to `127.0.0.1` only. |
+
+**Reverse proxy.** Put TLS + the public hostname in front of `web` only, e.g. Caddy
+`bps.example.org { reverse_proxy 127.0.0.1:3000 }` or nginx `location / { proxy_pass
+http://127.0.0.1:3000; proxy_set_header Host $host; proxy_set_header X-Forwarded-Proto $scheme; }`.
+`/api/*` rides along on the same origin; there is nothing else to route. Keep port 8000
+unpublished (or on 127.0.0.1, as compose does) unless you want the raw API (`/docs`) reachable.
+
+**Images.** `web/Dockerfile`: multi-stage `node:26.11.1-alpine`, `next build` with
+`output: "standalone"` (`NEXT_STANDALONE=1`), runtime = `server.js` + traced `node_modules` +
+static assets only, user `node`, healthcheck on `/`. The api reuses the main Python image.
+
+**Vercel** (not set up): `web/` deploys as a plain Next.js app if the read API is reachable from
+Vercel's servers — set `BPS_API_INTERNAL_URL` to the API's public URL in the project's
+environment; nothing else changes.
+
 ## Local development
 
 No Docker needed: Python 3.12 via [uv](https://docs.astral.sh/uv/) and a local Postgres 16.
@@ -147,11 +184,12 @@ uv run bps --help
 | `make format`  | ruff fix + format. |
 | `make serve`   | `bps serve` (read API on 127.0.0.1:8000 against `DATABASE_URL`). |
 | `make openapi` | regenerate `web/openapi.json` from the API (committed). |
+| `make seed-fixtures` | `bps seed-fixtures tests/fixtures`: load the recorded BPS fixtures into `DATABASE_URL` without calling BPS (use a throwaway DB). |
 | `make web-api` | `make openapi` + regenerate the TS client `web/src/lib/api/schema.d.ts` (committed). |
 
-CI (GitHub Actions) runs the Python checks against a Postgres service, the web checks in a `web`
-job, and builds/runs the compose stack (`bps --help`, migrate-on-start against a fresh DB,
-scheduler loop, api `/health`, web home page).
+CI (GitHub Actions) runs the Python checks against a Postgres service, the web checks + mocked
+Playwright e2e in a `web` job, the compose stack (`bps --help`, migrate-on-start against a fresh
+DB, scheduler loop) in a `docker` job, and the UI stack smoke in an `e2e-stack` job (below).
 
 ### Web UI (`web/`)
 
@@ -167,7 +205,7 @@ cd web && pnpm dev                    # http://localhost:3000
 
 | Env var               | Default                 | Used by |
 |-----------------------|-------------------------|---------|
-| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | web: read API base URL as seen from the **browser**; inlined at build time (compose build arg). |
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8000` | web: read API base URL as seen from the **browser**; inlined at build time. The Docker image builds with `/api` (same-origin proxy). |
 | `BPS_WEB_ORIGIN`      | `http://localhost:3000` | api: CORS origins (comma-separated) — must include the web UI's origin. |
 | `BPS_WEB_PORT`        | `3000`                  | compose: host port of the `web` service. |
 
@@ -177,8 +215,32 @@ cd web && pnpm dev                    # http://localhost:3000
 | `pnpm test`         | Vitest + Testing Library (jsdom); `pnpm test:watch` to watch. |
 | `pnpm lint` / `pnpm typecheck` / `pnpm build` | ESLint (Next config), `next typegen` + `tsc`, production build. |
 | `pnpm gen:api`      | regenerate `src/lib/api/schema.d.ts` from `openapi.json` (`openapi-typescript`); `pnpm check:api` fails when it is stale. |
-| `pnpm e2e`          | Playwright against `pnpm start` (`make e2e`; specs arrive with U2, browsers: `pnpm exec playwright install chromium`). |
+| `pnpm e2e`          | Playwright (`e2e/`) against `pnpm start`, read API **mocked** by route interception (`make e2e`; browsers: `pnpm exec playwright install chromium`). |
+| `pnpm e2e:stack`    | Playwright stack smoke (`e2e-stack/`, `playwright.stack.config.ts`) against a running stack at `E2E_BASE_URL` (default `http://localhost:3000`); nothing mocked. |
 
 The API client is `openapi-fetch` over the generated types (`src/lib/api/client.ts`): after changing
 an endpoint run `make web-api` and commit both `web/openapi.json` and `schema.d.ts`.
-Compose's `web` service is a simple build + `next start` image (production image in U7).
+In development the browser calls `NEXT_PUBLIC_API_URL` (default `http://localhost:8000`) directly
+(CORS via `BPS_WEB_ORIGIN`); the production image uses the same-origin `/api` proxy instead.
+
+#### UI stack e2e
+
+`make e2e-stack` builds the images, starts `db`, seeds it with `bps seed-fixtures` (the recorded
+responses in `tests/fixtures` run through the real handlers + worker with a fake client: all
+domains, inflation y-on-y for 38 provinces 2024, 16 national indicators, chapter-03 exports 2024;
+no BPS calls, deterministic), starts `api` + `web` and runs `pnpm e2e:stack` (Explorer search →
+chart → map tab, Indicators tiles → history, Trade summary + breakdown + monthly charts). It needs
+Docker; CI's `e2e-stack` job runs the same steps (Playwright report uploaded on failure).
+
+Without Docker (e.g. the dev Mac), the same smoke against local processes:
+
+```sh
+createdb -O bps bps_e2e                              # throwaway DB
+export DATABASE_URL=postgresql+psycopg://bps:bps@localhost:5432/bps_e2e
+uv run bps migrate && make seed-fixtures
+uv run bps serve --port 8001 &
+cd web && NEXT_STANDALONE=1 NEXT_PUBLIC_API_URL=/api pnpm build \
+  && cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/
+(cd .next/standalone && BPS_API_INTERNAL_URL=http://127.0.0.1:8001 PORT=3001 node server.js &)
+E2E_BASE_URL=http://127.0.0.1:3001 pnpm e2e:stack
+```

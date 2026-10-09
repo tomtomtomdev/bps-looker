@@ -9,7 +9,9 @@
                      [--as-of ISO-DATETIME] [--dry-run]
     bps work [--drain] [--drain-wait SECONDS] [--max-tasks N] [--concurrency N] [--kind data ...]
     bps status [--max-dead N] [--dead-limit N] [--json]
-    bps serve [--host 127.0.0.1] [--port 8000]
+    bps refresh-views
+    bps seed-fixtures [tests/fixtures]
+    bps serve [--host 127.0.0.1] [--port 8000] [--workers N]
     bps openapi [--out web/openapi.json]
 
 ``seed dynamic`` enqueues one ``domains`` task: it fetches ``/domain`` and upserts every domain
@@ -409,6 +411,29 @@ def refresh_views() -> None:
     typer.echo(f"Refreshed {TRADE_ROLLUP} in {elapsed:.1f} s.")
 
 
+@app.command("seed-fixtures")
+def seed_fixtures_cmd(
+    directory: Annotated[
+        Path, typer.Argument(help="Directory of recorded fixtures (tests/fixtures).")
+    ] = Path("tests/fixtures"),
+) -> None:
+    """Load the recorded BPS fixtures into the DB without calling BPS (UI stack e2e data)."""
+    from bps_fetcher.seed_fixtures import MissingFixtureError, seed_fixtures
+
+    _setup_logging()
+    engine = _engine()
+    try:
+        result = seed_fixtures(engine, directory)
+    except MissingFixtureError as exc:
+        typer.echo(f"Cannot seed: {exc}", err=True)
+        raise typer.Exit(1) from None
+    finally:
+        engine.dispose()
+    typer.echo(f"Seeded from fixtures: {result.done} task(s) done, {result.failed} failed.")
+    if result.failed:
+        raise typer.Exit(1)
+
+
 @app.command()
 def status(
     max_dead: Annotated[
@@ -444,14 +469,31 @@ DEFAULT_OPENAPI_OUT = Path("web/openapi.json")
 def serve(
     host: Annotated[str, typer.Option(help="Interface to bind.")] = "127.0.0.1",
     port: Annotated[int, typer.Option(min=1, max=65535, help="Port to listen on.")] = 8000,
+    workers: Annotated[
+        int, typer.Option(min=1, envvar="BPS_API_WORKERS", help="Uvicorn worker processes.")
+    ] = 1,
 ) -> None:
     """Run the read-only HTTP API (uvicorn). Needs DATABASE_URL, not BPS_API_KEY."""
     import uvicorn
 
+    _setup_logging()
+    # An import string + factory, so each worker process builds its own app (and logging).
+    uvicorn.run(
+        "bps_fetcher.cli:serve_app",
+        factory=True,
+        host=host,
+        port=port,
+        workers=workers,
+        log_config=None,
+    )
+
+
+def serve_app() -> Any:
+    """``bps serve`` app factory (runs in every uvicorn worker process)."""
     from bps_fetcher.api import create_app
 
     _setup_logging()
-    uvicorn.run(create_app(), host=host, port=port, log_config=None)
+    return create_app()
 
 
 @app.command()

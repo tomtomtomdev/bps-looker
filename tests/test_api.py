@@ -16,6 +16,7 @@ from typer.testing import CliRunner
 from bps_fetcher.api import create_app, openapi_schema
 from bps_fetcher.api.models import DomainLevel
 from bps_fetcher.cli import app as cli_app
+from bps_fetcher.cli import serve_app
 from bps_fetcher.db.schema import DOMAIN_LEVELS
 from bps_fetcher.settings import ApiSettings
 
@@ -199,9 +200,22 @@ def test_cli_serve_runs_uvicorn(monkeypatch: pytest.MonkeyPatch) -> None:
     result = runner.invoke(cli_app, ["serve", "--host", "0.0.0.0", "--port", "8123"])
     assert result.exit_code == 0, result.output
     [(served, kwargs)] = calls
-    assert isinstance(served, FastAPI)
+    # An import string + factory (each worker process builds its own app).
+    assert served == "bps_fetcher.cli:serve_app"
+    assert kwargs["factory"] is True
     assert kwargs["host"] == "0.0.0.0"
     assert kwargs["port"] == 8123
+    assert kwargs["workers"] == 1
+    assert isinstance(serve_app(), FastAPI)
+
+
+def test_cli_serve_workers(monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[dict[str, Any]] = []
+    monkeypatch.setattr("uvicorn.run", lambda app, **kw: calls.append(kw))
+    assert runner.invoke(cli_app, ["serve", "--workers", "3"]).exit_code == 0
+    monkeypatch.setenv("BPS_API_WORKERS", "2")
+    assert runner.invoke(cli_app, ["serve"]).exit_code == 0
+    assert [kw["workers"] for kw in calls] == [3, 2]
 
 
 async def test_connections_are_read_only(client: httpx.AsyncClient, api: FastAPI) -> None:

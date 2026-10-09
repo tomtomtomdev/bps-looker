@@ -75,6 +75,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: docker compose config --quiet
+      - run: docker compose --profile ui config --quiet
       - run: docker compose build
       - name: Image runs as non-root
         run: test "$(docker compose run --rm -T --no-deps -e BPS_MIGRATE_ON_START=0 app id -u)" != "0"
@@ -91,23 +92,61 @@ jobs:
           docker compose logs scheduler
           docker compose ps --status running --services | grep -qx scheduler
           docker compose logs scheduler | grep -q "scheduler: sleeping 600s"
-      - name: Read API answers /health
-        run: |
-          docker compose up -d api
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:8000/health && exit 0
-            sleep 2
-          done
-          docker compose logs api
-          exit 1
-      - name: Web UI serves the app shell
-        run: |
-          docker compose up -d web
-          for i in $(seq 1 30); do
-            curl -fsS http://127.0.0.1:3000/ | grep -q "BPS Looker" && exit 0
-            sleep 2
-          done
-          docker compose logs web
-          exit 1
       - if: always()
         run: docker compose down -v
+
+  # UI stack smoke (U7): production images (api = main image + `bps serve --workers`, web =
+  # Next standalone), compose `ui` profile, DB seeded from the recorded fixtures, Playwright
+  # (web/e2e-stack/) against the real stack — nothing mocked.
+  e2e-stack:
+    runs-on: ubuntu-24.04
+    env:
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build images
+        run: docker compose --profile ui build
+      - name: Web image runs as non-root, small
+        run: |
+          test "$(docker run --rm --entrypoint id bps-web:latest -u)" != "0"
+          docker image ls bps-web:latest
+      - name: Start db
+        run: docker compose --profile ui up -d --wait db
+      - name: Seed from fixtures (migrates on start; no BPS calls)
+        run: |
+          docker compose run --rm -v "$PWD/tests/fixtures:/fixtures:ro" app \
+            bps seed-fixtures /fixtures
+          docker compose run --rm app bps status --max-dead 0
+      - name: Start api + web (waits for healthchecks)
+        run: docker compose --profile ui up -d --wait api web
+      - name: Same-origin /api proxy answers
+        run: curl -fsS http://127.0.0.1:3000/api/health | tee /dev/stderr | grep -q '"database":"ok"'
+      - uses: pnpm/action-setup@v6.1.0
+        with:
+          package_json_file: web/package.json
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: web/.node-version
+          cache: pnpm
+          cache-dependency-path: web/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+        working-directory: web
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: web
+      - name: Playwright stack smoke
+        run: pnpm e2e:stack
+        working-directory: web
+        env:
+          E2E_BASE_URL: http://127.0.0.1:3000
+      - if: failure()
+        run: docker compose --profile ui logs
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-stack-report
+          path: |
+            web/playwright-report/
+            web/test-results/
+          retention-days: 7
+      - if: always()
+        run: docker compose --profile ui down -v

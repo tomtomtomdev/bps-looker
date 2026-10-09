@@ -2,8 +2,12 @@
 #   db         Postgres 16, data in the `pgdata` volume (only published on 127.0.0.1).
 #   app        one-off commands: `docker compose run --rm app bps seed indicators` etc.
 #   scheduler  long-running loop: `bps seed refresh` + `bps work --drain` every BPS_SCHEDULE_INTERVAL s.
-#   api        read-only HTTP API for the web UI (`bps serve`), published on 127.0.0.1:8000.
-#   web        Next.js UI (web/), published on 127.0.0.1:3000; its browser code calls the api.
+#   api        [profile ui] read-only HTTP API for the web UI (`bps serve`, uvicorn workers),
+#              published on 127.0.0.1:8000 (debugging / direct use; the UI doesn't need it).
+#   web        [profile ui] Next.js UI (web/, standalone image), published on 127.0.0.1:3000.
+#              The browser calls same-origin /api/*, which the web server proxies to
+#              BPS_API_INTERNAL_URL (http://api:8000) — put a reverse proxy in front of `web` only.
+#   docker compose --profile ui up -d     # db + scheduler + api + web
 # Every container migrates the DB to head on start (bps_fetcher.entrypoint), then runs its command.
 # Secrets come from .env (never baked into the image); DATABASE_URL always points at `db`.
 
@@ -64,6 +68,7 @@ services:
 
   api:
     <<: *bps
+    profiles: ["ui"]
     restart: unless-stopped
     # The scheduler migrates on start; two concurrent Alembic upgrades on a fresh DB could race,
     # so the read-only API skips it (/health reports the DB revision, null until migrated).
@@ -71,7 +76,7 @@ services:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-bps}:${POSTGRES_PASSWORD:-bps}@db:5432/${POSTGRES_DB:-bps}
       BPS_MIGRATE_ON_START: "0"
       BPS_WEB_ORIGIN: ${BPS_WEB_ORIGIN:-http://localhost:3000}
-    command: ["bps", "serve", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["bps", "serve", "--host", "0.0.0.0", "--port", "8000", "--workers", "${BPS_API_WORKERS:-2}"]
     ports:
       - "127.0.0.1:${BPS_API_PORT:-8000}:8000"
     healthcheck:
@@ -85,19 +90,30 @@ services:
       retries: 5
 
   web:
-    # Simple build + `next start` (web/Dockerfile); production image + e2e come in U7.
+    # Production image (web/Dockerfile): standalone `node server.js`, non-root. The browser uses
+    # same-origin /api (baked in, host-independent); the upstream is a runtime env var.
+    profiles: ["ui"]
     build:
       context: ./web
-      args:
-        # Inlined at build time: the API URL as seen from the *browser*, not from the container.
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000}
     image: bps-web:latest
     restart: unless-stopped
     init: true
+    environment:
+      BPS_API_INTERNAL_URL: http://api:8000
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     ports:
       - "127.0.0.1:${BPS_WEB_PORT:-3000}:3000"
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1), () => process.exit(1))"
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   pgdata:

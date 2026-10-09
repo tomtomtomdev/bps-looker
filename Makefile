@@ -1,5 +1,5 @@
 .PHONY: lint format typecheck test live build check migrate serve openapi \
-	web-install web-check web-api web-dev e2e
+	web-install web-check web-api web-dev e2e seed-fixtures e2e-stack
 
 lint:
 	uv run ruff check .
@@ -55,7 +55,25 @@ web-dev:
 	$(PNPM) dev
 
 # Playwright e2e (web/e2e/) against a production build on :3000 (`pnpm start`); the read API is
-# mocked by route interception until U7. Browsers: `pnpm --dir web exec playwright install chromium`.
+# mocked by route interception (fast, no Python/Postgres). Browsers:
+# `pnpm --dir web exec playwright install chromium`.
 e2e:
 	$(PNPM) build
 	$(PNPM) e2e
+
+# Load the recorded BPS fixtures (tests/fixtures) into DATABASE_URL — no API calls. Use a
+# throwaway DB: it adds tasks + rows next to whatever is there.
+seed-fixtures:
+	uv run bps seed-fixtures tests/fixtures
+
+# Stack smoke (web/e2e-stack/): compose `ui` profile (db + api + web, production images) seeded
+# with the fixtures, then Playwright against http://localhost:$${BPS_WEB_PORT:-3000}. Needs Docker
+# (CI runs it; not available on the dev Mac — see README "UI stack e2e without Docker").
+# Leaves the stack running; `docker compose --profile ui down -v` removes it (and its DB volume!).
+COMPOSE_UI := docker compose --profile ui
+e2e-stack:
+	$(COMPOSE_UI) build
+	$(COMPOSE_UI) up -d --wait db
+	$(COMPOSE_UI) run --rm -v $(CURDIR)/tests/fixtures:/fixtures:ro app bps seed-fixtures /fixtures
+	$(COMPOSE_UI) up -d --wait api web
+	E2E_BASE_URL=http://localhost:$${BPS_WEB_PORT:-3000} $(PNPM) e2e:stack

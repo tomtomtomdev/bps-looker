@@ -7,3 +7,5 @@ playwright-report
 blob-report
 *.tsbuildinfo
 next-env.d.ts
+e2e
+e2e-stack
