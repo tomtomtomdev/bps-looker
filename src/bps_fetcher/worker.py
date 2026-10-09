@@ -28,6 +28,7 @@ The API key never reaches the DB: stored endpoints/params and error text are red
 import argparse
 import asyncio
 import logging
+import time
 from collections.abc import Awaitable, Callable, Iterable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol
@@ -103,6 +104,42 @@ def register(kind: str) -> Callable[[Handler], Handler]:
     return deco
 
 
+@dataclass(frozen=True, slots=True)
+class Refresher:
+    """Run ``fn(engine)`` (e.g. a materialized view refresh) after tasks of ``kinds`` completed:
+    during a run at most every ``interval`` seconds (in a thread, so the other slots keep going),
+    and once more when the worker stops if anything completed since. Errors are logged, never
+    raised — the next completed task retries."""
+
+    kinds: frozenset[str]
+    fn: Callable[[Engine], object]
+    interval: float = 600.0
+
+
+class _RefreshState:
+    def __init__(self, refresher: Refresher) -> None:
+        self.refresher = refresher
+        self.dirty = False
+        self.running = False
+        self.last = time.monotonic()
+
+    async def run(self, engine: Engine, *, force: bool = False) -> None:
+        if not self.dirty or self.running:
+            return
+        if not force and time.monotonic() - self.last < self.refresher.interval:
+            return
+        self.dirty = False
+        self.running = True
+        try:
+            await asyncio.to_thread(self.refresher.fn, engine)
+        except Exception as exc:
+            self.dirty = True
+            log.warning("refresh after %s tasks failed: %s", sorted(self.refresher.kinds), exc)
+        finally:
+            self.running = False
+            self.last = time.monotonic()
+
+
 @dataclass(slots=True)
 class Stats:
     done: int = 0
@@ -146,10 +183,12 @@ async def run_one(
     *,
     secrets: Sequence[str] = (),
     kinds: Iterable[str] | None = None,
+    on_complete: Callable[[queue.Task], object] | None = None,
 ) -> bool | None:
     """Claim and process one task in its own transaction.
 
     Returns ``None`` if nothing was due, ``True`` if the task completed, ``False`` if it failed.
+    ``on_complete(task)`` is called once a completed task's transaction committed.
     """
     with engine.connect() as conn, conn.begin():
         claimed = queue.claim(conn, 1, kinds=kinds)
@@ -171,8 +210,10 @@ async def run_one(
             log.warning("task %s (%s) failed -> %s: %s", t.id, t.kind, status, error)
             return False
         queue.complete(conn, t.id)
-        log.debug("task %s (%s) done", t.id, t.kind)
-        return True
+    log.debug("task %s (%s) done", t.id, t.kind)
+    if on_complete is not None:
+        on_complete(t)
+    return True
 
 
 def _seconds_until_due(engine: Engine, kinds: list[str] | None) -> float | None:
@@ -192,6 +233,7 @@ async def run_worker(
     secrets: Sequence[str] = (),
     idle_sleep: float = DEFAULT_IDLE_SLEEP,
     drain_wait: float = 0.0,
+    refreshers: Sequence[Refresher] = (),
 ) -> Stats:
     """Run ``concurrency`` slots, each claiming one task at a time on its own connection.
 
@@ -199,7 +241,8 @@ async def run_worker(
     slot is still working (children of in-flight tasks count as future work) and no pending
     task becomes due within ``drain_wait`` seconds (e.g. one waiting out its retry backoff;
     the default ``0`` stops right away). Without either it polls forever, sleeping
-    ``idle_sleep`` when the queue is empty.
+    ``idle_sleep`` when the queue is empty. ``refreshers`` run after tasks of their kinds
+    completed (see :class:`Refresher`; a cancelled worker skips the final refresh).
     """
     if concurrency < 1:
         raise ValueError("concurrency must be >= 1")
@@ -208,6 +251,12 @@ async def run_worker(
     stats = Stats()
     claimed = 0
     busy = 0
+    refresh_states = [_RefreshState(r) for r in refreshers]
+
+    def mark_dirty(t: queue.Task) -> None:
+        for state in refresh_states:
+            if t.kind in state.refresher.kinds:
+                state.dirty = True
 
     async def slot() -> None:
         nonlocal claimed, busy
@@ -215,11 +264,20 @@ async def run_worker(
             claimed += 1  # reserve before awaiting so slots never overshoot max_tasks
             busy += 1
             try:
-                outcome = await run_one(engine, client, handlers, secrets=secrets, kinds=kind_list)
+                outcome = await run_one(
+                    engine,
+                    client,
+                    handlers,
+                    secrets=secrets,
+                    kinds=kind_list,
+                    on_complete=mark_dirty if refresh_states else None,
+                )
             finally:
                 busy -= 1
             if outcome is True:
                 stats.done += 1
+                for state in refresh_states:
+                    await state.run(engine)
             elif outcome is False:
                 stats.failed += 1
             else:
@@ -235,6 +293,8 @@ async def run_worker(
     async with asyncio.TaskGroup() as tg:
         for _ in range(concurrency):
             tg.create_task(slot())
+    for state in refresh_states:
+        await state.run(engine, force=True)
     return stats
 
 

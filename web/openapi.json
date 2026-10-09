@@ -668,6 +668,410 @@
           }
         }
       }
+    },
+    "/trade/periods": {
+      "get": {
+        "tags": [
+          "trade"
+        ],
+        "summary": "Years and months with trade data, per flow",
+        "description": "Every (flow, year) with data: whether BPS annual figures exist and which months have\nmonthly figures; plus the latest year and month (dashboard defaults).",
+        "operationId": "getTradePeriods",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradePeriods"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/summary": {
+      "get": {
+        "tags": [
+          "trade"
+        ],
+        "summary": "Total exports / imports (value, net weight) and the trade balance",
+        "description": "Totals over one period (`year`, `year`+`month`) or a range (`from`/`to`); nothing given →\nthe latest year with data. A year counts its annual figures, or — without them — the sum\nof its monthly figures (year to date); `periods` says which, per year.",
+        "operationId": "getTradeSummary",
+        "parameters": [
+          {
+            "name": "flow",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "export",
+                    "import"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "One flow; default: both.",
+              "title": "Flow"
+            },
+            "description": "One flow; default: both."
+          },
+          {
+            "name": "year",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 2100,
+                  "minimum": 2000
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "A whole year (shorthand for from=to=YYYY).",
+              "title": "Year"
+            },
+            "description": "A whole year (shorthand for from=to=YYYY)."
+          },
+          {
+            "name": "month",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 12,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "With `year`: that one month.",
+              "title": "Month"
+            },
+            "description": "With `year`: that one month."
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both.",
+              "title": "From"
+            },
+            "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range end (inclusive).",
+              "title": "To"
+            },
+            "description": "Range end (inclusive)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeSummary"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/breakdown": {
+      "get": {
+        "tags": [
+          "trade"
+        ],
+        "summary": "Top N countries, ports or HS chapters by value, plus an others bucket",
+        "description": "The flow's value and net weight per chapter / country / port over the range (default:\nthe latest year with data), largest first; the rest summed into `others`. Chapters are\nlabelled with their HS description.",
+        "operationId": "getTradeBreakdown",
+        "parameters": [
+          {
+            "name": "by",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "enum": [
+                "hs2",
+                "country",
+                "port"
+              ],
+              "type": "string",
+              "description": "Group by HS chapter, country or port.",
+              "title": "By"
+            },
+            "description": "Group by HS chapter, country or port."
+          },
+          {
+            "name": "flow",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "export",
+                "import"
+              ],
+              "type": "string",
+              "default": "export",
+              "title": "Flow"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both.",
+              "title": "From"
+            },
+            "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range end (inclusive).",
+              "title": "To"
+            },
+            "description": "Range end (inclusive)."
+          },
+          {
+            "name": "top",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 50,
+              "minimum": 1,
+              "description": "Items to list before `others`.",
+              "default": 10,
+              "title": "Top"
+            },
+            "description": "Items to list before `others`."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeBreakdown"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trade/series": {
+      "get": {
+        "tags": [
+          "trade"
+        ],
+        "summary": "Monthly trade values, optionally for one HS chapter and/or country",
+        "description": "One series of monthly figures per flow (default: all months with data), and with both\nflows the monthly balance (exports - imports) where both have data.",
+        "operationId": "getTradeSeries",
+        "parameters": [
+          {
+            "name": "hs2",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{2}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "HS chapter, e.g. `27`.",
+              "title": "Hs2"
+            },
+            "description": "HS chapter, e.g. `27`."
+          },
+          {
+            "name": "country",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Country name as BPS writes it.",
+              "title": "Country"
+            },
+            "description": "Country name as BPS writes it."
+          },
+          {
+            "name": "flow",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "export",
+                    "import"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "One flow; default: both, plus the trade balance.",
+              "title": "Flow"
+            },
+            "description": "One flow; default: both, plus the trade balance."
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both.",
+              "title": "From"
+            },
+            "description": "Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both."
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^(\\d{4})(?:-(0[1-9]|1[0-2]))?$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Range end (inclusive).",
+              "title": "To"
+            },
+            "description": "Range end (inclusive)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TradeSeriesResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1497,6 +1901,551 @@
         ],
         "title": "SeriesResponse"
       },
+      "TradeBalancePoint": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "value_usd": {
+            "type": "number",
+            "title": "Value Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "date",
+          "value_usd"
+        ],
+        "title": "TradeBalancePoint"
+      },
+      "TradeBreakdown": {
+        "properties": {
+          "by": {
+            "type": "string",
+            "enum": [
+              "hs2",
+              "country",
+              "port"
+            ],
+            "title": "By"
+          },
+          "flow": {
+            "type": "string",
+            "enum": [
+              "export",
+              "import"
+            ],
+            "title": "Flow"
+          },
+          "top": {
+            "type": "integer",
+            "title": "Top"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TradeRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "total": {
+            "$ref": "#/components/schemas/TradeTotal"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TradeBreakdownItem"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "others": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TradeOthers"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "by",
+          "flow",
+          "top",
+          "total",
+          "items"
+        ],
+        "title": "TradeBreakdown"
+      },
+      "TradeBreakdownItem": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "value_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Usd"
+          },
+          "netweight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netweight Kg"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key"
+        ],
+        "title": "TradeBreakdownItem"
+      },
+      "TradeOthers": {
+        "properties": {
+          "count": {
+            "type": "integer",
+            "title": "Count"
+          },
+          "value_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Usd"
+          },
+          "netweight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netweight Kg"
+          },
+          "share": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Share"
+          }
+        },
+        "type": "object",
+        "required": [
+          "count"
+        ],
+        "title": "TradeOthers",
+        "description": "Everything below the top N, as one bucket."
+      },
+      "TradePeriods": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TradeYear"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "latest_year": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Year"
+          },
+          "latest_month": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latest Month"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "TradePeriods"
+      },
+      "TradePoint": {
+        "properties": {
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "date": {
+            "type": "string",
+            "format": "date",
+            "title": "Date"
+          },
+          "value_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Usd"
+          },
+          "netweight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netweight Kg"
+          }
+        },
+        "type": "object",
+        "required": [
+          "period",
+          "date"
+        ],
+        "title": "TradePoint"
+      },
+      "TradeRange": {
+        "properties": {
+          "start": {
+            "type": "string",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "title": "End"
+          },
+          "granularity": {
+            "type": "string",
+            "enum": [
+              "year",
+              "month"
+            ],
+            "title": "Granularity"
+          }
+        },
+        "type": "object",
+        "required": [
+          "start",
+          "end",
+          "granularity"
+        ],
+        "title": "TradeRange",
+        "description": "The resolved period range: ``year`` granularity (``2024``…``2025``) or ``month``\n(``2024-11``…``2025-02``)."
+      },
+      "TradeSeries": {
+        "properties": {
+          "flow": {
+            "type": "string",
+            "enum": [
+              "export",
+              "import"
+            ],
+            "title": "Flow"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/TradePoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flow",
+          "points"
+        ],
+        "title": "TradeSeries"
+      },
+      "TradeSeriesResponse": {
+        "properties": {
+          "hs2": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hs2"
+          },
+          "hs2_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hs2 Label"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country"
+          },
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TradeRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "series": {
+            "items": {
+              "$ref": "#/components/schemas/TradeSeries"
+            },
+            "type": "array",
+            "title": "Series"
+          },
+          "balance": {
+            "items": {
+              "$ref": "#/components/schemas/TradeBalancePoint"
+            },
+            "type": "array",
+            "title": "Balance"
+          }
+        },
+        "type": "object",
+        "required": [
+          "series",
+          "balance"
+        ],
+        "title": "TradeSeriesResponse"
+      },
+      "TradeSummary": {
+        "properties": {
+          "range": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TradeRange"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TradeTotal"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "balance_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Balance Usd"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "TradeSummary"
+      },
+      "TradeTotal": {
+        "properties": {
+          "flow": {
+            "type": "string",
+            "enum": [
+              "export",
+              "import"
+            ],
+            "title": "Flow"
+          },
+          "value_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value Usd"
+          },
+          "netweight_kg": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Netweight Kg"
+          },
+          "periods": {
+            "items": {
+              "$ref": "#/components/schemas/TradeYearBasis"
+            },
+            "type": "array",
+            "title": "Periods"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flow",
+          "periods"
+        ],
+        "title": "TradeTotal"
+      },
+      "TradeYear": {
+        "properties": {
+          "flow": {
+            "type": "string",
+            "enum": [
+              "export",
+              "import"
+            ],
+            "title": "Flow"
+          },
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "annual": {
+            "type": "boolean",
+            "title": "Annual"
+          },
+          "months": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Months"
+          }
+        },
+        "type": "object",
+        "required": [
+          "flow",
+          "year",
+          "annual",
+          "months"
+        ],
+        "title": "TradeYear",
+        "description": "Trade data available for one flow and year."
+      },
+      "TradeYearBasis": {
+        "properties": {
+          "year": {
+            "type": "integer",
+            "title": "Year"
+          },
+          "basis": {
+            "type": "string",
+            "enum": [
+              "annual",
+              "monthly"
+            ],
+            "title": "Basis"
+          },
+          "months": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Months"
+          }
+        },
+        "type": "object",
+        "required": [
+          "year",
+          "basis"
+        ],
+        "title": "TradeYearBasis",
+        "description": "How a year of the range was counted: its ``annual`` rows, or the sum of its ``monthly``\nrows (a partial year when ``months`` < 12)."
+      },
       "TurthMember": {
         "properties": {
           "val": {
@@ -1919,6 +2868,10 @@
     {
       "name": "indicators",
       "description": "Strategic indicators: latest values and history."
+    },
+    {
+      "name": "trade",
+      "description": "Foreign trade: totals, top-N breakdowns, monthly series."
     }
   ]
 }

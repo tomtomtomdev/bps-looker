@@ -22,6 +22,7 @@ OPENAPI_TAGS = [
     {"name": "domains", "description": "BPS domains: national (pusat), provinces, regencies."},
     {"name": "variables", "description": "Dynamic-table variables: search, metadata, data."},
     {"name": "indicators", "description": "Strategic indicators: latest values and history."},
+    {"name": "trade", "description": "Foreign trade: totals, top-N breakdowns, monthly series."},
 ]
 
 

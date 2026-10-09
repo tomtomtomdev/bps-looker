@@ -29,6 +29,7 @@ ALL_TABLES = {
 
 # Read views (hand-written SQL in migrations, not in MetaData).
 ALL_VIEWS = {"v_observation", "v_trade", "v_indicator_latest"}
+MATERIALIZED_VIEWS = {"mv_trade_rollup"}
 
 
 def _tables(url: str) -> set[str]:
@@ -43,6 +44,14 @@ def _views(url: str) -> set[str]:
     engine = create_engine(url)
     try:
         return set(inspect(engine).get_view_names())
+    finally:
+        engine.dispose()
+
+
+def _materialized_views(url: str) -> set[str]:
+    engine = create_engine(url)
+    try:
+        return set(inspect(engine).get_materialized_view_names())
     finally:
         engine.dispose()
 
@@ -85,6 +94,7 @@ def test_upgrade_from_empty_creates_all_tables(empty_db: str) -> None:
     upgrade(empty_db, "head")
     assert _tables(empty_db) == ALL_TABLES | {"alembic_version"}
     assert _views(empty_db) == ALL_VIEWS
+    assert _materialized_views(empty_db) == MATERIALIZED_VIEWS
 
 
 def test_downgrade_removes_all_tables(empty_db: str) -> None:
@@ -92,6 +102,7 @@ def test_downgrade_removes_all_tables(empty_db: str) -> None:
     downgrade(empty_db, "base")
     assert _tables(empty_db) - {"alembic_version"} == set()
     assert _views(empty_db) == set()
+    assert _materialized_views(empty_db) == set()
 
 
 def test_upgrade_downgrade_upgrade_roundtrip(empty_db: str) -> None:

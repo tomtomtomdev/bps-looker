@@ -365,6 +365,7 @@ def work(
 ) -> None:
     """Run the worker: claim due tasks and process them."""
     from bps_fetcher.client import BpsClient
+    from bps_fetcher.rollup import trade_refresher
     from bps_fetcher.settings import get_settings
     from bps_fetcher.worker import Stats, run_worker
 
@@ -384,6 +385,7 @@ def work(
                 kinds=kind,
                 secrets=[key],
                 drain_wait=drain_wait,
+                refreshers=[trade_refresher()],
             )
 
     try:
@@ -391,6 +393,20 @@ def work(
     finally:
         engine.dispose()
     typer.echo(f"Worker stopped: {stats.done} done, {stats.failed} failed.")
+
+
+@app.command("refresh-views")
+def refresh_views() -> None:
+    """Refresh the materialized views the read API uses (``bps work`` does it after trade tasks)."""
+    from bps_fetcher.rollup import TRADE_ROLLUP, refresh_trade_rollup
+
+    _setup_logging()
+    engine = _engine()
+    try:
+        elapsed = refresh_trade_rollup(engine)
+    finally:
+        engine.dispose()
+    typer.echo(f"Refreshed {TRADE_ROLLUP} in {elapsed:.1f} s.")
 
 
 @app.command()

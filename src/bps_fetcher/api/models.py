@@ -224,3 +224,122 @@ class IndicatorPoint(BaseModel):
 class IndicatorHistory(Indicator):
     points: list[IndicatorPoint]
     """One per periode, oldest first; the last is the latest snapshot."""
+
+
+# --- trade (U6) ----------------------------------------------------------------------------------
+
+TradeFlow = Literal["export", "import"]
+TradeBy = Literal["hs2", "country", "port"]
+
+
+class TradeYear(BaseModel):
+    """Trade data available for one flow and year."""
+
+    flow: TradeFlow
+    year: int
+    annual: bool
+    """BPS published annual figures (for the current year: year to date)."""
+    months: list[int]
+    """Months with monthly figures."""
+
+
+class TradePeriods(BaseModel):
+    items: list[TradeYear]
+    latest_year: int | None = None
+    latest_month: str | None = None
+    """Latest month with monthly figures, ``YYYY-MM``."""
+
+
+class TradeRange(BaseModel):
+    """The resolved period range: ``year`` granularity (``2024``…``2025``) or ``month``
+    (``2024-11``…``2025-02``)."""
+
+    start: str
+    end: str
+    granularity: Literal["year", "month"]
+
+
+class TradeYearBasis(BaseModel):
+    """How a year of the range was counted: its ``annual`` rows, or the sum of its ``monthly``
+    rows (a partial year when ``months`` < 12)."""
+
+    year: int
+    basis: Literal["annual", "monthly"]
+    months: int | None = None
+    """Months with monthly figures counted (monthly basis) / available (annual basis)."""
+
+
+class TradeTotal(BaseModel):
+    flow: TradeFlow
+    value_usd: float | None = None
+    """``null`` when the range has no data."""
+    netweight_kg: float | None = None
+    periods: list[TradeYearBasis]
+
+
+class TradeSummary(BaseModel):
+    range: TradeRange | None = None
+    """``null`` only when there is no trade data at all."""
+    items: list[TradeTotal]
+    balance_usd: float | None = None
+    """Exports - imports, when both flows were asked for and have data."""
+
+
+class TradeBreakdownItem(BaseModel):
+    key: str
+    """HS chapter (``27``), country or port; ``''`` = not stated by BPS."""
+    label: str | None = None
+    """Chapter description; the country / port name (``null`` for ``''``)."""
+    value_usd: float | None = None
+    netweight_kg: float | None = None
+    share: float | None = None
+    """Fraction (0-1) of the range's total value."""
+
+
+class TradeOthers(BaseModel):
+    """Everything below the top N, as one bucket."""
+
+    count: int
+    value_usd: float | None = None
+    netweight_kg: float | None = None
+    share: float | None = None
+
+
+class TradeBreakdown(BaseModel):
+    by: TradeBy
+    flow: TradeFlow
+    top: int
+    range: TradeRange | None = None
+    total: TradeTotal
+    items: list[TradeBreakdownItem]
+    others: TradeOthers | None = None
+
+
+class TradePoint(BaseModel):
+    period: str
+    """``YYYY-MM``."""
+    date: dt.date
+    value_usd: float | None = None
+    netweight_kg: float | None = None
+
+
+class TradeSeries(BaseModel):
+    flow: TradeFlow
+    points: list[TradePoint]
+
+
+class TradeBalancePoint(BaseModel):
+    period: str
+    date: dt.date
+    value_usd: float
+    """Exports - imports."""
+
+
+class TradeSeriesResponse(BaseModel):
+    hs2: str | None = None
+    hs2_label: str | None = None
+    country: str | None = None
+    range: TradeRange | None = None
+    series: list[TradeSeries]
+    balance: list[TradeBalancePoint]
+    """Months where both flows have data (only when both were asked for)."""

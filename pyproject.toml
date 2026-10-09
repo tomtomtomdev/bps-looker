@@ -67,4 +67,5 @@ asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 markers = [
     "live: calls the real BPS WebAPI (needs BPS_API_KEY); run with `make live`",
+    "perf: performance budget on ~1M synthetic rows (runs in `make check`, ~10 s; skip: -m 'not perf')",
 ]

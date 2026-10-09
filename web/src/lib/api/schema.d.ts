@@ -175,6 +175,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/trade/periods": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Years and months with trade data, per flow
+         * @description Every (flow, year) with data: whether BPS annual figures exist and which months have
+         *     monthly figures; plus the latest year and month (dashboard defaults).
+         */
+        get: operations["getTradePeriods"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trade/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Total exports / imports (value, net weight) and the trade balance
+         * @description Totals over one period (`year`, `year`+`month`) or a range (`from`/`to`); nothing given →
+         *     the latest year with data. A year counts its annual figures, or — without them — the sum
+         *     of its monthly figures (year to date); `periods` says which, per year.
+         */
+        get: operations["getTradeSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trade/breakdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Top N countries, ports or HS chapters by value, plus an others bucket
+         * @description The flow's value and net weight per chapter / country / port over the range (default:
+         *     the latest year with data), largest first; the rest summed into `others`. Chapters are
+         *     labelled with their HS description.
+         */
+        get: operations["getTradeBreakdown"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trade/series": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Monthly trade values, optionally for one HS chapter and/or country
+         * @description One series of monthly figures per flow (default: all months with data), and with both
+         *     flows the monthly balance (exports - imports) where both have data.
+         */
+        get: operations["getTradeSeries"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -423,6 +509,183 @@ export interface components {
             truncated: boolean;
             /** Max Series */
             max_series: number;
+        };
+        /** TradeBalancePoint */
+        TradeBalancePoint: {
+            /** Period */
+            period: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value Usd */
+            value_usd: number;
+        };
+        /** TradeBreakdown */
+        TradeBreakdown: {
+            /**
+             * By
+             * @enum {string}
+             */
+            by: "hs2" | "country" | "port";
+            /**
+             * Flow
+             * @enum {string}
+             */
+            flow: "export" | "import";
+            /** Top */
+            top: number;
+            range?: components["schemas"]["TradeRange"] | null;
+            total: components["schemas"]["TradeTotal"];
+            /** Items */
+            items: components["schemas"]["TradeBreakdownItem"][];
+            others?: components["schemas"]["TradeOthers"] | null;
+        };
+        /** TradeBreakdownItem */
+        TradeBreakdownItem: {
+            /** Key */
+            key: string;
+            /** Label */
+            label?: string | null;
+            /** Value Usd */
+            value_usd?: number | null;
+            /** Netweight Kg */
+            netweight_kg?: number | null;
+            /** Share */
+            share?: number | null;
+        };
+        /**
+         * TradeOthers
+         * @description Everything below the top N, as one bucket.
+         */
+        TradeOthers: {
+            /** Count */
+            count: number;
+            /** Value Usd */
+            value_usd?: number | null;
+            /** Netweight Kg */
+            netweight_kg?: number | null;
+            /** Share */
+            share?: number | null;
+        };
+        /** TradePeriods */
+        TradePeriods: {
+            /** Items */
+            items: components["schemas"]["TradeYear"][];
+            /** Latest Year */
+            latest_year?: number | null;
+            /** Latest Month */
+            latest_month?: string | null;
+        };
+        /** TradePoint */
+        TradePoint: {
+            /** Period */
+            period: string;
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Value Usd */
+            value_usd?: number | null;
+            /** Netweight Kg */
+            netweight_kg?: number | null;
+        };
+        /**
+         * TradeRange
+         * @description The resolved period range: ``year`` granularity (``2024``…``2025``) or ``month``
+         *     (``2024-11``…``2025-02``).
+         */
+        TradeRange: {
+            /** Start */
+            start: string;
+            /** End */
+            end: string;
+            /**
+             * Granularity
+             * @enum {string}
+             */
+            granularity: "year" | "month";
+        };
+        /** TradeSeries */
+        TradeSeries: {
+            /**
+             * Flow
+             * @enum {string}
+             */
+            flow: "export" | "import";
+            /** Points */
+            points: components["schemas"]["TradePoint"][];
+        };
+        /** TradeSeriesResponse */
+        TradeSeriesResponse: {
+            /** Hs2 */
+            hs2?: string | null;
+            /** Hs2 Label */
+            hs2_label?: string | null;
+            /** Country */
+            country?: string | null;
+            range?: components["schemas"]["TradeRange"] | null;
+            /** Series */
+            series: components["schemas"]["TradeSeries"][];
+            /** Balance */
+            balance: components["schemas"]["TradeBalancePoint"][];
+        };
+        /** TradeSummary */
+        TradeSummary: {
+            range?: components["schemas"]["TradeRange"] | null;
+            /** Items */
+            items: components["schemas"]["TradeTotal"][];
+            /** Balance Usd */
+            balance_usd?: number | null;
+        };
+        /** TradeTotal */
+        TradeTotal: {
+            /**
+             * Flow
+             * @enum {string}
+             */
+            flow: "export" | "import";
+            /** Value Usd */
+            value_usd?: number | null;
+            /** Netweight Kg */
+            netweight_kg?: number | null;
+            /** Periods */
+            periods: components["schemas"]["TradeYearBasis"][];
+        };
+        /**
+         * TradeYear
+         * @description Trade data available for one flow and year.
+         */
+        TradeYear: {
+            /**
+             * Flow
+             * @enum {string}
+             */
+            flow: "export" | "import";
+            /** Year */
+            year: number;
+            /** Annual */
+            annual: boolean;
+            /** Months */
+            months: number[];
+        };
+        /**
+         * TradeYearBasis
+         * @description How a year of the range was counted: its ``annual`` rows, or the sum of its ``monthly``
+         *     rows (a partial year when ``months`` < 12).
+         */
+        TradeYearBasis: {
+            /** Year */
+            year: number;
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "annual" | "monthly";
+            /** Months */
+            months?: number | null;
         };
         /**
          * TurthMember
@@ -878,6 +1141,145 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getTradePeriods: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradePeriods"];
+                };
+            };
+        };
+    };
+    getTradeSummary: {
+        parameters: {
+            query?: {
+                /** @description One flow; default: both. */
+                flow?: ("export" | "import") | null;
+                /** @description A whole year (shorthand for from=to=YYYY). */
+                year?: number | null;
+                /** @description With `year`: that one month. */
+                month?: number | null;
+                /** @description Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both. */
+                from?: string | null;
+                /** @description Range end (inclusive). */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradeSummary"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getTradeBreakdown: {
+        parameters: {
+            query: {
+                /** @description Group by HS chapter, country or port. */
+                by: "hs2" | "country" | "port";
+                flow?: "export" | "import";
+                /** @description Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both. */
+                from?: string | null;
+                /** @description Range end (inclusive). */
+                to?: string | null;
+                /** @description Items to list before `others`. */
+                top?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradeBreakdown"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getTradeSeries: {
+        parameters: {
+            query?: {
+                /** @description HS chapter, e.g. `27`. */
+                hs2?: string | null;
+                /** @description Country name as BPS writes it. */
+                country?: string | null;
+                /** @description One flow; default: both, plus the trade balance. */
+                flow?: ("export" | "import") | null;
+                /** @description Range start: `YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's months); otherwise months. One of `from`/`to` alone means both. */
+                from?: string | null;
+                /** @description Range end (inclusive). */
+                to?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TradeSeriesResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

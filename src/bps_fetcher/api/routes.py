@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Path, Query, Response, st
 from sqlalchemy import Engine, select
 from sqlalchemy.exc import DBAPIError
 
+from bps_fetcher.api import trade
 from bps_fetcher.api.deps import Conn, get_engine
 from bps_fetcher.api.indicators import domain_row, load_history, load_indicators
 from bps_fetcher.api.models import (
@@ -20,6 +21,12 @@ from bps_fetcher.api.models import (
     IndicatorHistory,
     IndicatorList,
     SeriesResponse,
+    TradeBreakdown,
+    TradeBy,
+    TradeFlow,
+    TradePeriods,
+    TradeSeriesResponse,
+    TradeSummary,
     VariableDetail,
     VariablePage,
     VariableSummary,
@@ -254,3 +261,134 @@ def get_indicator_history(
     if history is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Indicator not found")
     return IndicatorHistory.model_validate(history)
+
+
+# --- trade (U6) ----------------------------------------------------------------------------------
+
+_RANGE_DOC = (
+    "`YYYY` or `YYYY-MM`. Two years → whole years (annual figures, else the sum of the year's "
+    "months); otherwise months. One of `from`/`to` alone means both."
+)
+From = Annotated[
+    str | None,
+    Query(alias="from", pattern=trade.PERIOD_PATTERN, description=f"Range start: {_RANGE_DOC}"),
+]
+To = Annotated[
+    str | None,
+    Query(alias="to", pattern=trade.PERIOD_PATTERN, description="Range end (inclusive)."),
+]
+
+
+def _range(start: str | None, end: str | None) -> trade.PeriodRange | None:
+    if start is None and end is None:
+        return None
+    try:
+        return trade.parse_range(start, end)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from None
+
+
+def _flows(flow: TradeFlow | None) -> list[int]:
+    return list(trade.FLOWS.values()) if flow is None else [trade.FLOWS[flow]]
+
+
+@router.get(
+    "/trade/periods",
+    operation_id="getTradePeriods",
+    tags=["trade"],
+    summary="Years and months with trade data, per flow",
+    response_model=TradePeriods,
+)
+def get_trade_periods(conn: Conn) -> TradePeriods:
+    """Every (flow, year) with data: whether BPS annual figures exist and which months have
+    monthly figures; plus the latest year and month (dashboard defaults)."""
+    return TradePeriods.model_validate(trade.load_periods(conn))
+
+
+@router.get(
+    "/trade/summary",
+    operation_id="getTradeSummary",
+    tags=["trade"],
+    summary="Total exports / imports (value, net weight) and the trade balance",
+    response_model=TradeSummary,
+)
+def get_trade_summary(
+    conn: Conn,
+    flow: Annotated[TradeFlow | None, Query(description="One flow; default: both.")] = None,
+    year: Annotated[
+        int | None,
+        Query(ge=2000, le=2100, description="A whole year (shorthand for from=to=YYYY)."),
+    ] = None,
+    month: Annotated[
+        int | None, Query(ge=1, le=12, description="With `year`: that one month.")
+    ] = None,
+    start: From = None,
+    end: To = None,
+) -> TradeSummary:
+    """Totals over one period (`year`, `year`+`month`) or a range (`from`/`to`); nothing given →
+    the latest year with data. A year counts its annual figures, or — without them — the sum
+    of its monthly figures (year to date); `periods` says which, per year."""
+    if month is not None and year is None:
+        raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "`month` needs `year`")
+    if year is not None and (start is not None or end is not None):
+        raise HTTPException(
+            status.HTTP_422_UNPROCESSABLE_CONTENT, "give `year`/`month` or `from`/`to`, not both"
+        )
+    if year is not None:
+        rng: trade.PeriodRange | None = (
+            trade.year_range(year) if month is None else trade.month_range(year, month)
+        )
+    else:
+        rng = _range(start, end)
+    return TradeSummary.model_validate(trade.load_summary(conn, _flows(flow), rng))
+
+
+@router.get(
+    "/trade/breakdown",
+    operation_id="getTradeBreakdown",
+    tags=["trade"],
+    summary="Top N countries, ports or HS chapters by value, plus an others bucket",
+    response_model=TradeBreakdown,
+)
+def get_trade_breakdown(
+    conn: Conn,
+    by: Annotated[TradeBy, Query(description="Group by HS chapter, country or port.")],
+    flow: Annotated[TradeFlow, Query()] = "export",
+    start: From = None,
+    end: To = None,
+    top: Annotated[int, Query(ge=1, le=50, description="Items to list before `others`.")] = 10,
+) -> TradeBreakdown:
+    """The flow's value and net weight per chapter / country / port over the range (default:
+    the latest year with data), largest first; the rest summed into `others`. Chapters are
+    labelled with their HS description."""
+    return TradeBreakdown.model_validate(
+        trade.load_breakdown(conn, by, trade.FLOWS[flow], _range(start, end), top)
+    )
+
+
+@router.get(
+    "/trade/series",
+    operation_id="getTradeSeries",
+    tags=["trade"],
+    summary="Monthly trade values, optionally for one HS chapter and/or country",
+    response_model=TradeSeriesResponse,
+)
+def get_trade_series(
+    conn: Conn,
+    hs2: Annotated[
+        str | None, Query(pattern=r"^\d{2}$", description="HS chapter, e.g. `27`.")
+    ] = None,
+    country: Annotated[
+        str | None, Query(max_length=200, description="Country name as BPS writes it.")
+    ] = None,
+    flow: Annotated[
+        TradeFlow | None, Query(description="One flow; default: both, plus the trade balance.")
+    ] = None,
+    start: From = None,
+    end: To = None,
+) -> TradeSeriesResponse:
+    """One series of monthly figures per flow (default: all months with data), and with both
+    flows the monthly balance (exports - imports) where both have data."""
+    return TradeSeriesResponse.model_validate(
+        trade.load_series(conn, _flows(flow), hs2=hs2, country=country, rng=_range(start, end))
+    )
