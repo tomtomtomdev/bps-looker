@@ -278,6 +278,16 @@ def trade_seeded(db_engine: Engine) -> Engine:
                     "port": "",
                     "value_usd": None,
                 },
+                {
+                    **base,
+                    "flow": 2,
+                    "period_type": 2,
+                    "year": 2025,
+                    "month": 0,
+                    "port": "",
+                    "country": "",
+                    "value_usd": Decimal("7"),
+                },
             ],
         )
     return db_engine
@@ -287,7 +297,7 @@ def test_v_trade_labels(trade_seeded: Engine) -> None:
     rows = _rows(
         trade_seeded,
         "SELECT flow, flow_label, period_type, period_label, year, month, hs2, hs_description,"
-        " port, country, value_usd, netweight_kg FROM v_trade ORDER BY flow",
+        " port, country, value_usd, netweight_kg FROM v_trade ORDER BY flow, year",
     )
     assert rows == [
         {
@@ -316,6 +326,20 @@ def test_v_trade_labels(trade_seeded: Engine) -> None:
             "port": None,
             "country": "Japan",
             "value_usd": None,
+            "netweight_kg": Decimal("10"),
+        },
+        {
+            "flow": 2,
+            "flow_label": "import",
+            "period_type": 2,
+            "period_label": "annual",
+            "year": 2025,
+            "month": None,
+            "hs2": "03",
+            "hs_description": "Fish",
+            "port": None,
+            "country": None,  # '' sentinel (ctr: null) -> NULL
+            "value_usd": Decimal("7"),
             "netweight_kg": Decimal("10"),
         },
     ]

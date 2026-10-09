@@ -211,6 +211,7 @@ Discovery (2026-10-09, `scripts/trade_discovery.py`):
 - **Earliest year is 2014** (exports and imports, annual and monthly). 2013, 2012, 2010 → HTTP 200 `{"status": "OK", "data-availability": "unavailable"}`.
 - Chapter **77** → unavailable (reserved in HS). Chapters **98** ("Incompletely knocked down motor vehicles…") and **99** ("Software, digital product, and parcel goods") have data — crawl 01–99 except 77.
 - `jenishs=2` works with **8-digit** national codes: `kodehs=03011110` → rows with `kodehs: "[03011110] Live fry freshwater ornamental fish"` and an extra field `jenishs: "hs2022"`. `03`, `0301`, `030111` and dotted `0301.11.10` → unavailable. `;`-joined 8-digit codes are accepted.
+- Some rows have `ctr: null` (2025/2026 exports, HS 84/87 via Tanjung Priok; seen 2026-10-09), like `pod: null` — stored with the `''` sentinel.
 - Descriptions vary: 2014 import rows say `"[03] Ikan dan krustasea, …"` (Indonesian) while exports say `"[03] Fish, crustaceans and mollusca"`.
 
 ---

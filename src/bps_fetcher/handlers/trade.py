@@ -17,7 +17,8 @@ Loading, inside the task's transaction:
   back as a whole: the old rows stay.
 
 Key sentinels (PK columns can't be NULL): annual rows have ``month = 0``; a missing port
-(``pod: null``, seen in real responses) is stored as ``''``. Rows sharing a key within one
+(``pod: null``, seen in real responses) is stored as ``''``, and so is a missing country
+(``ctr: null``, seen in 2025/2026 exports). Rows sharing a key within one
 response are summed (none seen so far). Rows outside the requested scope (other chapter/year,
 month on an annual row, no month on a monthly one) fail the task.
 
@@ -186,13 +187,14 @@ def parse_trade(body: Mapping[str, Any], scope: TradeScope) -> ParsedTrade:
         if port is not None and not isinstance(port, str):
             raise ValueError(f"{where}: bad port {port!r}")
         country = item.get("ctr")
-        if not isinstance(country, str) or not country:
-            raise ValueError(f"{where}: missing country (ctr={country!r})")
+        if country is not None and not isinstance(country, str):
+            raise ValueError(f"{where}: bad country (ctr={country!r})")
         value = _amount(item.get("value"), f"{where} value")
         weight = _amount(item.get("netweight"), f"{where} netweight")
 
         parsed.descriptions.setdefault(hs2, description)
-        key: Key = (scope.flow, scope.period_type, scope.year, month, hs2, port or "", country)
+        port, country = port or "", country or ""
+        key: Key = (scope.flow, scope.period_type, scope.year, month, hs2, port, country)
         row = rows.get(key)
         if row is None:
             rows[key] = {
@@ -201,7 +203,7 @@ def parse_trade(body: Mapping[str, Any], scope: TradeScope) -> ParsedTrade:
                 "year": scope.year,
                 "month": month,
                 "hs2": hs2,
-                "port": port or "",
+                "port": port,
                 "country": country,
                 "value_usd": value,
                 "netweight_kg": weight,

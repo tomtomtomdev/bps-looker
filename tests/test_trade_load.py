@@ -155,13 +155,25 @@ def test_parse_rejects_rows_outside_the_scope(
     bad(annual, yearly, kodehs="[04] Dairy produce")  # chapter not requested
     bad(annual, yearly, tahun="2023")
     bad(annual, yearly, bulan="[01] Januari")  # annual row with a month
-    bad(annual, yearly, ctr=None)
+    bad(annual, yearly, ctr=42)
     bad(monthly, by_month, bulan=None)
     bad(monthly, by_month, bulan="[13] Tahunan")
     bad(annual, yearly, value="lots")
     # a monthly response asked for as annual is caught too
     with pytest.raises(ValueError, match="annual row has"):
         parse_trade(monthly, yearly)
+
+
+@pytest.mark.parametrize("ctr", [None, ""])
+def test_parse_missing_country_is_empty_sentinel(annual: dict[str, Any], ctr: Any) -> None:
+    """2025/2026 exports have a few rows with ``ctr: null`` (e.g. HS 84/87 via Tanjung Priok,
+    seen 2026-10-09) — kept, like ``pod: null``, with the ``''`` sentinel (PK is NOT NULL)."""
+    body = copy.deepcopy(annual)
+    body["data"][0]["ctr"] = ctr
+    parsed = parse_trade(body, scope_of(_params()))
+    assert len(parsed.rows) == 686
+    assert parsed.rows[0]["country"] == ""
+    assert sum(r["value_usd"] for r in parsed.rows) == ANNUAL_TOTAL
 
 
 def test_parse_sums_duplicate_keys(annual: dict[str, Any]) -> None:

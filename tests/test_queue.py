@@ -1,6 +1,7 @@
 """S6: Postgres task queue (DB tests skipped when Postgres is unreachable)."""
 
 from datetime import timedelta
+from typing import Any
 
 import pytest
 from sqlalchemy import Engine, func, insert, select, text, update
@@ -258,3 +259,114 @@ def test_single_transaction_flow_with_savepoint(db_engine: Engine) -> None:
     assert rows[bad_id].attempts == 1
     children = [r for r in rows.values() if r.kind == "child"]
     assert [c.parent_id for c in children] == [ok_id]  # failed handler's child rolled back
+
+
+# --- re-running done tasks (S18) -----------------------------------------------------------------
+
+
+def _mark(engine: Engine, tid: int, status: str, updated_at: Any = None) -> None:
+    values: dict[str, Any] = {"status": status, "attempts": 3, "last_error": "old"}
+    if updated_at is not None:
+        values["updated_at"] = updated_at
+    with engine.begin() as conn:
+        conn.execute(update(task).where(task.c.id == tid).values(**values))
+
+
+def test_schedule_enqueues_new_or_reruns_done(db_engine: Engine) -> None:
+    with db_engine.begin() as conn:
+        assert queue.schedule(conn, "k", {"a": 1}) == queue.NEW
+        tid = conn.execute(select(task.c.id)).scalar_one()
+        assert queue.schedule(conn, "k", {"a": 1}) is None  # pending: left alone
+    _mark(db_engine, tid, queue.DONE)
+    with db_engine.begin() as conn:
+        assert queue.schedule(conn, "k", {"a": 1}) == queue.RERUN
+        row = conn.execute(select(task)).one()
+        assert (row.status, row.attempts, row.last_error) == (queue.PENDING, 0, None)
+        assert conn.execute(select(row.next_run_at <= func.now())).scalar_one()
+
+
+def test_schedule_only_reruns_done_tasks_older_than_cutoff(db_engine: Engine) -> None:
+    with db_engine.begin() as conn:
+        tid = queue.enqueue(conn, "k", {"a": 1})
+        now = conn.execute(select(func.now())).scalar_one()
+    assert tid is not None
+    _mark(db_engine, tid, queue.DONE, now)
+    with db_engine.begin() as conn:
+        assert queue.schedule(conn, "k", {"a": 1}, done_before=now - timedelta(hours=1)) is None
+        assert queue.schedule(conn, "k", {"a": 1}, done_before=now) == queue.RERUN
+    _mark(db_engine, tid, queue.DEAD)
+    with db_engine.begin() as conn:
+        assert queue.schedule(conn, "k", {"a": 1}) is None  # dead tasks are not revived
+
+
+def test_rerun_done_by_ids(db_engine: Engine) -> None:
+    with db_engine.begin() as conn:
+        maybe = [queue.enqueue(conn, "k", {"i": i}) for i in range(3)]
+    ids = [i for i in maybe if i is not None]
+    for tid, st in zip(ids, (queue.DONE, queue.DONE, queue.DEAD), strict=True):
+        _mark(db_engine, tid, st)
+    with db_engine.begin() as conn:
+        assert sorted(queue.rerun_done(conn, ids)) == sorted(ids[:2])
+        assert queue.rerun_done(conn, []) == []
+
+
+def test_seconds_until_due(db_engine: Engine) -> None:
+    with db_engine.begin() as conn:
+        assert queue.seconds_until_due(conn) is None
+        queue.enqueue(conn, "k", {"a": 1})
+        conn.execute(update(task).values(next_run_at=func.now() + timedelta(seconds=30)))
+        wait = queue.seconds_until_due(conn)
+        assert wait is not None
+        assert 29 < wait <= 30
+        assert queue.seconds_until_due(conn, kinds=["other"]) is None
+        conn.execute(update(task).values(next_run_at=func.now() - timedelta(seconds=30)))
+        assert queue.seconds_until_due(conn) == 0
+
+
+def test_rerun_done_skips_rows_locked_by_another_transaction(db_engine: Engine) -> None:
+    """A row another transaction holds (e.g. a claimed task) is skipped, never waited on: worker
+    slots share one event loop, so a blocking UPDATE there would deadlock the process."""
+    with db_engine.begin() as conn:
+        tid = queue.enqueue(conn, "k", {"a": 1})
+    assert tid is not None
+    _mark(db_engine, tid, queue.DONE)
+    with db_engine.connect() as holder, holder.begin():
+        holder.execute(select(task.c.id).where(task.c.id == tid).with_for_update())
+        with db_engine.connect() as conn, conn.begin():
+            conn.execute(text("SET LOCAL lock_timeout = '2s'"))
+            assert queue.rerun_done(conn, [tid]) == []
+            assert queue.schedule(conn, "k", {"a": 1}) is None
+    with db_engine.begin() as conn:
+        assert queue.rerun_done(conn, [tid]) == [tid]
+
+
+def test_enqueue_existing_task_claimed_elsewhere_does_not_block(db_engine: Engine) -> None:
+    """``INSERT … ON CONFLICT DO NOTHING`` waits for an in-progress update of the conflicting row
+    (e.g. a claim); enqueue checks for the committed row first, so it returns at once."""
+    with db_engine.begin() as conn:
+        queue.enqueue(conn, "k", {"a": 1})
+    with db_engine.connect() as holder, holder.begin():
+        assert len(queue.claim(holder, 1)) == 1
+        with db_engine.connect() as conn, conn.begin():
+            conn.execute(text("SET LOCAL lock_timeout = '2s'"))
+            assert queue.enqueue(conn, "k", {"a": 1}) is None
+            assert queue.schedule(conn, "k", {"a": 1}) is None
+
+
+def test_completing_child_while_parent_is_claimed_elsewhere_does_not_block(
+    db_engine: Engine,
+) -> None:
+    """Updating a task row twice in one transaction (claim, then complete) re-checks its
+    ``parent_id`` FK (``FOR KEY SHARE`` on the parent). Claims must lock ``FOR NO KEY UPDATE``,
+    or a child finishing while another slot runs its parent deadlocks the worker (S18 run)."""
+    with db_engine.begin() as conn:
+        parent = queue.enqueue(conn, "parent", {})
+        child = queue.enqueue(conn, "child", {}, parent_id=parent)
+    with db_engine.connect() as holder, holder.begin():
+        assert [t.id for t in queue.claim(holder, 1, kinds=["parent"])] == [parent]
+        with db_engine.connect() as conn, conn.begin():
+            conn.execute(text("SET LOCAL lock_timeout = '2s'"))
+            assert [t.id for t in queue.claim(conn, 1, kinds=["child"])] == [child]
+            assert child is not None
+            queue.complete(conn, child)
+            assert queue.fail(conn, child, "x") == queue.PENDING

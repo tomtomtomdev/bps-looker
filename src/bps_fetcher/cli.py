@@ -5,7 +5,9 @@
     bps seed indicators [--domain 0000 ...] [--run LABEL]
     bps seed trade [--from 2014] [--to YEAR] [--flow exp|imp ...] [--period annual|monthly ...]
                    [--batch-size 10] [--run LABEL]
-    bps work [--drain] [--max-tasks N] [--concurrency N] [--kind data ...]
+    bps seed refresh [--domain 0000 ...] [--source indicators|trade|dynamic ...]
+                     [--as-of ISO-DATETIME] [--dry-run]
+    bps work [--drain] [--drain-wait SECONDS] [--max-tasks N] [--concurrency N] [--kind data ...]
     bps status
 
 ``seed dynamic`` enqueues one ``domains`` task: it fetches ``/domain`` and upserts every domain
@@ -13,12 +15,16 @@ row first, then fans out ``var_list`` only for the requested domains/levels — 
 FK that ``var_list`` needs always exists. ``--limit-vars`` caps each ``var_list`` to the first N
 variables (smoke runs). Seeding is idempotent: the same seed twice is one task.
 
+``seed refresh`` re-runs what was crawled before once its refresh policy is due (indicators daily,
+trade current + previous year weekly, variable re-list weekly, per-variable data probes by age —
+see :mod:`bps_fetcher.refresh`); running it twice in a row schedules nothing new.
+
 Commands touching the DB refuse to run (exit 2) until ``bps migrate`` has brought it to head.
 """
 
 import asyncio
 import logging
-from datetime import date
+from datetime import UTC, date, datetime
 from typing import Annotated, Any
 
 import typer
@@ -27,6 +33,7 @@ from alembic.script import ScriptDirectory
 from sqlalchemy import Engine, create_engine, func, select
 
 from bps_fetcher import queue
+from bps_fetcher import refresh as refresh_mod
 from bps_fetcher.db.migrate import alembic_config, database_url, upgrade
 from bps_fetcher.db.schema import DOMAIN_LEVELS, domain, task
 from bps_fetcher.handlers.domains import KIND as DOMAINS_KIND
@@ -36,6 +43,7 @@ from bps_fetcher.handlers.indicators import seed_indicators
 from bps_fetcher.handlers.trade import seed_trade
 from bps_fetcher.redact import install_redaction, redact
 from bps_fetcher.trade import DEFAULT_BATCH_SIZE, EARLIEST_YEAR, EXPORT, IMPORT, MONTHLY, YEARLY
+from bps_fetcher.worker import DEFAULT_DRAIN_WAIT
 
 log = logging.getLogger("bps_fetcher")
 
@@ -253,9 +261,93 @@ def trade(
     typer.echo(f"Seeded {n} trade task(s) for {from_year}..{last}.")
 
 
+def _check_source(value: list[str] | None) -> list[str] | None:
+    for v in value or []:
+        if v not in refresh_mod.SOURCES:
+            raise typer.BadParameter(f"{v!r} is not one of {', '.join(refresh_mod.SOURCES)}")
+    return value
+
+
+def _parse_as_of(value: str | None) -> datetime | None:
+    if value is None:
+        return None
+    try:
+        at = datetime.fromisoformat(value)
+    except ValueError:
+        raise typer.BadParameter(f"{value!r} is not an ISO date/time") from None
+    return at if at.tzinfo is not None else at.astimezone()  # naive = local time
+
+
+@seed_app.command("refresh")
+def refresh_cmd(
+    domain_: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--domain",
+            "-d",
+            help="Only these domains (repeatable; indicators + dynamic); default: all.",
+            callback=_check_domain,
+        ),
+    ] = None,
+    source: Annotated[
+        list[str] | None,
+        typer.Option(
+            help=f"Only these sources (repeatable): {', '.join(refresh_mod.SOURCES)}.",
+            callback=_check_source,
+        ),
+    ] = None,
+    as_of: Annotated[
+        str | None,
+        typer.Option(
+            help="Evaluate the policies as of this ISO date/time (default: now).",
+        ),
+    ] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Show what would be scheduled; change nothing.")
+    ] = False,
+) -> None:
+    """Re-schedule crawled tasks whose refresh policy is due (idempotent)."""
+    _setup_logging()
+    now = _parse_as_of(as_of) or datetime.now(UTC)
+    engine = _engine()
+    try:
+        with engine.connect() as conn:
+            txn = conn.begin()
+            try:
+                counts = refresh_mod.refresh(
+                    conn, now=now, domains=domain_, sources=source or refresh_mod.SOURCES
+                )
+            except BaseException:
+                txn.rollback()
+                raise
+            if dry_run:
+                txn.rollback()
+            else:
+                txn.commit()
+    finally:
+        engine.dispose()
+    width = max(len(p) for p in counts)
+    for policy, n in counts.items():
+        typer.echo(f"{policy:<{width}}  {n}")
+    total = sum(counts.values())
+    if dry_run:
+        typer.echo(f"Dry run: {total} task(s) would be scheduled (as of {now.isoformat()}).")
+    elif total:
+        typer.echo(f"Scheduled {total} task(s); run `bps work --drain`.")
+    else:
+        typer.echo("Nothing to refresh.")
+
+
 @app.command()
 def work(
     drain: Annotated[bool, typer.Option(help="Stop once no task is due.")] = False,
+    drain_wait: Annotated[
+        float,
+        typer.Option(
+            min=0,
+            help="With --drain: wait up to N seconds for pending tasks in retry backoff.",
+        ),
+    ] = DEFAULT_DRAIN_WAIT,
     max_tasks: Annotated[int | None, typer.Option(min=1, help="Stop after N tasks.")] = None,
     concurrency: Annotated[
         int | None, typer.Option(min=1, help="Parallel slots (default: BPS_CONCURRENCY).")
@@ -284,6 +376,7 @@ def work(
                 max_tasks=max_tasks,
                 kinds=kind,
                 secrets=[key],
+                drain_wait=drain_wait,
             )
 
     try:
@@ -305,6 +398,11 @@ def status() -> None:
                 .group_by(task.c.kind, task.c.status)
                 .order_by(task.c.kind, task.c.status)
             ).all()
+            waiting = conn.execute(
+                select(func.count(), func.min(task.c.next_run_at)).where(
+                    task.c.status == queue.PENDING, task.c.next_run_at > func.now()
+                )
+            ).one()
     finally:
         engine.dispose()
     if not rows:
@@ -314,6 +412,10 @@ def status() -> None:
     typer.echo(f"{'kind':<{width}}  {'status':<8}  count")
     for kind_, status_, n in rows:
         typer.echo(f"{kind_:<{width}}  {status_:<8}  {n}")
+    if waiting[0]:
+        typer.echo(
+            f"{waiting[0]} pending task(s) not due yet (next at {waiting[1]:%Y-%m-%d %H:%M:%S %Z})."
+        )
 
 
 def main() -> None:

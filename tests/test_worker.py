@@ -3,10 +3,11 @@
 import asyncio
 import hashlib
 import json
+from datetime import timedelta
 from typing import Any
 
 import pytest
-from sqlalchemy import Engine, func, select
+from sqlalchemy import Engine, func, select, update
 
 from bps_fetcher import queue, worker
 from bps_fetcher.db.schema import domain, raw_response, task
@@ -293,3 +294,99 @@ def test_parse_args() -> None:
     assert args.max_tasks == 3
     assert args.kinds == ["a", "b"]
     assert args.concurrency is None
+
+
+# --- drain waits out retry backoff (S18, S13 follow-up) ------------------------------------------
+
+
+def _delay(engine: Engine, seconds: float) -> None:
+    with engine.begin() as conn:
+        conn.execute(update(task).values(next_run_at=func.now() + timedelta(seconds=seconds)))
+
+
+async def test_drain_waits_for_task_in_backoff_within_bound(db_engine: Engine) -> None:
+    async def h(ctx: TaskContext) -> HandlerResult:
+        return HandlerResult()
+
+    _seed(db_engine, "h", {"i": 1})
+    _delay(db_engine, 0.5)
+    stats = await asyncio.wait_for(_run(db_engine, {"h": h}, drain=True, drain_wait=5), 10)
+    assert stats.done == 1
+    assert {r.status for r in _tasks(db_engine).values()} == {queue.DONE}
+
+
+async def test_drain_retries_failed_task_after_backoff(
+    db_engine: Engine, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    attempts: list[int] = []
+
+    async def flaky(ctx: TaskContext) -> HandlerResult:
+        attempts.append(ctx.task.attempts)
+        if len(attempts) == 1:
+            raise RuntimeError("transient")
+        return HandlerResult()
+
+    real_fail = queue.fail
+
+    def fast_fail(*args: Any, **kw: Any) -> str:
+        return real_fail(*args, base_delay=timedelta(milliseconds=300), **kw)
+
+    monkeypatch.setattr(queue, "fail", fast_fail)
+    _seed(db_engine, "flaky", {"i": 1})
+    stats = await asyncio.wait_for(_run(db_engine, {"flaky": flaky}, drain=True, drain_wait=5), 10)
+    assert (stats.done, stats.failed) == (1, 1)
+    assert attempts == [0, 1]
+
+
+async def test_drain_does_not_wait_beyond_bound(db_engine: Engine) -> None:
+    async def h(ctx: TaskContext) -> HandlerResult:
+        return HandlerResult()
+
+    _seed(db_engine, "h", {"i": 1})
+    _delay(db_engine, 60)
+    stats = await asyncio.wait_for(_run(db_engine, {"h": h}, drain=True, drain_wait=5), 5)
+    assert stats.done == 0
+    stats = await asyncio.wait_for(_run(db_engine, {"h": h}, drain=True), 5)  # default: no wait
+    assert stats.done == 0
+    assert {r.status for r in _tasks(db_engine).values()} == {queue.PENDING}
+
+
+async def test_drain_wait_ignores_other_kinds(db_engine: Engine) -> None:
+    _seed(db_engine, "other", {"i": 1})
+    _delay(db_engine, 1)
+    stats = await asyncio.wait_for(_run(db_engine, {}, drain=True, drain_wait=30, kinds=["h"]), 5)
+    assert stats.done == 0
+
+
+def test_parse_args_drain_wait() -> None:
+    assert worker.parse_args([]).drain_wait == worker.DEFAULT_DRAIN_WAIT
+    assert worker.parse_args(["--drain-wait", "0"]).drain_wait == 0
+
+
+async def test_handler_rescheduling_a_running_task_does_not_deadlock(db_engine: Engine) -> None:
+    """S18 regression: a ``data`` cascade re-pends a ``th_list`` task another slot is running.
+    The sync UPDATE must skip the locked row instead of blocking the shared event loop."""
+    from sqlalchemy import create_engine
+
+    engine = create_engine(
+        db_engine.url, connect_args={"options": "-c lock_timeout=3000"}
+    )  # a regression fails with LockNotAvailable instead of hanging
+    started = asyncio.Event()
+
+    async def slow(ctx: TaskContext) -> HandlerResult:
+        started.set()
+        await asyncio.sleep(0.3)
+        return HandlerResult()
+
+    async def resched(ctx: TaskContext) -> HandlerResult:
+        await started.wait()
+        assert queue.schedule(ctx.conn, "slow", {"i": 1}) is None  # running elsewhere: skipped
+        return HandlerResult()
+
+    _seed(db_engine, "slow", {"i": 1})
+    _seed(db_engine, "resched", {"i": 2})
+    try:
+        stats = await _run(engine, {"slow": slow, "resched": resched}, concurrency=2)
+    finally:
+        engine.dispose()
+    assert (stats.done, stats.failed) == (2, 0)

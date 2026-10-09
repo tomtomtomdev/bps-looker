@@ -42,6 +42,9 @@ from bps_fetcher.redact import install_redaction, redact
 log = logging.getLogger(__name__)
 
 DEFAULT_IDLE_SLEEP = 5.0
+# ``bps work --drain`` waits up to this long for a pending task that is only waiting out its
+# retry backoff (the longest backoff before a task goes dead is 30 s * 2**3 = 4 min).
+DEFAULT_DRAIN_WAIT = 300.0
 
 
 class ApiClient(Protocol):
@@ -172,6 +175,11 @@ async def run_one(
         return True
 
 
+def _seconds_until_due(engine: Engine, kinds: list[str] | None) -> float | None:
+    with engine.connect() as conn:
+        return queue.seconds_until_due(conn, kinds=kinds)
+
+
 async def run_worker(
     engine: Engine,
     *,
@@ -183,12 +191,15 @@ async def run_worker(
     kinds: Iterable[str] | None = None,
     secrets: Sequence[str] = (),
     idle_sleep: float = DEFAULT_IDLE_SLEEP,
+    drain_wait: float = 0.0,
 ) -> Stats:
     """Run ``concurrency`` slots, each claiming one task at a time on its own connection.
 
-    Stops after ``max_tasks`` claimed tasks, or — with ``drain`` — once no task is due and no
-    slot is still working (children of in-flight tasks count as future work). Without either
-    it polls forever, sleeping ``idle_sleep`` when the queue is empty.
+    Stops after ``max_tasks`` claimed tasks, or — with ``drain`` — once no task is due, no
+    slot is still working (children of in-flight tasks count as future work) and no pending
+    task becomes due within ``drain_wait`` seconds (e.g. one waiting out its retry backoff;
+    the default ``0`` stops right away). Without either it polls forever, sleeping
+    ``idle_sleep`` when the queue is empty.
     """
     if concurrency < 1:
         raise ValueError("concurrency must be >= 1")
@@ -213,9 +224,13 @@ async def run_worker(
                 stats.failed += 1
             else:
                 claimed -= 1
+                sleep = idle_sleep
                 if drain and busy == 0:
-                    return
-                await asyncio.sleep(idle_sleep)
+                    wait = _seconds_until_due(engine, kind_list)
+                    if wait is None or wait > drain_wait:
+                        return
+                    sleep = min(idle_sleep, max(wait, 0.01))
+                await asyncio.sleep(sleep)
 
     async with asyncio.TaskGroup() as tg:
         for _ in range(concurrency):
@@ -229,6 +244,12 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     p.add_argument("--max-tasks", type=int, default=None, help="stop after N tasks")
     p.add_argument("--concurrency", type=int, default=None, help="default: BPS_CONCURRENCY")
     p.add_argument("--kind", action="append", dest="kinds", help="only these task kinds")
+    p.add_argument(
+        "--drain-wait",
+        type=float,
+        default=DEFAULT_DRAIN_WAIT,
+        help="with --drain: wait up to N seconds for tasks in retry backoff (default %(default)s)",
+    )
     return p.parse_args(argv)
 
 
@@ -253,6 +274,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 max_tasks=args.max_tasks,
                 kinds=args.kinds,
                 secrets=[key],
+                drain_wait=args.drain_wait,
             )
 
     try:

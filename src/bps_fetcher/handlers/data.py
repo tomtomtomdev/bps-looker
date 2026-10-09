@@ -22,6 +22,12 @@ Windows of one variable share its ``last_update``, so equal stamps must (and do)
 Entries the parser couldn't place (``unmatched``/``ambiguous``/``non_numeric``) are not loaded;
 their counts are logged as a warning and returned in :class:`LoadStats`.
 
+Change cascade (S18 refresh): a response whose ``last_update`` is strictly newer than the stamp
+already stored for the variable means BPS changed it — revised values and/or a new period. The
+handler then re-pends the variable's other done ``data`` windows and its ``th_list`` task (which
+discovers new periods; its windows are chunked from the oldest period, so only the last window is
+new). A first load (no stored stamp) or an equal/older stamp cascades nothing.
+
 A ``data-availability: not-available`` (or ``list-not-available``) response loads nothing and
 completes the task. A JSON ``null`` answer (too-large window) on a multi-period window completes
 the task with one ``data`` child per period instead; on a single period it fails the task. API
@@ -34,11 +40,12 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
 
-from sqlalchemy import Connection, Table, and_, func, literal_column, or_, select, update
+from sqlalchemy import Connection, Table, and_, exists, func, literal_column, or_, select, update
 from sqlalchemy.dialects.postgresql import Insert, insert
 
+from bps_fetcher import queue
 from bps_fetcher.client import BpsNullResponseError
-from bps_fetcher.db.schema import dim_turth, dim_turvar, dim_vervar, observation, variable
+from bps_fetcher.db.schema import dim_turth, dim_turvar, dim_vervar, observation, task, variable
 from bps_fetcher.paginate import is_not_available
 from bps_fetcher.parse_data import DimItem, Observation, ParsedData, parse_data
 from bps_fetcher.worker import Child, HandlerResult, RawResponse, TaskContext, register
@@ -47,6 +54,7 @@ log = logging.getLogger(__name__)
 
 KIND = "data"
 MODEL = "data"
+TH_LIST_KIND = "th_list"
 # Rows per INSERT ... VALUES statement (9 bind params each; well under Postgres' 65535 limit).
 BATCH_SIZE = 2000
 
@@ -59,6 +67,7 @@ class LoadStats:
     dims: int = 0
     variable: bool = False
     stale: bool = False
+    newer: bool = False  # stamp strictly newer than a previously stored one: the var changed
     unmatched: int = 0
     ambiguous: int = 0
     non_numeric: int = 0
@@ -160,6 +169,7 @@ def load(conn: Connection, domain_id: str, parsed: ParsedData) -> LoadStats:
 
     lu = parsed.last_update
     stale = current.last_update is not None and (lu is None or lu < current.last_update)
+    newer = current.last_update is not None and lu is not None and lu > current.last_update
 
     var_changed = False
     if not stale:
@@ -186,10 +196,36 @@ def load(conn: Connection, domain_id: str, parsed: ParsedData) -> LoadStats:
         dims=dims,
         variable=var_changed,
         stale=stale,
+        newer=newer,
         unmatched=len(parsed.unmatched),
         ambiguous=len(parsed.ambiguous),
         non_numeric=len(parsed.non_numeric),
     )
+
+
+def window_tasks(domain_id: str | None = None, var_id: int | None = None) -> Any:
+    """``data`` tasks that load observations themselves — i.e. not a window that was split into
+    single periods (S13), whose ``data`` children do the loading."""
+    child = task.alias("child")
+    q = select(task.c.id).where(
+        task.c.kind == KIND,
+        ~exists().where(child.c.parent_id == task.c.id, child.c.kind == KIND),
+    )
+    if domain_id is not None:
+        q = q.where(task.c.params["domain"].astext == domain_id)
+    if var_id is not None:
+        q = q.where(task.c.params["var"].as_integer() == var_id)
+    return q
+
+
+def rerun_variable(conn: Connection, domain_id: str, var_id: int, *, exclude: int) -> int:
+    """Re-pend a changed variable's other done windows and its ``th_list``; returns how many
+    tasks were scheduled."""
+    ids = conn.execute(window_tasks(domain_id, var_id).where(task.c.id != exclude)).scalars()
+    n = len(queue.rerun_done(conn, ids))
+    if queue.schedule(conn, TH_LIST_KIND, {"domain": domain_id, "var": var_id}):
+        n += 1
+    return n
 
 
 def _params(params: dict[str, Any]) -> tuple[str, int, str]:
@@ -263,6 +299,11 @@ async def data(ctx: TaskContext) -> HandlerResult:
         stats.dims,
         "; stale response (older last_update), newer values kept" if stats.stale else "",
     )
+    if stats.newer:
+        n = rerun_variable(ctx.conn, domain_id, var_id, exclude=ctx.task.id)
+        log.info(
+            "data %s: newer last_update %s; re-scheduled %d task(s)", where, parsed.last_update, n
+        )
     if stats.unmatched or stats.ambiguous or stats.non_numeric:
         log.warning(
             "data %s: %d unmatched, %d ambiguous, %d non-numeric datacontent entries not loaded"

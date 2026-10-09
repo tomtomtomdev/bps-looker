@@ -24,16 +24,22 @@ Crash recovery: while the claiming transaction is open, the row stays locked and
 ``running`` status is uncommitted — if the worker dies, Postgres rolls back and the task is
 ``pending`` again with no extra work. Only a claim that was *committed* separately can be
 orphaned in ``running``; :func:`requeue_stale` resets those after a timeout.
+
+No sync call here may wait on another worker slot (slots share one event loop, so waiting on a
+lock another slot holds deadlocks the process — seen in the S18 refresh run): row locks are
+``FOR NO KEY UPDATE`` (so a child's ``parent_id`` FK check, ``FOR KEY SHARE`` on the parent,
+doesn't wait on a claimed parent), re-pending skips locked rows, and :func:`enqueue` looks for an
+existing row before inserting.
 """
 
 import hashlib
 import json
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Final
 
-from sqlalchemy import Connection, func, select, update
+from sqlalchemy import Connection, extract, func, select, update
 from sqlalchemy.dialects.postgresql import insert
 
 from bps_fetcher.db.schema import task
@@ -43,6 +49,10 @@ PENDING: Final = "pending"
 RUNNING: Final = "running"
 DONE: Final = "done"
 DEAD: Final = "dead"
+
+# :func:`schedule` outcomes.
+NEW: Final = "new"
+RERUN: Final = "rerun"
 
 DEFAULT_MAX_ATTEMPTS: Final = 5
 DEFAULT_BASE_DELAY: Final = timedelta(seconds=30)
@@ -86,13 +96,22 @@ def enqueue(
     *,
     parent_id: int | None = None,
 ) -> int | None:
-    """Insert a pending task; returns its id, or ``None`` if ``(kind, params)`` already exists."""
+    """Insert a pending task; returns its id, or ``None`` if ``(kind, params)`` already exists.
+
+    An existing (committed) task is found with a plain ``SELECT`` first: ``ON CONFLICT DO
+    NOTHING`` alone would wait while another transaction updates that row (e.g. a worker slot
+    that claimed it), and slots share one event loop — a sync wait there deadlocks the process.
+    """
+    digest = params_hash(params)
+    existing = select(task.c.id).where(task.c.kind == kind, task.c.params_hash == digest)
+    if conn.execute(existing).first() is not None:
+        return None
     stmt = (
         insert(task)
         .values(
             kind=kind,
             params=dict(params),
-            params_hash=params_hash(params),
+            params_hash=digest,
             parent_id=parent_id,
         )
         .on_conflict_do_nothing(index_elements=[task.c.kind, task.c.params_hash])
@@ -111,7 +130,7 @@ def claim(conn: Connection, n: int, *, kinds: Iterable[str] | None = None) -> li
         .where(task.c.status == PENDING, task.c.next_run_at <= func.now())
         .order_by(task.c.next_run_at, task.c.id)
         .limit(n)
-        .with_for_update(skip_locked=True)
+        .with_for_update(skip_locked=True, key_share=True)
     )
     if kinds is not None:
         due = due.where(task.c.kind.in_(list(kinds)))
@@ -150,7 +169,7 @@ def fail(
     Returns the new status. ``error`` is redacted and truncated to :data:`MAX_ERROR_LEN`.
     """
     attempts = conn.execute(
-        select(task.c.attempts).where(task.c.id == task_id).with_for_update()
+        select(task.c.attempts).where(task.c.id == task_id).with_for_update(key_share=True)
     ).scalar_one()
     attempts += 1
     status = DEAD if attempts >= max_attempts else PENDING
@@ -171,7 +190,7 @@ def requeue_stale(conn: Connection, *, older_than: timedelta) -> int:
     stale = (
         select(task.c.id)
         .where(task.c.status == RUNNING, task.c.updated_at < func.now() - older_than)
-        .with_for_update(skip_locked=True)
+        .with_for_update(skip_locked=True, key_share=True)
     )
     result = conn.execute(
         update(task)
@@ -180,3 +199,70 @@ def requeue_stale(conn: Connection, *, older_than: timedelta) -> int:
         .returning(task.c.id)
     )
     return len(result.all())
+
+
+def rerun_done(
+    conn: Connection, ids: Iterable[int], *, done_before: datetime | None = None
+) -> list[int]:
+    """Make ``done`` tasks runnable again: ``pending``, due now, attempts/last_error reset.
+
+    Only tasks still ``done`` (and, with ``done_before``, completed at or before it — a task's
+    ``updated_at`` is its completion time) are touched; returns the ids that were re-pended.
+    Rows locked by another transaction (a claimed/running task, or one another transaction is
+    re-pending) are skipped, never waited on: worker slots share one event loop, and a blocking
+    UPDATE there would deadlock the process (seen in the S18 refresh run).
+    """
+    ids = list(ids)
+    if not ids:
+        return []
+    due = (
+        select(task.c.id)
+        .where(task.c.id.in_(ids), task.c.status == DONE)
+        .with_for_update(skip_locked=True, key_share=True)
+    )
+    if done_before is not None:
+        due = due.where(task.c.updated_at <= done_before)
+    rows = conn.execute(
+        update(task)
+        .where(task.c.id.in_(due.scalar_subquery()))
+        .values(
+            status=PENDING,
+            attempts=0,
+            last_error=None,
+            next_run_at=func.now(),
+            updated_at=func.now(),
+        )
+        .returning(task.c.id)
+    )
+    return list(rows.scalars())
+
+
+def schedule(
+    conn: Connection,
+    kind: str,
+    params: Mapping[str, Any],
+    *,
+    done_before: datetime | None = None,
+    parent_id: int | None = None,
+) -> str | None:
+    """Make sure ``(kind, params)`` will run: enqueue it (:data:`NEW`), or re-pend it if it is
+    ``done`` (and completed at or before ``done_before``) (:data:`RERUN`). Pending, running and
+    dead tasks are left alone (``None``), so calling this twice in a row is a no-op."""
+    tid = conn.execute(
+        select(task.c.id).where(task.c.kind == kind, task.c.params_hash == params_hash(params))
+    ).scalar_one_or_none()
+    if tid is None:
+        return NEW if enqueue(conn, kind, params, parent_id=parent_id) is not None else None
+    return RERUN if rerun_done(conn, [tid], done_before=done_before) else None
+
+
+def seconds_until_due(conn: Connection, *, kinds: Iterable[str] | None = None) -> float | None:
+    """Seconds until the earliest ``pending`` task is due (0 if one is due now); ``None`` if no
+    task is pending."""
+    q = select(extract("epoch", func.min(task.c.next_run_at) - func.now())).where(
+        task.c.status == PENDING
+    )
+    if kinds is not None:
+        q = q.where(task.c.kind.in_(list(kinds)))
+    wait = conn.execute(q).scalar_one()
+    return None if wait is None else max(float(wait), 0.0)

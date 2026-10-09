@@ -58,6 +58,7 @@ def _count(engine: Engine, table: Any) -> int:
         ["seed", "dynamic"],
         ["seed", "indicators"],
         ["seed", "trade"],
+        ["seed", "refresh"],
         ["work"],
         ["status"],
         ["migrate"],
