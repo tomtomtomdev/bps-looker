@@ -59,10 +59,15 @@ class Task:
     parent_id: int | None
 
 
-def params_hash(params: Mapping[str, Any]) -> str:
+def canonical_sha256(value: Any) -> str:
     """SHA-256 hex of canonical JSON (sorted keys, compact separators, UTF-8)."""
-    canonical = json.dumps(params, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
+    canonical = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def params_hash(params: Mapping[str, Any]) -> str:
+    """SHA-256 hex of the canonical JSON of ``params`` (see :func:`canonical_sha256`)."""
+    return canonical_sha256(params)
 
 
 def backoff(
