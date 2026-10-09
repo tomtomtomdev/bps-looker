@@ -27,11 +27,22 @@ ALL_TABLES = {
     "trade_flow",
 }
 
+# Read views (hand-written SQL in migrations, not in MetaData).
+ALL_VIEWS = {"v_observation", "v_trade", "v_indicator_latest"}
+
 
 def _tables(url: str) -> set[str]:
     engine = create_engine(url)
     try:
         return set(inspect(engine).get_table_names())
+    finally:
+        engine.dispose()
+
+
+def _views(url: str) -> set[str]:
+    engine = create_engine(url)
+    try:
+        return set(inspect(engine).get_view_names())
     finally:
         engine.dispose()
 
@@ -73,12 +84,14 @@ def test_upgrade_from_empty_creates_all_tables(empty_db: str) -> None:
     assert _tables(empty_db) == set()
     upgrade(empty_db, "head")
     assert _tables(empty_db) == ALL_TABLES | {"alembic_version"}
+    assert _views(empty_db) == ALL_VIEWS
 
 
 def test_downgrade_removes_all_tables(empty_db: str) -> None:
     upgrade(empty_db, "head")
     downgrade(empty_db, "base")
     assert _tables(empty_db) - {"alembic_version"} == set()
+    assert _views(empty_db) == set()
 
 
 def test_upgrade_downgrade_upgrade_roundtrip(empty_db: str) -> None:
