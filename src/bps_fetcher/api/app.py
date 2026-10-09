@@ -20,6 +20,7 @@ TITLE = "BPS looker read API"
 OPENAPI_TAGS = [
     {"name": "meta", "description": "Service health."},
     {"name": "domains", "description": "BPS domains: national (pusat), provinces, regencies."},
+    {"name": "variables", "description": "Dynamic-table variables: search, metadata, data."},
 ]
 
 

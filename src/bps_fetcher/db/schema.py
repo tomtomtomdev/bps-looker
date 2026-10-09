@@ -3,10 +3,13 @@
 Later slices add tables here *and* in a new migration (``test_migrations_match_metadata`` checks).
 """
 
+from typing import Any
+
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
     Column,
+    ColumnElement,
     DateTime,
     ForeignKey,
     ForeignKeyConstraint,
@@ -106,6 +109,33 @@ variable = Table(
     Column("vertical", Integer),
     Column("last_update", DateTime(timezone=False)),
 )
+
+
+def _simple_tsvector(text_: ColumnElement[Any]) -> ColumnElement[Any]:
+    return func.to_tsvector(text("'simple'::regconfig"), text_)
+
+
+def _or_empty(col: ColumnElement[Any]) -> ColumnElement[Any]:
+    return func.coalesce(col, text("''"))
+
+
+# U2 search vector: title (weight A) + subject and category names (weight B), 'simple' config
+# (no stemming/stop words — titles are Indonesian; queries use prefix matching instead). An
+# expression GIN index, not a generated column: built CONCURRENTLY, it never rewrites or
+# write-locks ``variable`` while a crawl runs. Queries must use this exact expression.
+VARIABLE_SEARCH_VECTOR: ColumnElement[Any] = func.setweight(
+    _simple_tsvector(variable.c.title), text("'A'")
+).op("||")(
+    func.setweight(
+        _simple_tsvector(
+            _or_empty(variable.c.sub_name)
+            .op("||")(text("' '"))
+            .op("||")(_or_empty(variable.c.subcsa_name))
+        ),
+        text("'B'"),
+    )
+)
+Index("ix_variable_search_vector", VARIABLE_SEARCH_VECTOR, postgresql_using="gin")
 
 # Periods (``th``) a variable has data for, from ``/list?model=th`` (S10). ``th_id`` is BPS's
 # period code (e.g. ``117``), ``label`` its year text (``"2017"``).

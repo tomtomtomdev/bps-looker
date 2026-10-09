@@ -10,7 +10,8 @@ from sqlalchemy import Engine, select
 from sqlalchemy.exc import DBAPIError
 
 from bps_fetcher.api.deps import Conn, get_engine
-from bps_fetcher.api.models import Domain, DomainLevel, Health
+from bps_fetcher.api.models import Domain, DomainLevel, Health, VariablePage, VariableSummary
+from bps_fetcher.api.search import search_query
 from bps_fetcher.db.schema import domain
 from bps_fetcher.redact import redact
 
@@ -57,3 +58,41 @@ def list_domains(
     if level is not None:
         query = query.where(domain.c.level == level)
     return [Domain.model_validate(row._mapping) for row in conn.execute(query)]
+
+
+@router.get(
+    "/variables",
+    operation_id="searchVariables",
+    tags=["variables"],
+    summary="Search the dynamic-table variable catalog",
+    response_model=VariablePage,
+)
+def search_variables(
+    conn: Conn,
+    q: Annotated[
+        str | None,
+        Query(
+            max_length=200,
+            description="Words to find in the title or subject (all must match, each as a "
+            "prefix: `infl bul`). Empty → every variable, by title.",
+        ),
+    ] = None,
+    domain: Annotated[
+        str | None, Query(pattern=r"^\d{4}$", description="Only this domain (e.g. `0000`).")
+    ] = None,
+    level: Annotated[DomainLevel | None, Query(description="Only domains at this level.")] = None,
+    subject: Annotated[int | None, Query(description="Only this subject (`subject_id`).")] = None,
+    page: Annotated[int, Query(ge=1, description="1-based page number.")] = 1,
+    page_size: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> VariablePage:
+    """Full-text search ranked by relevance (title over subject), or all by title when ``q`` is
+    empty; ``total`` counts every match."""
+    rows, count = search_query(q, domain_id=domain, level=level, subject_id=subject)
+    total = conn.execute(count).scalar_one()
+    items = conn.execute(rows.limit(page_size).offset((page - 1) * page_size))
+    return VariablePage(
+        items=[VariableSummary.model_validate(r._mapping) for r in items],
+        total=total,
+        page=page,
+        page_size=page_size,
+    )

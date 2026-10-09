@@ -29,3 +29,7 @@ export function createApiClient(options: ClientOptions = {}) {
 export type ApiClient = ReturnType<typeof createApiClient>;
 
 export const api = createApiClient();
+
+export type VariableSummary = Schemas["VariableSummary"];
+export type VariablePage = Schemas["VariablePage"];
+export type DomainLevel = Domain["level"];

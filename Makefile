@@ -54,7 +54,8 @@ web-api: openapi
 web-dev:
 	$(PNPM) dev
 
-# Playwright e2e against `pnpm start` (needs a build; specs from U2 on, browsers via
-# `pnpm --dir web exec playwright install chromium`).
+# Playwright e2e (web/e2e/) against a production build on :3000 (`pnpm start`); the read API is
+# mocked by route interception until U7. Browsers: `pnpm --dir web exec playwright install chromium`.
 e2e:
+	$(PNPM) build
 	$(PNPM) e2e

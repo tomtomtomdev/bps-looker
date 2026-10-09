@@ -60,6 +60,15 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+      # Playwright e2e against `pnpm start` (API mocked by route interception; real stack in U7).
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm e2e
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-results
+          path: web/test-results/
+          retention-days: 7
 
   docker:
     runs-on: ubuntu-24.04

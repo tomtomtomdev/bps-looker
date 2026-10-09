@@ -98,6 +98,144 @@
           }
         }
       }
+    },
+    "/variables": {
+      "get": {
+        "tags": [
+          "variables"
+        ],
+        "summary": "Search the dynamic-table variable catalog",
+        "description": "Full-text search ranked by relevance (title over subject), or all by title when ``q`` is\nempty; ``total`` counts every match.",
+        "operationId": "searchVariables",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Words to find in the title or subject (all must match, each as a prefix: `infl bul`). Empty → every variable, by title.",
+              "title": "Q"
+            },
+            "description": "Words to find in the title or subject (all must match, each as a prefix: `infl bul`). Empty → every variable, by title."
+          },
+          {
+            "name": "domain",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this domain (e.g. `0000`).",
+              "title": "Domain"
+            },
+            "description": "Only this domain (e.g. `0000`)."
+          },
+          {
+            "name": "level",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pusat",
+                    "prov",
+                    "kab"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only domains at this level.",
+              "title": "Level"
+            },
+            "description": "Only domains at this level."
+          },
+          {
+            "name": "subject",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this subject (`subject_id`).",
+              "title": "Subject"
+            },
+            "description": "Only this subject (`subject_id`)."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "1-based page number.",
+              "default": 1,
+              "title": "Page"
+            },
+            "description": "1-based page number."
+          },
+          {
+            "name": "page_size",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Page Size"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariablePage"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -230,6 +368,120 @@
           "type"
         ],
         "title": "ValidationError"
+      },
+      "VariablePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/VariableSummary"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "page_size": {
+            "type": "integer",
+            "title": "Page Size"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
+        "title": "VariablePage"
+      },
+      "VariableSummary": {
+        "properties": {
+          "domain_id": {
+            "type": "string",
+            "title": "Domain Id"
+          },
+          "domain_name": {
+            "type": "string",
+            "title": "Domain Name"
+          },
+          "domain_level": {
+            "type": "string",
+            "enum": [
+              "pusat",
+              "prov",
+              "kab"
+            ],
+            "title": "Domain Level"
+          },
+          "var_id": {
+            "type": "integer",
+            "title": "Var Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unit"
+          },
+          "subject_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject Id"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Subject"
+          },
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          }
+        },
+        "type": "object",
+        "required": [
+          "domain_id",
+          "domain_name",
+          "domain_level",
+          "var_id",
+          "title"
+        ],
+        "title": "VariableSummary",
+        "description": "A dynamic-table variable as listed by search (no definition/notes — see U3 detail)."
       }
     }
   },
@@ -241,6 +493,10 @@
     {
       "name": "domains",
       "description": "BPS domains: national (pusat), provinces, regencies."
+    },
+    {
+      "name": "variables",
+      "description": "Dynamic-table variables: search, metadata, data."
     }
   ]
 }

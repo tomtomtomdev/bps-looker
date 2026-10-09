@@ -44,6 +44,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/variables": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search the dynamic-table variable catalog
+         * @description Full-text search ranked by relevance (title over subject), or all by title when ``q`` is
+         *     empty; ``total`` counts every match.
+         */
+        get: operations["searchVariables"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -94,6 +115,44 @@ export interface components {
             input?: unknown;
             /** Context */
             ctx?: Record<string, never>;
+        };
+        /** VariablePage */
+        VariablePage: {
+            /** Items */
+            items: components["schemas"]["VariableSummary"][];
+            /** Total */
+            total: number;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+        };
+        /**
+         * VariableSummary
+         * @description A dynamic-table variable as listed by search (no definition/notes — see U3 detail).
+         */
+        VariableSummary: {
+            /** Domain Id */
+            domain_id: string;
+            /** Domain Name */
+            domain_name: string;
+            /**
+             * Domain Level
+             * @enum {string}
+             */
+            domain_level: "pusat" | "prov" | "kab";
+            /** Var Id */
+            var_id: number;
+            /** Title */
+            title: string;
+            /** Unit */
+            unit?: string | null;
+            /** Subject Id */
+            subject_id?: number | null;
+            /** Subject */
+            subject?: string | null;
+            /** Category */
+            category?: string | null;
         };
     };
     responses: never;
@@ -152,6 +211,47 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Domain"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    searchVariables: {
+        parameters: {
+            query?: {
+                /** @description Words to find in the title or subject (all must match, each as a prefix: `infl bul`). Empty → every variable, by title. */
+                q?: string | null;
+                /** @description Only this domain (e.g. `0000`). */
+                domain?: string | null;
+                /** @description Only domains at this level. */
+                level?: ("pusat" | "prov" | "kab") | null;
+                /** @description Only this subject (`subject_id`). */
+                subject?: number | null;
+                /** @description 1-based page number. */
+                page?: number;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VariablePage"];
                 };
             };
             /** @description Validation Error */

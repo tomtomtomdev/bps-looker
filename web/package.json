@@ -17,7 +17,7 @@
     "test:watch": "vitest",
     "gen:api": "openapi-typescript openapi.json -o src/lib/api/schema.d.ts",
     "check:api": "node scripts/check-api-schema.mjs",
-    "e2e": "playwright test --pass-with-no-tests"
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@tanstack/react-query": "5.104.1",

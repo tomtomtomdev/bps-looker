@@ -1,8 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * E2E scaffold: specs land in e2e/ from U2 on (`make e2e`). Runs against `pnpm start` on :3000
- * (build first) unless E2E_BASE_URL points at a running app, e.g. the compose stack (U7).
+ * E2E specs in e2e/ (`make e2e` builds first). Runs against `pnpm start` on :3000 unless
+ * E2E_BASE_URL points at a running app, e.g. the compose stack (U7). Specs mock the read API
+ * (E2E_API_URL, default http://localhost:8000) with route interception.
  */
 const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 

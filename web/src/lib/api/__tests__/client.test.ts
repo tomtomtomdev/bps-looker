@@ -17,12 +17,27 @@ describe("apiBaseUrl", () => {
 });
 
 describe("generated schema", () => {
-  it("types the U0 endpoints", () => {
-    expectTypeOf<keyof paths>().toEqualTypeOf<"/health" | "/domains">();
+  it("types the endpoints", () => {
+    expectTypeOf<keyof paths>().toEqualTypeOf<"/health" | "/domains" | "/variables">();
     expectTypeOf<components["schemas"]["Domain"]["level"]>().toEqualTypeOf<
       "pusat" | "prov" | "kab"
     >();
-    expectTypeOf<keyof operations>().toEqualTypeOf<"getHealth" | "listDomains">();
+    expectTypeOf<keyof operations>().toEqualTypeOf<
+      "getHealth" | "listDomains" | "searchVariables"
+    >();
+    expectTypeOf<
+      NonNullable<operations["searchVariables"]["parameters"]["query"]>
+    >().toEqualTypeOf<{
+      q?: string | null;
+      domain?: string | null;
+      level?: "pusat" | "prov" | "kab" | null;
+      subject?: number | null;
+      page?: number;
+      page_size?: number;
+    }>();
+    expectTypeOf<components["schemas"]["VariablePage"]["items"]>().toEqualTypeOf<
+      components["schemas"]["VariableSummary"][]
+    >();
   });
 });
 
