@@ -182,3 +182,30 @@ observation = Table(
     _var_fk(),
     Index("ix_observation_domain_id_var_id_th", "domain_id", "var_id", "th"),
 )
+
+# Strategic indicators (S14), from ``/list?model=indicators`` (pusat/prov domains only). The API
+# only serves each indicator's latest value, so every distinct ``(indicator_id, periode, title)``
+# seen is kept as a row: a new period adds a row (history). ``first_seen``/``last_seen`` are when
+# the row was first/last returned by the API.
+indicator_snapshot = Table(
+    "indicator_snapshot",
+    metadata,
+    Column(
+        "domain_id",
+        String(4),
+        ForeignKey("domain.domain_id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("indicator_id", Integer, primary_key=True),
+    Column("periode", Text, primary_key=True),
+    Column("title", Text, primary_key=True),
+    Column("var", Integer),
+    Column("subject_csa", Integer),
+    Column("name", Text),
+    Column("value", Numeric),
+    Column("unit", Text),
+    Column("category", Integer),
+    Column("data_source", Text),
+    Column("first_seen", DateTime(timezone=True), nullable=False, server_default=func.now()),
+    Column("last_seen", DateTime(timezone=True), nullable=False, server_default=func.now()),
+)

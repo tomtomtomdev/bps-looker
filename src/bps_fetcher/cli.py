@@ -2,6 +2,7 @@
 
     bps migrate
     bps seed dynamic [--domain 0000 ...] [--level prov ...] [--limit-vars N]
+    bps seed indicators [--domain 0000 ...] [--run LABEL]
     bps work [--drain] [--max-tasks N] [--concurrency N] [--kind data ...]
     bps status
 
@@ -24,9 +25,11 @@ from sqlalchemy import Engine, create_engine, func, select
 
 from bps_fetcher import queue
 from bps_fetcher.db.migrate import alembic_config, database_url, upgrade
-from bps_fetcher.db.schema import DOMAIN_LEVELS, task
+from bps_fetcher.db.schema import DOMAIN_LEVELS, domain, task
 from bps_fetcher.handlers.domains import KIND as DOMAINS_KIND
 from bps_fetcher.handlers.domains import domain_level
+from bps_fetcher.handlers.indicators import LEVELS as INDICATOR_LEVELS
+from bps_fetcher.handlers.indicators import seed_indicators
 from bps_fetcher.redact import install_redaction, redact
 
 log = logging.getLogger("bps_fetcher")
@@ -141,6 +144,46 @@ def dynamic(
     finally:
         engine.dispose()
     typer.echo(f"Seeded task {task_id}: {DOMAINS_KIND} {params}")
+
+
+@seed_app.command()
+def indicators(
+    domain_: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--domain",
+            "-d",
+            help="Domain id (repeatable, pusat/prov only); default: every pusat/prov domain.",
+            callback=_check_domain,
+        ),
+    ] = None,
+    run: Annotated[
+        str | None,
+        typer.Option(help="Snapshot label (e.g. a date) so a repeat seed enqueues fresh tasks."),
+    ] = None,
+) -> None:
+    """Seed strategic-indicator snapshots (one ``indicators`` task per domain)."""
+    _setup_logging()
+    engine = _engine()
+    try:
+        with engine.begin() as conn:
+            known = conn.execute(
+                select(func.count()).select_from(domain).where(domain.c.level.in_(INDICATOR_LEVELS))
+            ).scalar_one()
+            try:
+                n = seed_indicators(conn, domain_, run=run)
+            except ValueError as exc:
+                typer.echo(f"Error: {exc}", err=True)
+                raise typer.Exit(1) from None
+    finally:
+        engine.dispose()
+    if not known:
+        hint = "The domain table is empty: run `bps seed dynamic` and `bps work` first"
+        if not domain_:
+            typer.echo(f"{hint}; nothing seeded.", err=True)
+            raise typer.Exit(1)
+        typer.echo(f"Warning: {hint}, or these tasks will fail.", err=True)
+    typer.echo(f"Seeded {n} indicators task(s)" + ("" if n else " (already seeded)") + ".")
 
 
 @app.command()

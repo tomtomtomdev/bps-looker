@@ -22,6 +22,7 @@ ALL_TABLES = {
     "dim_turvar",
     "dim_turth",
     "observation",
+    "indicator_snapshot",
 }
 
 

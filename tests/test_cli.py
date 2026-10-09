@@ -52,7 +52,15 @@ def _count(engine: Engine, table: Any) -> int:
 
 @pytest.mark.parametrize(
     "args",
-    [[], ["seed"], ["seed", "dynamic"], ["work"], ["status"], ["migrate"]],
+    [
+        [],
+        ["seed"],
+        ["seed", "dynamic"],
+        ["seed", "indicators"],
+        ["work"],
+        ["status"],
+        ["migrate"],
+    ],
 )
 def test_help_works_for_every_command(args: list[str]) -> None:
     result = runner.invoke(app, [*args, "--help"])
@@ -116,6 +124,58 @@ def test_seed_dynamic_level_and_validation(cli_env: None, db_engine: Engine) -> 
     assert runner.invoke(app, ["seed", "dynamic", "--domain", "12"]).exit_code != 0
     assert runner.invoke(app, ["seed", "dynamic", "--level", "desa"]).exit_code != 0
     assert runner.invoke(app, ["seed", "dynamic", "--limit-vars", "0"]).exit_code != 0
+
+
+def _add_domains(engine: Engine, *ids: str) -> None:
+    from bps_fetcher.handlers.domains import domain_level
+
+    with engine.begin() as conn:
+        conn.execute(
+            domain.insert(),
+            [{"domain_id": d, "name": f"D{d}", "level": domain_level(d)} for d in ids],
+        )
+
+
+def test_seed_indicators_all_pusat_and_prov_domains(cli_env: None, db_engine: Engine) -> None:
+    _add_domains(db_engine, "0000", "1100", "1101")
+    result = runner.invoke(app, ["seed", "indicators"])
+    assert result.exit_code == 0, result.output
+    assert "2" in result.output
+    with db_engine.connect() as conn:
+        rows = conn.execute(select(task.c.kind, task.c.params).order_by(task.c.id)).all()
+    assert [tuple(r) for r in rows] == [
+        ("indicators", {"domain": "0000"}),
+        ("indicators", {"domain": "1100"}),
+    ]
+
+
+def test_seed_indicators_domain_and_run(cli_env: None, db_engine: Engine) -> None:
+    result = runner.invoke(app, ["seed", "indicators", "--domain", "0000", "--run", "2026-10-09"])
+    assert result.exit_code == 0, result.output
+    with db_engine.connect() as conn:
+        params = conn.execute(select(task.c.params)).scalar_one()
+    assert params == {"domain": "0000", "run": "2026-10-09"}
+
+    again = runner.invoke(app, ["seed", "indicators", "--domain", "0000", "--run", "2026-10-09"])
+    assert again.exit_code == 0, again.output
+    assert "0" in again.output
+    assert _count(db_engine, task) == 1
+
+
+def test_seed_indicators_rejects_kab_domain(cli_env: None, db_engine: Engine) -> None:
+    result = runner.invoke(app, ["seed", "indicators", "--domain", "0000", "--domain", "1101"])
+    assert result.exit_code != 0
+    assert "1101" in result.output
+    assert _count(db_engine, task) == 0
+
+
+def test_seed_indicators_empty_domain_table_hints_seed_dynamic(
+    cli_env: None, db_engine: Engine
+) -> None:
+    result = runner.invoke(app, ["seed", "indicators"])
+    assert result.exit_code != 0
+    assert "bps seed dynamic" in result.output
+    assert _count(db_engine, task) == 0
 
 
 # --- end to end ----------------------------------------------------------------------------------
