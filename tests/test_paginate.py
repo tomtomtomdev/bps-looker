@@ -75,12 +75,13 @@ async def test_stops_on_not_available_mid_way() -> None:
     assert len(client.calls) == 2
 
 
-async def test_pages_missing_domain_endpoint() -> None:
+async def test_domain_endpoint_single_call() -> None:
+    # Real /domain meta (S4 fixture domain_all): has pages, no per_page/count.
     body = {
         "status": "OK",
         "data-availability": "available",
         "data": [
-            {"page": 1, "per_page": 549, "count": 549, "total": 549},
+            {"page": 1, "pages": 1, "total": 549},
             [{"domain_id": "0000"}, {"domain_id": "1100"}],
         ],
     }

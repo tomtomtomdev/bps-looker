@@ -26,11 +26,8 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 
 ## Current status — 2026-10-09
 
-- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client), S3 (pagination). Plan includes backend S0–S21 and UI U0–U7.
-- **Next:** S4 — Fixture recorder. S4 needs no Postgres.
-- **Before S5:** ask the user before `brew install postgresql@16`.
-- **Pending follow-ups (fold into the next slice):**
-  - `make live` exits 5 (no tests collected) until the first live test lands in S4.
+- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client), S3 (pagination), S4 (fixture recorder; `make live` green). Plan includes backend S0–S21 and UI U0–U7.
+- **Next:** S5 — DB schema + migrations. **Ask the user before `brew install postgresql@16`.**
 - **Resume:** start a subagent for the next ☐ slice with its spec from this file, review its result, repeat.
 
 ## Progress
@@ -41,7 +38,7 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 | S1 | Settings + key redaction | ☑ | 2026-10-09: `settings.py` (`Settings` via pydantic-settings; env `BPS_API_KEY` as SecretStr, `DATABASE_URL`, `BPS_CONCURRENCY`=4, `BPS_RPS`=2.0, `BPS_USER_AGENT`; cached `get_settings()` raises `MissingApiKeyError`), `redact.py` (`redact()` masks `key=` / `/key/<x>` + known secrets; `RedactingFilter` scrubs msg, args, traceback; `install_redaction()` on root handlers). pydantic mypy plugin enabled. CI: checkout@v7, setup-uv@v10.2.0 (no floating major tags since v8, so pinned exact), runners pinned to ubuntu-24.04. |
 | S2 | HTTP client | ☑ | 2026-10-09: `client.py` `BpsClient.get(path, **params)` (httpx + tenacity + aiolimiter; `from_settings()`, async ctx manager). Errors: `BpsApiError(message)`, `BpsAuthError` ("re-check your key"/"not allowed", not retried), `BpsTransientError` after `max_attempts` (5xx, non-JSON/WAF HTML, transport errors/timeouts). 4xx JSON → `BpsApiError`. Limiter is strict `1 token / (1/rps)` (no burst). Backoff `wait` injectable (`wait_none()` in tests). Surprise: httpx logs full request URL incl. `key=` at INFO — client attaches a `RedactingFilter` to the `httpx`/`httpcore` loggers. |
 | S3 | Pagination | ☑ | 2026-10-09: `paginate.py` `paginate(client, model, **params)` async generator: `GET list?model=…&page=N` from `page` (default 1) to `data[0].pages`; yields `data[1]` items; stops on `data-availability: not-available` or missing `pages`. `model="domain"` hits `/domain` (own path, single call, no `page`). Malformed `data` → `BpsApiError`. Client typed via a `get` Protocol so tests use a fake client. Domain response meta shape not yet verified live — check in S4 fixture. |
-| S4 | Fixture recorder | ☐ | |
+| S4 | Fixture recorder | ☑ | 2026-10-09: `recorder.py` (`FixtureSpec`, `FIXTURES` catalog, `record()` scrubs key from URL/params/body and refuses to write if it survives) + `scripts/record_fixture.py [NAME…]` (1 call/s). 13 fixtures in `tests/fixtures/` (largest `trade_exp_monthly_03_2024` 979 KB, 4590 rows — not trimmed). `test_api_facts.py` checks assumptions on fixtures; 2 live tests. Learned: `/domain` meta is `{page:1, pages:1, total:549}` (has `pages`; S3 test fixed, code unchanged). Bad key → JSON `status: Error` "…Please re-check your key" (matches `_AUTH_MARKERS`) — but some key strings (e.g. `000…0x`) trip the WAF instead (403 HTML → `BpsTransientError`; recorded as `error_waf_block`). Monthly var 2263: `turtahun` lists 1–13 (13 = `Tahunan`) but values only for 1–12 (39 regions × 12 = 468). `>3` th error: "The maximum allowed number of years … is 3. You provided 7…". |
 | S5 | DB schema + migrations | ☐ | |
 | S6 | Task queue | ☐ | |
 | S7 | Worker runner | ☐ | |
@@ -78,7 +75,9 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 - `model=data` requires `th`; **max 3 periods per call** (`th=124:126`).
 - `datacontent` key = `vervar + var + turvar + th + turth` concatenated.
 - Data response has `last_update` (e.g. `2026-10-01 11:24:01`) → change detection.
-- Monthly vars use `turtahun` 1–12 (and possibly 13 = annual); `turth` filter param seems ignored — fetch all and filter locally.
+- Monthly vars use `turtahun` 1–12; 13 = `Tahunan` is listed in the dimension but had no values (var 2263, 2024 — verified 2026-10-09); `turth` filter param seems ignored — fetch all and filter locally.
+- `/domain` meta is `{"page": 1, "pages": 1, "total": 549}` (no `per_page`/`count`) (verified 2026-10-09).
+- Bad key → HTTP 200 JSON auth error, but odd key strings can trigger a 403 WAF HTML page instead (verified 2026-10-09).
 - Indicators: national 16, DKI Jakarta 28; the API returns only the **latest value** per indicator → we must keep history ourselves.
 - Trade: param is lowercase **`tahun`** (docs say `Tahun`). No pagination; whole result in one response. Data available **from 2015** (2013 and earlier: unavailable; 2014 unchecked). Monthly rows have `bulan: "[11] November"`; `kodehs: "[03] Fish, ..."`. 10 chapters monthly for one year ≈ 14k rows / 2.2 MB / 10 s. Full HS codes (`jenishs=2`) returned nothing for the codes tried — use 2-digit chapters.
 

@@ -1,0 +1,18 @@
+{
+ "name": "error_bad_key",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=subcat&domain=0000&key=***",
+  "path": "list",
+  "params": {
+   "model": "subcat",
+   "domain": "0000"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "Error",
+  "message": "You are not Allowed to take this action. Please re-check your key"
+ }
+}

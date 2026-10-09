@@ -1,0 +1,20 @@
+{
+ "name": "error_data_too_many_th",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=data&domain=0000&var=1804&th=113%3A119&key=***",
+  "path": "list",
+  "params": {
+   "model": "data",
+   "domain": "0000",
+   "var": "1804",
+   "th": "113:119"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "Error",
+  "message": "The maximum allowed number of years for the 'th' parameter is 3. You provided 7. Please reduce the number of years accordingly."
+ }
+}

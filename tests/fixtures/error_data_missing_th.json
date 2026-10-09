@@ -1,0 +1,19 @@
+{
+ "name": "error_data_missing_th",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=data&domain=0000&var=1804&key=***",
+  "path": "list",
+  "params": {
+   "model": "data",
+   "domain": "0000",
+   "var": "1804"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "Error",
+  "message": "'th' parameter is required and must be an integer, separated by colon (:) for range or semicolon (;) for multiple values."
+ }
+}

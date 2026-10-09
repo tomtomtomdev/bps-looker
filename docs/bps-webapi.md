@@ -18,7 +18,7 @@ Items marked **(verified)** were checked against the live API with a real key on
 - **User-Agent is required.** BPS's perimeter WAF returns an HTML "Perimeter WAF Block" page for default `curl`/`python-urllib` User-Agents. Send a browser-like UA, e.g. `User-Agent: Mozilla/5.0 (Macintosh) bps-looker`.
 - **Use `/v1/api/view` and `/v1/api/list`.** The docs show some endpoints as `/v1/view` or `/v1/list` — those return `404 - Unable to resolve the request`.
 - **Errors come back as HTTP 200** with `"status": "Error"` and a `message`. Always check `status`, not the HTTP code. Examples:
-  - bad/missing key → `{"status":"Error","message":"You are not Allowed to take this action. Please re-check your key"}`
+  - bad/missing key → `{"status":"Error","message":"You are not Allowed to take this action. Please re-check your key"}` (some key strings, e.g. `000…0x`, are instead blocked by the WAF with a 403 HTML page)
   - `model=data` without `th` → `"'th' parameter is required and must be an integer, separated by colon (:) for range or semicolon (;) for multiple values."`
 - `data-availability` is `"available"` or `"not-available"` (empty result).
 - Path-style URLs also work: `/v1/api/list/model/th/domain/0000/var/1804/key/<KEY>/`.
@@ -58,7 +58,7 @@ curl -s -A "Mozilla/5.0" \
 | `type` | yes | `all` · `prov` · `kab` · `kabbyprov` |
 | `prov` | with `kabbyprov` | 4-digit province ID, e.g. `3100` |
 
-Item: `domain_id`, `domain_name`, `domain_url`. `type=all` → 549 domains; `type=prov` → 34 (verified).
+Item: `domain_id`, `domain_name`, `domain_url`. `type=all` → 549 domains; `type=prov` → 34 (verified). Not paginated; `data[0]` is `{"page": 1, "pages": 1, "total": 549}` (verified 2026-10-09).
 
 ### Subject categories — `GET /list?model=subcat`
 Params: `domain`, `lang`, `page`. Item: `subcat_id`, `title`.
@@ -115,7 +115,7 @@ Params: `domain`, `var` (opt), `page`. Item: `vervar_id`, `vervar`, `item_ver_id
 | `turvar`, `vervar`, `turth` | opt | same syntax |
 | `lang` | opt | |
 
-Not paginated. Monthly vars return `turtahun` 1–12 (verified on var 2263). Top-level keys (verified): `status`, `data-availability`, `last_update`, `subject`, `var`, `turvar`, `labelvervar`, `vervar`, `tahun`, `turtahun`, `datacontent`, `related`. Each dimension is a list of `{val, label}`. `var[0]` also has `unit`, `subj`, `def`, `decimal`, `note`.
+Not paginated. Monthly vars return `turtahun` 1–12 (verified on var 2263); the `turtahun` list also has `13` = `Tahunan` with no values in `datacontent` (2024). Top-level keys (verified): `status`, `data-availability`, `last_update`, `subject`, `var`, `turvar`, `labelvervar`, `vervar`, `tahun`, `turtahun`, `datacontent`, `related`. Each dimension is a list of `{val, label}`. `var[0]` also has `unit`, `subj`, `def`, `decimal`, `note`.
 
 **`datacontent` keys are the concatenation `vervar + var + turvar + th + turth`** (verified):
 

@@ -1,0 +1,160 @@
+{
+ "name": "indicators_0000_p1",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/list?model=indicators&domain=0000&page=1&key=***",
+  "path": "list",
+  "params": {
+   "model": "indicators",
+   "domain": "0000",
+   "page": "1"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "OK",
+  "data-availability": "available",
+  "data": [
+   {
+    "page": 1,
+    "pages": 2,
+    "per_page": 10,
+    "count": 10,
+    "total": 16
+   },
+   [
+    {
+     "var": 2263,
+     "indicator_id": 3,
+     "subject_csa": 536,
+     "title": "Inflasi Year on Year, September 2026",
+     "name": "Pada September2026 terjadi inflasi year-on-year (y-on-y) sebesar 3,28 persen",
+     "data_source": "BPS",
+     "value": 3.28,
+     "unit": "Persen",
+     "category": 2,
+     "hash_id": "MjI2MyMy",
+     "periode": "September 2026"
+    },
+    {
+     "var": 2262,
+     "indicator_id": 27,
+     "subject_csa": 536,
+     "title": "Inflasi Month to Month, September 2026",
+     "name": "Tingkat inflasi month-to-month (m-to-m) September 2026 sebesar 0,30 persen",
+     "data_source": "BPS",
+     "value": 0.3,
+     "unit": "Persen",
+     "category": 2,
+     "hash_id": "MjI2MiMy",
+     "periode": "September 2026"
+    },
+    {
+     "var": 104,
+     "indicator_id": 7,
+     "subject_csa": 531,
+     "title": "Pertumbuhan Ekonomi, Triwulan II 2026",
+     "name": "Ekonomi Indonesia Triwulan II-2026 Tumbuh 5,29 Persen (Y-on-Y)",
+     "data_source": "BPS",
+     "value": 5.29,
+     "unit": "Persen",
+     "category": 2,
+     "hash_id": "MTA0IzI=",
+     "periode": "Triwulan II 2026"
+    },
+    {
+     "var": 192,
+     "indicator_id": 14,
+     "subject_csa": 523,
+     "title": "Persentase Penduduk Miskin, Maret 2026",
+     "name": "Persentase Penduduk Miskin Maret 2026",
+     "data_source": "BPS",
+     "value": 8.07,
+     "unit": "Persen",
+     "category": 2,
+     "hash_id": "MTkyIzI=",
+     "periode": "Semester 1 (Maret) 2026"
+    },
+    {
+     "var": 543,
+     "indicator_id": 24,
+     "subject_csa": 520,
+     "title": "Tingkat Pengangguran Terbuka, Februari 2026",
+     "name": "",
+     "data_source": "Survei Angkatan Kerja Nasional(Sakernas)",
+     "value": 4.68,
+     "unit": "Persen",
+     "category": 2,
+     "hash_id": "NTQzIzI=",
+     "periode": "Februari 2026"
+    },
+    {
+     "var": 98,
+     "indicator_id": 17,
+     "subject_csa": 523,
+     "title": "Gini Rasio, Maret 2026",
+     "name": "Sumber : BPS, Susenas\r\nTahun 2002, Susenas Modul Konsumsi reguler\r\nTahun 2005, Susenas Panel (Februari)\r\nTahun 2006-2010, Susenas Panel (Maret)\r\nTahun 2011-2026, Susenas Modul Konsumsi (Maret & September)",
+     "data_source": "Sumber : BPS, Susenas",
+     "value": 0.368,
+     "unit": "Tidak Ada Satuan",
+     "category": 2,
+     "hash_id": "OTgjMg==",
+     "periode": "Semester 1 (Maret) 2026"
+    },
+    {
+     "var": 2207,
+     "indicator_id": 5,
+     "subject_csa": 563,
+     "title": "IPM (UHH LF SP2020), 2025",
+     "name": "Indeks Pembangunan Manusia (Umur Harapan Hidup Hasil Long Form SP2020)",
+     "data_source": "BPS",
+     "value": 75.9,
+     "unit": "Tidak Ada Satuan",
+     "category": 2,
+     "hash_id": "MjIwNyMy",
+     "periode": "Tahun 2025"
+    },
+    {
+     "var": 196,
+     "indicator_id": 10,
+     "subject_csa": 535,
+     "title": "Nilai Ekspor, Agustus 2026",
+     "name": "Nilai Ekspor Tahun Agustus 2026",
+     "data_source": "BPS",
+     "value": 26612.2,
+     "unit": "Juta US$",
+     "category": 2,
+     "hash_id": "MTk2IzI=",
+     "periode": "Agustus 2026"
+    },
+    {
+     "var": 497,
+     "indicator_id": 19,
+     "subject_csa": 535,
+     "title": "Nilai Impor, Agustus 2026",
+     "name": "Nilai Impor ",
+     "data_source": "BPS",
+     "value": 23060,
+     "unit": "Juta US$",
+     "category": 2,
+     "hash_id": "NDk3IzI=",
+     "periode": "Agustus 2026"
+    },
+    {
+     "var": 498,
+     "indicator_id": 20,
+     "subject_csa": 535,
+     "title": "Nilai Neraca Perdagangan, Agustus 2026",
+     "name": "Nilai Neraca Perdagangan merupakan angka sementara yang dikutip dari Berita Resmi Statistik",
+     "data_source": "BPS",
+     "value": 3552.2,
+     "unit": "Juta US$",
+     "category": 2,
+     "hash_id": "NDk4IzI=",
+     "periode": "Agustus 2026"
+    }
+   ]
+  ]
+ }
+}

@@ -19,7 +19,8 @@ async def paginate(client: _Getter, model: str, **params: Any) -> AsyncIterator[
     """Yield every item of ``model`` across pages ``page=start..pages``.
 
     ``data[0]`` holds the page meta and ``data[1]`` the items. Stops when the API reports
-    ``data-availability: not-available`` or when the meta has no ``pages`` (e.g. ``/domain``).
+    ``data-availability: not-available`` or when the meta has no ``pages``. ``/domain`` is one
+    unpaginated call (real meta: ``{"page": 1, "pages": 1, "total": 549}``).
     """
     if model in _OWN_PATH_MODELS:
         body = await client.get(model, **params)

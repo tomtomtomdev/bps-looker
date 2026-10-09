@@ -1,0 +1,5520 @@
+{
+ "name": "trade_exp_annual_03_2024",
+ "request": {
+  "method": "GET",
+  "url": "https://webapi.bps.go.id/v1/api/dataexim/?sumber=1&periode=2&kodehs=03&jenishs=1&tahun=2024&key=***",
+  "path": "dataexim/",
+  "params": {
+   "sumber": "1",
+   "periode": "2",
+   "kodehs": "03",
+   "jenishs": "1",
+   "tahun": "2024"
+  }
+ },
+ "status_code": 200,
+ "content_type": "application/json",
+ "body": {
+  "status": "OK",
+  "data-availability": "available",
+  "metadata": {
+   "source": "Sumber : https://www.bps.go.id diakses pada 09-10-2026 10:04:23 WIB",
+   "value": "Nilai Ekspor dalam US Dollar ($)",
+   "netweight": "Berat Ekspor dalam Kilogram (KG)",
+   "kodehs": "Kode dan Deskripsi dari HS",
+   "pod": "Pelabuhan keluarnya barang di Indonesia",
+   "ctr": "Negara Tujuan",
+   "tahun": "Tahun Data"
+  },
+  "data": [
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "ALBANIA",
+    "value": 2129015,
+    "netweight": 403430
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ALBANIA",
+    "value": 120721,
+    "netweight": 20010
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ALGERIA",
+    "value": 25609.158,
+    "netweight": 1170
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ALGERIA",
+    "value": 859306,
+    "netweight": 216000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "ALGERIA",
+    "value": 1691210,
+    "netweight": 470500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HANG NADIM (U)",
+    "ctr": "AMERICAN SAMOA",
+    "value": 17002.69,
+    "netweight": 1009.15
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SINGKEP/DABO (U)",
+    "ctr": "AMERICAN SAMOA",
+    "value": 8213.54,
+    "netweight": 553.1
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "AMERICAN SAMOA",
+    "value": 105750,
+    "netweight": 50000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "AMERICAN SAMOA",
+    "value": 1457570,
+    "netweight": 648560
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "ARGENTINA",
+    "value": 4603.827,
+    "netweight": 749.818
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ARGENTINA",
+    "value": 74895.996,
+    "netweight": 8582.916
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "ARMENIA",
+    "value": 1399.5,
+    "netweight": 71
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ARMENIA",
+    "value": 15555.93,
+    "netweight": 1001.785
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ARUBA",
+    "value": 543541,
+    "netweight": 48129.52
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "AUSTRALIA",
+    "value": 33.95,
+    "netweight": 11.75
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "AUSTRALIA",
+    "value": 3826431.48,
+    "netweight": 597164.321
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "AUSTRALIA",
+    "value": 668314.2,
+    "netweight": 55523
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HANG NADIM (U)",
+    "ctr": "AUSTRALIA",
+    "value": 9679.163,
+    "netweight": 1416.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "AUSTRALIA",
+    "value": 544.3,
+    "netweight": 63.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "AUSTRALIA",
+    "value": 564.16,
+    "netweight": 62.581
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "AUSTRALIA",
+    "value": 1773.42,
+    "netweight": 555
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUPANG / EL-TARI (U)",
+    "ctr": "AUSTRALIA",
+    "value": 127816.272,
+    "netweight": 20373
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "AUSTRALIA",
+    "value": 4345957.35,
+    "netweight": 458843
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "AUSTRALIA",
+    "value": 6661705.572,
+    "netweight": 519125.638
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "AUSTRALIA",
+    "value": 258,
+    "netweight": 15
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "AUSTRALIA",
+    "value": 1728145.28,
+    "netweight": 109808.238
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "AUSTRALIA",
+    "value": 2335251.44,
+    "netweight": 287611.55
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "AUSTRALIA",
+    "value": 24177988.905,
+    "netweight": 2801155.405
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "AUSTRALIA",
+    "value": 11755837.73,
+    "netweight": 1740992.638
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TENAU",
+    "ctr": "AUSTRALIA",
+    "value": 182813,
+    "netweight": 29020
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "AUSTRIA",
+    "value": 31370.968,
+    "netweight": 2319.995
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "AUSTRIA",
+    "value": 115466,
+    "netweight": 12400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "AZERBAIJAN",
+    "value": 6787.503,
+    "netweight": 194.972
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "BAHRAIN",
+    "value": 22056.085,
+    "netweight": 1805.239
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BAHRAIN",
+    "value": 34270.376,
+    "netweight": 1683.84
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "BANGLADESH",
+    "value": 845.16,
+    "netweight": 540
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BANGLADESH",
+    "value": 35345.835,
+    "netweight": 1023.004
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "BANGLADESH",
+    "value": 175608.5,
+    "netweight": 122480
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "BANGLADESH",
+    "value": 138168,
+    "netweight": 132480
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "BANGLADESH",
+    "value": 26630,
+    "netweight": 53200
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "BARBADOS",
+    "value": 135146.55,
+    "netweight": 27282.62
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "BARBADOS",
+    "value": 251463.85,
+    "netweight": 56020.28
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "BELARUS",
+    "value": 1780074,
+    "netweight": 51420
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "BELGIUM",
+    "value": 1368682.78,
+    "netweight": 217275.799
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "BELGIUM",
+    "value": 194464,
+    "netweight": 29940
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "BELGIUM",
+    "value": 567930,
+    "netweight": 100000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "BELGIUM",
+    "value": 136.65,
+    "netweight": 50.85
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BELGIUM",
+    "value": 352572.372,
+    "netweight": 12072.686
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "BELGIUM",
+    "value": 7587825.42,
+    "netweight": 1258924.301
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "BELGIUM",
+    "value": 10056533.7,
+    "netweight": 1485721.699
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "BRAZIL",
+    "value": 104590.233,
+    "netweight": 5720.501
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BRAZIL",
+    "value": 170692.757,
+    "netweight": 4400.05
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 58850,
+    "netweight": 9500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 334335.033,
+    "netweight": 32214.381
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 37330.98,
+    "netweight": 619.44
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 76987.141,
+    "netweight": 15209.289
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 108578.64,
+    "netweight": 33214.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "BRUNEI DARUSSALAM",
+    "value": 185715.402,
+    "netweight": 23678.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "BULGARIA",
+    "value": 111467.99,
+    "netweight": 4250.322
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "BULGARIA",
+    "value": 254190,
+    "netweight": 46400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "BULGARIA",
+    "value": 99074.95,
+    "netweight": 17040.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "CAMEROON",
+    "value": 19630.86,
+    "netweight": 26482.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "CANADA",
+    "value": 13653227.7,
+    "netweight": 1873036.58
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "CANADA",
+    "value": 3193397,
+    "netweight": 302046.43
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "CANADA",
+    "value": 10.53,
+    "netweight": 5.01
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "CANADA",
+    "value": 934747.9,
+    "netweight": 105478.85
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "CANADA",
+    "value": 626634.013,
+    "netweight": 44366.898
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "CANADA",
+    "value": 7504253.89,
+    "netweight": 1415588.529
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CANADA",
+    "value": 954456.809,
+    "netweight": 42262.395
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "CANADA",
+    "value": 1500,
+    "netweight": 10
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "CANADA",
+    "value": 22509350.898,
+    "netweight": 3231715.793
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "CANADA",
+    "value": 5330769.773,
+    "netweight": 692677.006
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CHILE",
+    "value": 3,
+    "netweight": 3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "CHILE",
+    "value": 584624,
+    "netweight": 65318.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "CHINA",
+    "value": 120,
+    "netweight": 40
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "CHINA",
+    "value": 30324489.862,
+    "netweight": 6475770
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "CHINA",
+    "value": 55037442.534,
+    "netweight": 25204339.547
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BERAU (U)",
+    "ctr": "CHINA",
+    "value": 183.38,
+    "netweight": 28.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "CHINA",
+    "value": 322657.5,
+    "netweight": 238020
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "CHINA",
+    "value": 15459,
+    "netweight": 1610
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HANG NADIM (U)",
+    "ctr": "CHINA",
+    "value": 10181,
+    "netweight": 1119
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "CHINA",
+    "value": 8147427.299,
+    "netweight": 1039277.232
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "CHINA",
+    "value": 1582924.276,
+    "netweight": 293451.552
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "CHINA",
+    "value": 12298128.942,
+    "netweight": 1916413.999
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "CHINA",
+    "value": 50406.186,
+    "netweight": 50000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "CHINA",
+    "value": 14219312.389,
+    "netweight": 1449234.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "CHINA",
+    "value": 6307862.388,
+    "netweight": 1231936.878
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "CHINA",
+    "value": 105246,
+    "netweight": 23108
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "CHINA",
+    "value": 149039.25,
+    "netweight": 41998
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PONTIANAK",
+    "ctr": "CHINA",
+    "value": 84557.3,
+    "netweight": 12874
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "CHINA",
+    "value": 18514.353,
+    "netweight": 3442.7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "CHINA",
+    "value": 3357006.3,
+    "netweight": 453547
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "CHINA",
+    "value": 14453118.728,
+    "netweight": 1619606.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CHINA",
+    "value": 136060431.834,
+    "netweight": 11875085.091
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG",
+    "ctr": "CHINA",
+    "value": 2913898.47,
+    "netweight": 291600
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "CHINA",
+    "value": 2793534.362,
+    "netweight": 34278.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "CHINA",
+    "value": 30238095.865,
+    "netweight": 11367700.739
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "CHINA",
+    "value": 249355433.706,
+    "netweight": 91400652.91
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "CHINA",
+    "value": 418896015.615,
+    "netweight": 137517601.412
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TARAKAN (U)",
+    "ctr": "CHINA",
+    "value": 203877,
+    "netweight": 22653
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "COLOMBIA",
+    "value": 101601.44,
+    "netweight": 17424.32
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "COLOMBIA",
+    "value": 831600,
+    "netweight": 540000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "COSTA RICA",
+    "value": 97370,
+    "netweight": 18114.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "COSTA RICA",
+    "value": 4898315.5,
+    "netweight": 1866000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "COTE DIVOIRE",
+    "value": 77510,
+    "netweight": 135000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "COTE DIVOIRE",
+    "value": 1243,
+    "netweight": 18
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "COTE DIVOIRE",
+    "value": 84140,
+    "netweight": 84000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "CROATIA",
+    "value": 77165.24,
+    "netweight": 21991.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "CROATIA",
+    "value": 69300,
+    "netweight": 14000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CROATIA",
+    "value": 15494.088,
+    "netweight": 1623.012
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "CROATIA",
+    "value": 94659.08,
+    "netweight": 21991.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "CROATIA",
+    "value": 93719.31,
+    "netweight": 22048.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "CYPRUS",
+    "value": 1391859.64,
+    "netweight": 223829.422
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CYPRUS",
+    "value": 67412.794,
+    "netweight": 2213.328
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "CYPRUS",
+    "value": 145700.5,
+    "netweight": 19845
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "CYPRUS",
+    "value": 563723.76,
+    "netweight": 100258.99
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "CZECH REPUBLIC",
+    "value": 34741.24,
+    "netweight": 917
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "CZECH REPUBLIC",
+    "value": 584153.919,
+    "netweight": 20594.288
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "DENMARK",
+    "value": 867253.64,
+    "netweight": 119490
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "DENMARK",
+    "value": 335830.86,
+    "netweight": 45457.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "DENMARK",
+    "value": 24,
+    "netweight": 24
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "DENMARK",
+    "value": 137500,
+    "netweight": 16000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "DENMARK",
+    "value": 265.395,
+    "netweight": 31
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "DENMARK",
+    "value": 72465.82,
+    "netweight": 5029.167
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "DENMARK",
+    "value": 664691.65,
+    "netweight": 111915
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "DENMARK",
+    "value": 219953.92,
+    "netweight": 40516.881
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "DOMINICAN REPUBLIC",
+    "value": 214972.5,
+    "netweight": 44067.24
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "DOMINICAN REPUBLIC",
+    "value": 2535127.09,
+    "netweight": 414566.753
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "DOMINICAN REPUBLIC",
+    "value": 1516318.4,
+    "netweight": 211753.55
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ATAMBUA (U)",
+    "ctr": "EAST TIMOR",
+    "value": 1157447.832,
+    "netweight": 758957.501
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ATAPUPU",
+    "ctr": "EAST TIMOR",
+    "value": 2360,
+    "netweight": 8800
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "EAST TIMOR",
+    "value": 4558,
+    "netweight": 396
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "EAST TIMOR",
+    "value": 30272,
+    "netweight": 23760
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ECUADOR",
+    "value": 56250,
+    "netweight": 25000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "ECUADOR",
+    "value": 1081147,
+    "netweight": 557922
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "EGYPT",
+    "value": 504850,
+    "netweight": 494000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "EGYPT",
+    "value": 62969.423,
+    "netweight": 2155.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "EGYPT",
+    "value": 597381.8,
+    "netweight": 547320
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "ESTONIA",
+    "value": 139300,
+    "netweight": 18000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "FINLAND",
+    "value": 4990.06,
+    "netweight": 317
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANDARA UDARA INTERNASIONAL (LOMBOK)",
+    "ctr": "FRANCE",
+    "value": 360,
+    "netweight": 150
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "FRANCE",
+    "value": 3222608.5,
+    "netweight": 419594.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "FRANCE",
+    "value": 39250,
+    "netweight": 11000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "FRANCE",
+    "value": 2423.594,
+    "netweight": 3874
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "FRANCE",
+    "value": 447760.7,
+    "netweight": 60627.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "FRANCE",
+    "value": 188134.528,
+    "netweight": 15563.452
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "FRANCE",
+    "value": 2178071,
+    "netweight": 249990
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "FRANCE",
+    "value": 544110.772,
+    "netweight": 33993.372
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "FRANCE",
+    "value": 15010928.55,
+    "netweight": 2872478.021
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "FRANCE",
+    "value": 4845948.39,
+    "netweight": 860969.555
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "GEORGIA",
+    "value": 5397.71,
+    "netweight": 156
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "GEORGIA",
+    "value": 571390.1,
+    "netweight": 98874
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 1708385,
+    "netweight": 225964
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 506022,
+    "netweight": 35020
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 4573.548,
+    "netweight": 18
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 708382.12,
+    "netweight": 70320
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 3385104.788,
+    "netweight": 223449.615
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 1633371.585,
+    "netweight": 72073.759
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 2786436.24,
+    "netweight": 260502
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "GERMANY, FED. REP. OF",
+    "value": 6796542.74,
+    "netweight": 1072187.896
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "GHANA",
+    "value": 2382.23,
+    "netweight": 100080
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "GREECE",
+    "value": 7662845.04,
+    "netweight": 1315325
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "GREECE",
+    "value": 202668.5,
+    "netweight": 38820
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "GREECE",
+    "value": 814.8,
+    "netweight": 249
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "GREECE",
+    "value": 100982.832,
+    "netweight": 7095.932
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "GREECE",
+    "value": 94100,
+    "netweight": 19500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "GREECE",
+    "value": 3357770.24,
+    "netweight": 599796.157
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "GREECE",
+    "value": 1368997.68,
+    "netweight": 260371.27
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "GRENADA",
+    "value": 73300,
+    "netweight": 55500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "GUADELOUPE",
+    "value": 95717.25,
+    "netweight": 18724
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "GUADELOUPE",
+    "value": 793299.83,
+    "netweight": 160733.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "GUADELOUPE",
+    "value": 276203.6,
+    "netweight": 59072
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "GUAM",
+    "value": 1109.1,
+    "netweight": 27
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "HONG KONG",
+    "value": 4963912,
+    "netweight": 215562
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BEKAPAI",
+    "ctr": "HONG KONG",
+    "value": 157022.4,
+    "netweight": 20000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "HONG KONG",
+    "value": 3036140.008,
+    "netweight": 437598.222
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BENETE",
+    "ctr": "HONG KONG",
+    "value": 147987.906,
+    "netweight": 15000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "HONG KONG",
+    "value": 2417420.35,
+    "netweight": 252235.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "CELUKAN BAWANG",
+    "ctr": "HONG KONG",
+    "value": 1955000,
+    "netweight": 188000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HANG NADIM (U)",
+    "ctr": "HONG KONG",
+    "value": 2821.004,
+    "netweight": 243.95
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "HONG KONG",
+    "value": 1929229.683,
+    "netweight": 125361.402
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "HONG KONG",
+    "value": 1764135.142,
+    "netweight": 458123.766
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KENDARI",
+    "ctr": "HONG KONG",
+    "value": 19200,
+    "netweight": 3200
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KIJANG",
+    "ctr": "HONG KONG",
+    "value": 126000,
+    "netweight": 21000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "HONG KONG",
+    "value": 717506.484,
+    "netweight": 133502.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "HONG KONG",
+    "value": 1084292.335,
+    "netweight": 168712.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "HONG KONG",
+    "value": 200866.11,
+    "netweight": 19993.799
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MUARA BERAU",
+    "ctr": "HONG KONG",
+    "value": 477278.28,
+    "netweight": 50000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NATUNA RANAI",
+    "ctr": "HONG KONG",
+    "value": 887508,
+    "netweight": 141256.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "HONG KONG",
+    "value": 1251686.655,
+    "netweight": 205089.635
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "HONG KONG",
+    "value": 4006,
+    "netweight": 2558
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG/TL.BAYUR",
+    "ctr": "HONG KONG",
+    "value": 248000,
+    "netweight": 31000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "HONG KONG",
+    "value": 378989.8,
+    "netweight": 38980
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "HONG KONG",
+    "value": 396.55,
+    "netweight": 10
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "HONG KONG",
+    "value": 219583.778,
+    "netweight": 58009.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "HONG KONG",
+    "value": 24166879.947,
+    "netweight": 1787814.624
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG",
+    "ctr": "HONG KONG",
+    "value": 106540,
+    "netweight": 8768
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "HONG KONG",
+    "value": 15753,
+    "netweight": 760
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "HONG KONG",
+    "value": 1056018.56,
+    "netweight": 159025.901
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PANDAN",
+    "ctr": "HONG KONG",
+    "value": 392400,
+    "netweight": 65400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "HONG KONG",
+    "value": 9046876.093,
+    "netweight": 958914.872
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "HONG KONG",
+    "value": 6228016.783,
+    "netweight": 536715.404
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG REDEP",
+    "ctr": "HONG KONG",
+    "value": 244539.237,
+    "netweight": 25000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TEREMPA",
+    "ctr": "HONG KONG",
+    "value": 1102800,
+    "netweight": 229400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TUAL",
+    "ctr": "HONG KONG",
+    "value": 377564.25,
+    "netweight": 35067
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "UJUNGPANDANG",
+    "ctr": "HONG KONG",
+    "value": 419708.85,
+    "netweight": 19521.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "HUNGARY",
+    "value": 2324.61,
+    "netweight": 481.806
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "HUNGARY",
+    "value": 58368.822,
+    "netweight": 2274.358
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ICELAND",
+    "value": 5525.09,
+    "netweight": 511
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "INDIA",
+    "value": 56298.62,
+    "netweight": 7307.997
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "INDIA",
+    "value": 567126.165,
+    "netweight": 13624.901
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "INDIA",
+    "value": 95898.48,
+    "netweight": 23029.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "INDIA",
+    "value": 344828.4,
+    "netweight": 103809.1
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "INDIA",
+    "value": 994035.62,
+    "netweight": 476120.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "IRAN (ISLAMIC REPUBLIC OF)",
+    "value": 900,
+    "netweight": 280
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "IRAN (ISLAMIC REPUBLIC OF)",
+    "value": 45300.446,
+    "netweight": 1998.494
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "IRAN (ISLAMIC REPUBLIC OF)",
+    "value": 134293.243,
+    "netweight": 6042.943
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "IRAN (ISLAMIC REPUBLIC OF)",
+    "value": 81897.75,
+    "netweight": 54061.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "IRAN (ISLAMIC REPUBLIC OF)",
+    "value": 1377456,
+    "netweight": 835000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "IRAQ",
+    "value": 940.6,
+    "netweight": 122
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "IRAQ",
+    "value": 68905.602,
+    "netweight": 1002.707
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "IRELAND",
+    "value": 1653848.72,
+    "netweight": 190848.089
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "IRELAND",
+    "value": 5524.71,
+    "netweight": 17
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "IRELAND",
+    "value": 97433.937,
+    "netweight": 3810.004
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "IRELAND",
+    "value": 392896.66,
+    "netweight": 82264.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ISRAEL",
+    "value": 233108.591,
+    "netweight": 10457.008
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "ITALY",
+    "value": 25463568.159,
+    "netweight": 4767927.615
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "ITALY",
+    "value": 7200,
+    "netweight": 450
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "ITALY",
+    "value": 3182.231,
+    "netweight": 2275
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "ITALY",
+    "value": 1081.537,
+    "netweight": 2198
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "ITALY",
+    "value": 1453598.662,
+    "netweight": 337854
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "ITALY",
+    "value": 455190.755,
+    "netweight": 33695.968
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "ITALY",
+    "value": 33812,
+    "netweight": 4825.512
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "ITALY",
+    "value": 27953.26,
+    "netweight": 1750
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ITALY",
+    "value": 2284080.787,
+    "netweight": 130599.674
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "ITALY",
+    "value": 114314,
+    "netweight": 19860
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ITALY",
+    "value": 13029414.97,
+    "netweight": 2350667.69
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "ITALY",
+    "value": 72604534.941,
+    "netweight": 14668101.971
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANJARMASIN",
+    "ctr": "JAPAN",
+    "value": 282653.44,
+    "netweight": 62845.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "JAPAN",
+    "value": 6194763.4,
+    "netweight": 836364
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "JAPAN",
+    "value": 16536646.372,
+    "netweight": 2324123.285
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "JAPAN",
+    "value": 2923.61,
+    "netweight": 222
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "FRANS KASIEPO (U)",
+    "ctr": "JAPAN",
+    "value": 704749.551,
+    "netweight": 93058
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "JAPAN",
+    "value": 1015453.631,
+    "netweight": 88270.36
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JALALUDDIN(U)",
+    "ctr": "JAPAN",
+    "value": 159873.49,
+    "netweight": 15433.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "JAPAN",
+    "value": 34678.356,
+    "netweight": 7443.75
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KENDARI",
+    "ctr": "JAPAN",
+    "value": 611562.42,
+    "netweight": 80400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "JAPAN",
+    "value": 7328.192,
+    "netweight": 7832.88
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "JAPAN",
+    "value": 33661506.16,
+    "netweight": 3101344.87
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "JAPAN",
+    "value": 24905889.159,
+    "netweight": 3124545.141
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MANADO",
+    "ctr": "JAPAN",
+    "value": 14806.22,
+    "netweight": 3410
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MUSI RIVER/BOOM BARU",
+    "ctr": "JAPAN",
+    "value": 1264696.34,
+    "netweight": 108810
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "JAPAN",
+    "value": 6996509.112,
+    "netweight": 1043455.732
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "JAPAN",
+    "value": 9535016.29,
+    "netweight": 1104755.27
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "JAPAN",
+    "value": 3107026.066,
+    "netweight": 424822
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PONTIANAK",
+    "ctr": "JAPAN",
+    "value": 292812.84,
+    "netweight": 54093.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "JAPAN",
+    "value": 6801030.652,
+    "netweight": 365330.61
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "JAPAN",
+    "value": 8410,
+    "netweight": 100
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "JAPAN",
+    "value": 4410452.179,
+    "netweight": 169960.426
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG",
+    "ctr": "JAPAN",
+    "value": 3793868.16,
+    "netweight": 462498
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG / JEFMAN (U)",
+    "ctr": "JAPAN",
+    "value": 70.73,
+    "netweight": 12.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "JAPAN",
+    "value": 119666.241,
+    "netweight": 1785
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "JAPAN",
+    "value": 20398716.087,
+    "netweight": 2677600.816
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "JAPAN",
+    "value": 174886673.689,
+    "netweight": 26727424.246
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "JAPAN",
+    "value": 71899910.122,
+    "netweight": 33727698.05
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "JORDAN",
+    "value": 89156.141,
+    "netweight": 3851
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "JORDAN",
+    "value": 57534.814,
+    "netweight": 2130.165
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "JORDAN",
+    "value": 139155.9,
+    "netweight": 75761.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "KAZAKHSTAN",
+    "value": 168913.8,
+    "netweight": 15540
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "KAZAKHSTAN",
+    "value": 35164.624,
+    "netweight": 1119.524
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "KENYA",
+    "value": 1302.25,
+    "netweight": 108.006
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "KENYA",
+    "value": 90175,
+    "netweight": 12500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 37.02,
+    "netweight": 40
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 36960,
+    "netweight": 6160
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANJARMASIN",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 73201.2,
+    "netweight": 14400
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 9355584.117,
+    "netweight": 1772968.119
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 7327381.029,
+    "netweight": 1542120
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 41063.99,
+    "netweight": 1875.66
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 18335.2,
+    "netweight": 702.24
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 1122.05,
+    "netweight": 293.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 6290763.25,
+    "netweight": 288812.7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 160235.069,
+    "netweight": 18944.503
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANARU-PALANGKARAYA (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 396.8,
+    "netweight": 7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 63600,
+    "netweight": 8000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 0.64,
+    "netweight": 6.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 915551.738,
+    "netweight": 46775.074
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 26500,
+    "netweight": 575
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 5577302.7,
+    "netweight": 2117259.65
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 22355750.808,
+    "netweight": 4007176.876
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "KOREA, REPUBLIC OF",
+    "value": 16304781.212,
+    "netweight": 7053076.816
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "KUWAIT",
+    "value": 29480.834,
+    "netweight": 2394.811
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "KUWAIT",
+    "value": 1455420.866,
+    "netweight": 166164.805
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "KYRGYZSTAN",
+    "value": 150,
+    "netweight": 2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "LEBANON",
+    "value": 130086.85,
+    "netweight": 43023
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "LEBANON",
+    "value": 80767.761,
+    "netweight": 3886.635
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "LEBANON",
+    "value": 39399.75,
+    "netweight": 7455
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "LEBANON",
+    "value": 11655.065,
+    "netweight": 855
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "LEBANON",
+    "value": 739327.41,
+    "netweight": 122525.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "LIBYAN ARAB JAMAHIRIYA",
+    "value": 716250,
+    "netweight": 162000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "LITHUANIA",
+    "value": 90900,
+    "netweight": 11160
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "LITHUANIA",
+    "value": 149070.45,
+    "netweight": 24238
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "LITHUANIA",
+    "value": 433341.11,
+    "netweight": 75075
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "LUXEMBOURG",
+    "value": 55844.648,
+    "netweight": 2049.003
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MACAU",
+    "value": 3933.44,
+    "netweight": 487
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MACAU",
+    "value": 31492.96,
+    "netweight": 3954.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MACAU",
+    "value": 229025.52,
+    "netweight": 26716.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "MALAYSIA",
+    "value": 15135.503,
+    "netweight": 7135
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ARUK",
+    "ctr": "MALAYSIA",
+    "value": 279760.256,
+    "netweight": 169160
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BAGAN SIAPI-API",
+    "ctr": "MALAYSIA",
+    "value": 773857.614,
+    "netweight": 1467130
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BALIKPAPAN",
+    "ctr": "MALAYSIA",
+    "value": 138804.4,
+    "netweight": 15680
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANDARA UDARA INTERNASIONAL (LOMBOK)",
+    "ctr": "MALAYSIA",
+    "value": 82217.027,
+    "netweight": 19201.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BATAM ISLAND",
+    "ctr": "MALAYSIA",
+    "value": 5416.38,
+    "netweight": 1780
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "MALAYSIA",
+    "value": 10366901.336,
+    "netweight": 5995162.866
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BENGKALIS",
+    "ctr": "MALAYSIA",
+    "value": 3507054.02,
+    "netweight": 1756340
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BENGKAYANG",
+    "ctr": "MALAYSIA",
+    "value": 227574.608,
+    "netweight": 154882.416
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BERAU (U)",
+    "ctr": "MALAYSIA",
+    "value": 9977.7,
+    "netweight": 2673
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "MALAYSIA",
+    "value": 14365.251,
+    "netweight": 2793
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "DUMAI",
+    "ctr": "MALAYSIA",
+    "value": 1519750,
+    "netweight": 3037500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ENTIKONG",
+    "ctr": "MALAYSIA",
+    "value": 2685095.054,
+    "netweight": 1264633.797
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "MALAYSIA",
+    "value": 3909355.061,
+    "netweight": 966006.648
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ILLAGA (U)",
+    "ctr": "MALAYSIA",
+    "value": 2377.778,
+    "netweight": 1120
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JALALUDDIN(U)",
+    "ctr": "MALAYSIA",
+    "value": 73.44,
+    "netweight": 15.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JAYAPURA / SENTANI (U)",
+    "ctr": "MALAYSIA",
+    "value": 11582.986,
+    "netweight": 5488
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "MALAYSIA",
+    "value": 1741927.665,
+    "netweight": 612970.309
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KARIANGAU",
+    "ctr": "MALAYSIA",
+    "value": 119167.3,
+    "netweight": 14658
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KOKONAO (U)",
+    "ctr": "MALAYSIA",
+    "value": 655.861,
+    "netweight": 280
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA GAUNG",
+    "ctr": "MALAYSIA",
+    "value": 201670.966,
+    "netweight": 459000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "MALAYSIA",
+    "value": 1357502.654,
+    "netweight": 235020.602
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUPANG / EL-TARI (U)",
+    "ctr": "MALAYSIA",
+    "value": 10885.32,
+    "netweight": 3038.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LABUANBAJO (U)",
+    "ctr": "MALAYSIA",
+    "value": 6471,
+    "netweight": 2143
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "MALAYSIA",
+    "value": 3753529.829,
+    "netweight": 2498559.974
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "MALAYSIA",
+    "value": 31201.6,
+    "netweight": 8625.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MUTIARA-PALU (U)",
+    "ctr": "MALAYSIA",
+    "value": 2196.45,
+    "netweight": 782
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NANGA BADAU",
+    "ctr": "MALAYSIA",
+    "value": 323100.61,
+    "netweight": 70483.597
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "MALAYSIA",
+    "value": 983060.36,
+    "netweight": 137847.087
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NUNUKAN",
+    "ctr": "MALAYSIA",
+    "value": 4127325.379,
+    "netweight": 2408562.002
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "MALAYSIA",
+    "value": 8179,
+    "netweight": 4312
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANARU-PALANGKARAYA (U)",
+    "ctr": "MALAYSIA",
+    "value": 37584.54,
+    "netweight": 2629
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANGKAL BALAM",
+    "ctr": "MALAYSIA",
+    "value": 15258041.742,
+    "netweight": 6864190.005
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANIPAHAN",
+    "ctr": "MALAYSIA",
+    "value": 1188037.354,
+    "netweight": 2431728
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "MALAYSIA",
+    "value": 43130.221,
+    "netweight": 6156
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "MALAYSIA",
+    "value": 158894.418,
+    "netweight": 19735.33
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "MALAYSIA",
+    "value": 20499.287,
+    "netweight": 10101
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SELAT PANJANG",
+    "ctr": "MALAYSIA",
+    "value": 29544.552,
+    "netweight": 49320
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "MALAYSIA",
+    "value": 605497.557,
+    "netweight": 150720.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SERASAN",
+    "ctr": "MALAYSIA",
+    "value": 231529.374,
+    "netweight": 85197
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SINTETE",
+    "ctr": "MALAYSIA",
+    "value": 13717.839,
+    "netweight": 8190
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SM. BADARUDDIN (U)",
+    "ctr": "MALAYSIA",
+    "value": 7520,
+    "netweight": 470
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MALAYSIA",
+    "value": 3406342.034,
+    "netweight": 447966.135
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG / JEFMAN (U)",
+    "ctr": "MALAYSIA",
+    "value": 3130.115,
+    "netweight": 466
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "MALAYSIA",
+    "value": 17653.35,
+    "netweight": 5692.34
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG BALAI ASAHAN",
+    "ctr": "MALAYSIA",
+    "value": 7351303.326,
+    "netweight": 6389899.715
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG BALAI KARIMUN",
+    "ctr": "MALAYSIA",
+    "value": 5216918.168,
+    "netweight": 3589484
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "MALAYSIA",
+    "value": 1934685.675,
+    "netweight": 779555.802
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG MEDANG",
+    "ctr": "MALAYSIA",
+    "value": 886010.3,
+    "netweight": 2126595
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MALAYSIA",
+    "value": 33545543.147,
+    "netweight": 12207909.059
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MALAYSIA",
+    "value": 17336641.93,
+    "netweight": 5303501.104
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG REDEP",
+    "ctr": "MALAYSIA",
+    "value": 128863.9,
+    "netweight": 52900.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TARAKAN (U)",
+    "ctr": "MALAYSIA",
+    "value": 9407.06,
+    "netweight": 1592
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "YOGYAKARTA INTERNATIONAL AIRPORT",
+    "ctr": "MALAYSIA",
+    "value": 131088.046,
+    "netweight": 115623.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": null,
+    "ctr": "MALAYSIA",
+    "value": 5942217.46,
+    "netweight": 2877888.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MALDIVES",
+    "value": 46595.656,
+    "netweight": 5316.822
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "MALTA",
+    "value": 3256.982,
+    "netweight": 227
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MALTA",
+    "value": 76687.618,
+    "netweight": 3592.968
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MALTA",
+    "value": 93110.97,
+    "netweight": 21097.38
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MALTA",
+    "value": 82671.75,
+    "netweight": 24005.44
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "MARTINIQUE",
+    "value": 194037.201,
+    "netweight": 38062
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MARTINIQUE",
+    "value": 1958498.73,
+    "netweight": 400711.158
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MARTINIQUE",
+    "value": 815090.771,
+    "netweight": 172615.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "MAURITIUS",
+    "value": 116665,
+    "netweight": 16332
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MAURITIUS",
+    "value": 18130.482,
+    "netweight": 956.504
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "MAURITIUS",
+    "value": 3041868.01,
+    "netweight": 776338.701
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MAURITIUS",
+    "value": 549202.66,
+    "netweight": 159503.95
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MAURITIUS",
+    "value": 8055712,
+    "netweight": 4854489.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MAYOTTE",
+    "value": 73587.5,
+    "netweight": 18345
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "MEXICO",
+    "value": 69232.5,
+    "netweight": 15867.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "MEXICO",
+    "value": 5860590.25,
+    "netweight": 859575
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "MEXICO",
+    "value": 1843919.35,
+    "netweight": 402834.34
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "MEXICO",
+    "value": 28967.44,
+    "netweight": 3882.933
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MEXICO",
+    "value": 2104258.08,
+    "netweight": 378929.48
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MEXICO",
+    "value": 3325738,
+    "netweight": 710372
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MOLDOVA, REPUBLIC OF",
+    "value": 150867.21,
+    "netweight": 20060
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "MOROCCO",
+    "value": 832.64,
+    "netweight": 53
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "MOROCCO",
+    "value": 55520.218,
+    "netweight": 1298.021
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "MOROCCO",
+    "value": 212933,
+    "netweight": 99500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "MOZAMBIQUE",
+    "value": 72085.44,
+    "netweight": 106116.299
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "NAMIBIA",
+    "value": 447700,
+    "netweight": 104000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "NAMIBIA",
+    "value": 6180.265,
+    "netweight": 116
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "NETHERLANDS",
+    "value": 5253736.28,
+    "netweight": 860123.56
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "NETHERLANDS",
+    "value": 25.06,
+    "netweight": 25.06
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "NETHERLANDS",
+    "value": 29.6,
+    "netweight": 20
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "NETHERLANDS",
+    "value": 622950,
+    "netweight": 72000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "NETHERLANDS",
+    "value": 353306.592,
+    "netweight": 10161.498
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "NETHERLANDS",
+    "value": 145000,
+    "netweight": 20000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "NETHERLANDS",
+    "value": 1136781.435,
+    "netweight": 31247.35
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "NETHERLANDS",
+    "value": 7015231.448,
+    "netweight": 1378962.641
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "NETHERLANDS",
+    "value": 7050761.44,
+    "netweight": 1129532.811
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "NETHERLANDS ANTILLES",
+    "value": 164338.1,
+    "netweight": 21038
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "NEW ZEALAND",
+    "value": 54998.5,
+    "netweight": 8190
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "NEW ZEALAND",
+    "value": 480500,
+    "netweight": 37500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "NEW ZEALAND",
+    "value": 19.75,
+    "netweight": 13
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "NEW ZEALAND",
+    "value": 304.42,
+    "netweight": 9.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "NEW ZEALAND",
+    "value": 7386.165,
+    "netweight": 1806.999
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "NEW ZEALAND",
+    "value": 1353.224,
+    "netweight": 129
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "NEW ZEALAND",
+    "value": 391324.14,
+    "netweight": 87339.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "NEW ZEALAND",
+    "value": 931498.67,
+    "netweight": 151946.919
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "NEW ZEALAND",
+    "value": 148626.8,
+    "netweight": 44360.25
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "NIGERIA",
+    "value": 1354.258,
+    "netweight": 2.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "NORWAY",
+    "value": 17529.809,
+    "netweight": 416
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "NORWAY",
+    "value": 7583.65,
+    "netweight": 564
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "NORWAY",
+    "value": 45903,
+    "netweight": 7900
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "OMAN",
+    "value": 5867.21,
+    "netweight": 614.13
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "OMAN",
+    "value": 2048780.55,
+    "netweight": 622260.21
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "OMAN",
+    "value": 143100,
+    "netweight": 54000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "PAKISTAN",
+    "value": 5466.246,
+    "netweight": 1053.002
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "PAKISTAN",
+    "value": 22204.28,
+    "netweight": 1418.499
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "PAPUA NEW GUINEA",
+    "value": 21875,
+    "netweight": 25000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "PAPUA NEW GUINEA",
+    "value": 450150,
+    "netweight": 249500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "PERU",
+    "value": 146.16,
+    "netweight": 140
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "PERU",
+    "value": 47308.12,
+    "netweight": 3503.49
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "PERU",
+    "value": 1354672,
+    "netweight": 397500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "PHILIPPINES",
+    "value": 281816,
+    "netweight": 124447.999
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "PHILIPPINES",
+    "value": 138889.05,
+    "netweight": 75664.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "PHILIPPINES",
+    "value": 69.46,
+    "netweight": 9.08
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LIRUNG",
+    "ctr": "PHILIPPINES",
+    "value": 90493.384,
+    "netweight": 32884
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "PHILIPPINES",
+    "value": 90220.39,
+    "netweight": 12990
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "PHILIPPINES",
+    "value": 2623381.329,
+    "netweight": 91964.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "PHILIPPINES",
+    "value": 503302.875,
+    "netweight": 26829.971
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "PHILIPPINES",
+    "value": 6730,
+    "netweight": 210
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "PHILIPPINES",
+    "value": 36720,
+    "netweight": 22950
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "PHILIPPINES",
+    "value": 2363939.65,
+    "netweight": 1283377.118
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "PHILIPPINES",
+    "value": 13425622.79,
+    "netweight": 8359753.751
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "POLAND",
+    "value": 1603264,
+    "netweight": 213200
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "POLAND",
+    "value": 1023100,
+    "netweight": 20000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "POLAND",
+    "value": 152627.932,
+    "netweight": 2040.49
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "POLAND",
+    "value": 831056.385,
+    "netweight": 25079.974
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "POLAND",
+    "value": 84847.5,
+    "netweight": 9550
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "POLAND",
+    "value": 1501120.7,
+    "netweight": 163980
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "PORTUGAL",
+    "value": 561037.7,
+    "netweight": 122188
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "PORTUGAL",
+    "value": 284145.147,
+    "netweight": 40982.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "PORTUGAL",
+    "value": 32088.12,
+    "netweight": 1213.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "PORTUGAL",
+    "value": 74372.012,
+    "netweight": 3614.936
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "PORTUGAL",
+    "value": 1360893.68,
+    "netweight": 358944.66
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "PORTUGAL",
+    "value": 9177625.6,
+    "netweight": 2226812.412
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "PUERTO RICO",
+    "value": 7094370.97,
+    "netweight": 875715.107
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "PUERTO RICO",
+    "value": 3040750.26,
+    "netweight": 336851.29
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "QATAR",
+    "value": 153543.287,
+    "netweight": 16939.941
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "QATAR",
+    "value": 86713.856,
+    "netweight": 5222.246
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "QATAR",
+    "value": 88468.58,
+    "netweight": 36111.2
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "QATAR",
+    "value": 83770.8,
+    "netweight": 23590
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "REP. OF MACEDONIA",
+    "value": 28404.456,
+    "netweight": 2422.756
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "REUNION",
+    "value": 38080.387,
+    "netweight": 1165
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "REUNION",
+    "value": 2111028.334,
+    "netweight": 447983.73
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "REUNION",
+    "value": 798973.86,
+    "netweight": 155945
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "ROMANIA",
+    "value": 11326.3,
+    "netweight": 202
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "ROMANIA",
+    "value": 134599,
+    "netweight": 16000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "ROMANIA",
+    "value": 966829.98,
+    "netweight": 144444
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 14259789.523,
+    "netweight": 1978241.89
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 24364.192,
+    "netweight": 2821.68
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 83369,
+    "netweight": 12090
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 716804.232,
+    "netweight": 25604.161
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 3979074.031,
+    "netweight": 160446.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "RUSSIA FEDERATION",
+    "value": 136002.5,
+    "netweight": 21420
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "SAUDI ARABIA",
+    "value": 2209834.292,
+    "netweight": 555630.7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "SAUDI ARABIA",
+    "value": 2137.6,
+    "netweight": 702
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "SAUDI ARABIA",
+    "value": 7272,
+    "netweight": 474
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SAUDI ARABIA",
+    "value": 13180.398,
+    "netweight": 113
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SAUDI ARABIA",
+    "value": 1033476.702,
+    "netweight": 151731.607
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG / JEFMAN (U)",
+    "ctr": "SAUDI ARABIA",
+    "value": 6865,
+    "netweight": 1064
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SAUDI ARABIA",
+    "value": 127876.45,
+    "netweight": 12000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "SENEGAL",
+    "value": 62742.359,
+    "netweight": 71609.18
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "SENEGAL",
+    "value": 61309.29,
+    "netweight": 26313
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SENEGAL",
+    "value": 969809.75,
+    "netweight": 475018.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SENEGAL",
+    "value": 698147.01,
+    "netweight": 370150.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SERBIA",
+    "value": 8107.23,
+    "netweight": 674.004
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SEYCHELLES",
+    "value": 502613.27,
+    "netweight": 373000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SEYCHELLES",
+    "value": 465580,
+    "netweight": 281000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "SINGAPORE",
+    "value": 284922.086,
+    "netweight": 224369.9
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANDARA UDARA INTERNASIONAL (LOMBOK)",
+    "ctr": "SINGAPORE",
+    "value": 102434.064,
+    "netweight": 9771.505
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BATAM ISLAND",
+    "ctr": "SINGAPORE",
+    "value": 10266246.05,
+    "netweight": 3150832.215
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BATU AMPAR",
+    "ctr": "SINGAPORE",
+    "value": 492513.429,
+    "netweight": 51945.28
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAKANG PADANG",
+    "ctr": "SINGAPORE",
+    "value": 4118428.578,
+    "netweight": 1984129.15
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "SINGAPORE",
+    "value": 2974137.311,
+    "netweight": 525272.88
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BENGKALIS",
+    "ctr": "SINGAPORE",
+    "value": 1824160.202,
+    "netweight": 1013200
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BERAU (U)",
+    "ctr": "SINGAPORE",
+    "value": 2449.44,
+    "netweight": 648
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "SINGAPORE",
+    "value": 2875.678,
+    "netweight": 411
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "DONGGALA (U)",
+    "ctr": "SINGAPORE",
+    "value": 6029.794,
+    "netweight": 924
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HANG NADIM (U)",
+    "ctr": "SINGAPORE",
+    "value": 35603.213,
+    "netweight": 764.46
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "SINGAPORE",
+    "value": 6779547.748,
+    "netweight": 1334092.59
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HUSEIN SASTRANEGARA (U)",
+    "ctr": "SINGAPORE",
+    "value": 1655.4,
+    "netweight": 258
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JALALUDDIN(U)",
+    "ctr": "SINGAPORE",
+    "value": 194451.991,
+    "netweight": 59533.415
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JAYAPURA / SENTANI (U)",
+    "ctr": "SINGAPORE",
+    "value": 3787.81,
+    "netweight": 647
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "SINGAPORE",
+    "value": 3472227.39,
+    "netweight": 1171743.697
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KIJANG",
+    "ctr": "SINGAPORE",
+    "value": 12930116.026,
+    "netweight": 7699400.517
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "SINGAPORE",
+    "value": 142077.401,
+    "netweight": 42983.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUPANG / EL-TARI (U)",
+    "ctr": "SINGAPORE",
+    "value": 65042.239,
+    "netweight": 19144.099
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LABUANBAJO (U)",
+    "ctr": "SINGAPORE",
+    "value": 42439.7,
+    "netweight": 10509.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "SINGAPORE",
+    "value": 196387.8,
+    "netweight": 19707.28
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "SINGAPORE",
+    "value": 688317.032,
+    "netweight": 150294.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MANADO",
+    "ctr": "SINGAPORE",
+    "value": 108202.728,
+    "netweight": 10983.27
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MUTIARA-PALU (U)",
+    "ctr": "SINGAPORE",
+    "value": 216332.953,
+    "netweight": 32231
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SINGAPORE",
+    "value": 1184273.403,
+    "netweight": 120168.607
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PALMERAH/SULTAN THAHA (U)",
+    "ctr": "SINGAPORE",
+    "value": 483.515,
+    "netweight": 31
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANARU-PALANGKARAYA (U)",
+    "ctr": "SINGAPORE",
+    "value": 29145.638,
+    "netweight": 2318
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "SINGAPORE",
+    "value": 68438.68,
+    "netweight": 19010
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "SINGAPORE",
+    "value": 757876.214,
+    "netweight": 93779
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PONTIANAK",
+    "ctr": "SINGAPORE",
+    "value": 2821901.198,
+    "netweight": 529426.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PULAU SAMBU",
+    "ctr": "SINGAPORE",
+    "value": 35172.868,
+    "netweight": 704.45
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "SINGAPORE",
+    "value": 2152842.394,
+    "netweight": 120756.61
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "SINGAPORE",
+    "value": 48.969,
+    "netweight": 16
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SANANA (U)",
+    "ctr": "SINGAPORE",
+    "value": 276446.635,
+    "netweight": 15332
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEKUPANG",
+    "ctr": "SINGAPORE",
+    "value": 162625.386,
+    "netweight": 5952.63
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "SINGAPORE",
+    "value": 563219.61,
+    "netweight": 158146
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SINGKEP - DABO",
+    "ctr": "SINGAPORE",
+    "value": 1676876.517,
+    "netweight": 947341.176
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SM. BADARUDDIN (U)",
+    "ctr": "SINGAPORE",
+    "value": 163401.2,
+    "netweight": 9672
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SINGAPORE",
+    "value": 10539441.054,
+    "netweight": 1799585.229
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOLO/JEBRES/ADI SUMARMO (U)",
+    "ctr": "SINGAPORE",
+    "value": 53851.996,
+    "netweight": 50657.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG / JEFMAN (U)",
+    "ctr": "SINGAPORE",
+    "value": 1572025.44,
+    "netweight": 202218.998
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "SINGAPORE",
+    "value": 28975.927,
+    "netweight": 3268.969
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG BALAI KARIMUN",
+    "ctr": "SINGAPORE",
+    "value": 2524504.047,
+    "netweight": 1049265.37
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "SINGAPORE",
+    "value": 1076903.199,
+    "netweight": 240071.402
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SINGAPORE",
+    "value": 9977187.219,
+    "netweight": 3534948.493
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SINGAPORE",
+    "value": 14853641.778,
+    "netweight": 4568457.022
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TARAKAN (U)",
+    "ctr": "SINGAPORE",
+    "value": 565909.367,
+    "netweight": 86375
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TERNATE",
+    "ctr": "SINGAPORE",
+    "value": 28286.803,
+    "netweight": 1600
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "WOLTER MONGINSIDI (U)",
+    "ctr": "SINGAPORE",
+    "value": 1504438.611,
+    "netweight": 423096
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "YOGYAKARTA INTERNATIONAL AIRPORT",
+    "ctr": "SINGAPORE",
+    "value": 110173.634,
+    "netweight": 102503.7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SLOVENIA",
+    "value": 259135,
+    "netweight": 65000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "SOUTH AFRICA",
+    "value": 27458.96,
+    "netweight": 9004
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SOUTH AFRICA",
+    "value": 18027.266,
+    "netweight": 2539.002
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SOUTH AFRICA",
+    "value": 263798.71,
+    "netweight": 12166.413
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SOUTH AFRICA",
+    "value": 524575,
+    "netweight": 113220
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SOUTH AFRICA",
+    "value": 367203,
+    "netweight": 310900
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "SPAIN",
+    "value": 2311768.05,
+    "netweight": 364576
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "SPAIN",
+    "value": 1456633.091,
+    "netweight": 191403.5
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "SPAIN",
+    "value": 90500,
+    "netweight": 25000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SPAIN",
+    "value": 58338.71,
+    "netweight": 3194.28
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SPAIN",
+    "value": 567840.279,
+    "netweight": 20628.925
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SPAIN",
+    "value": 1998426.31,
+    "netweight": 846847
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SPAIN",
+    "value": 53172661.556,
+    "netweight": 13646573.36
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "SRI LANKA",
+    "value": 104950,
+    "netweight": 81000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SRI LANKA",
+    "value": 222.4,
+    "netweight": 94
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SRI LANKA",
+    "value": 38890.552,
+    "netweight": 1815.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SRI LANKA",
+    "value": 295772.49,
+    "netweight": 169200
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SRI LANKA",
+    "value": 1555144.29,
+    "netweight": 868804
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SURINAME",
+    "value": 1953.5,
+    "netweight": 146.522
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SURINAME",
+    "value": 289590,
+    "netweight": 240000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SURINAME",
+    "value": 574760,
+    "netweight": 404000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SWEDEN",
+    "value": 5453.008,
+    "netweight": 478
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SWEDEN",
+    "value": 151787.033,
+    "netweight": 3273.006
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SWEDEN",
+    "value": 831941.02,
+    "netweight": 151175.037
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "SWEDEN",
+    "value": 55200,
+    "netweight": 16000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "SWITZERLAND",
+    "value": 808.43,
+    "netweight": 278
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "SWITZERLAND",
+    "value": 110075.905,
+    "netweight": 10074.288
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "SWITZERLAND",
+    "value": 760252.993,
+    "netweight": 17385.515
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "SWITZERLAND",
+    "value": 213934.89,
+    "netweight": 17746
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANDARA UDARA INTERNASIONAL (LOMBOK)",
+    "ctr": "TAIWAN",
+    "value": 3684.45,
+    "netweight": 1182
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "TAIWAN",
+    "value": 8009818.023,
+    "netweight": 2587525.85
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "TAIWAN",
+    "value": 210000,
+    "netweight": 105000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "TAIWAN",
+    "value": 86197.313,
+    "netweight": 15485.38
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "TAIWAN",
+    "value": 14765.32,
+    "netweight": 199.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "TAIWAN",
+    "value": 534981.999,
+    "netweight": 80883.6
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "TAIWAN",
+    "value": 6174972.28,
+    "netweight": 750738.38
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "TAIWAN",
+    "value": 4026863.983,
+    "netweight": 444515.7
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "TAIWAN",
+    "value": 3755230.581,
+    "netweight": 1033499.904
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "TAIWAN",
+    "value": 3000,
+    "netweight": 195
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "TAIWAN",
+    "value": 145692.9,
+    "netweight": 21600
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PONTIANAK",
+    "ctr": "TAIWAN",
+    "value": 791705.734,
+    "netweight": 159164.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "TAIWAN",
+    "value": 18944112.422,
+    "netweight": 2195219.174
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG",
+    "ctr": "TAIWAN",
+    "value": 122726,
+    "netweight": 8100
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "TAIWAN",
+    "value": 98732.936,
+    "netweight": 3857
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "TAIWAN",
+    "value": 2834176.01,
+    "netweight": 327071.292
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "TAIWAN",
+    "value": 33425756.843,
+    "netweight": 8091771.337
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "TAIWAN",
+    "value": 45534005.78,
+    "netweight": 15197450.971
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "TANZANIA, UNITED REP. OF",
+    "value": 1280,
+    "netweight": 50
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "TANZANIA, UNITED REP. OF",
+    "value": 376.642,
+    "netweight": 23.488
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "ACHMAD YANI (U)",
+    "ctr": "THAILAND",
+    "value": 1909.4,
+    "netweight": 38.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "THAILAND",
+    "value": 508152.07,
+    "netweight": 65321.84
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BANJARMASIN",
+    "ctr": "THAILAND",
+    "value": 146280,
+    "netweight": 28800
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "THAILAND",
+    "value": 2865387.735,
+    "netweight": 1643705.58
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "THAILAND",
+    "value": 9186065.96,
+    "netweight": 1156361.14
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "THAILAND",
+    "value": 2024,
+    "netweight": 506
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "DONGGALA (U)",
+    "ctr": "THAILAND",
+    "value": 2344.875,
+    "netweight": 1443
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "THAILAND",
+    "value": 247981.963,
+    "netweight": 64649.95
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HUSEIN SASTRANEGARA (U)",
+    "ctr": "THAILAND",
+    "value": 8749.44,
+    "netweight": 3136
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JALALUDDIN(U)",
+    "ctr": "THAILAND",
+    "value": 22836.936,
+    "netweight": 9806
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "THAILAND",
+    "value": 3192.73,
+    "netweight": 917.04
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "THAILAND",
+    "value": 739423.991,
+    "netweight": 432297
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LABUANBAJO (U)",
+    "ctr": "THAILAND",
+    "value": 120767,
+    "netweight": 40021
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "THAILAND",
+    "value": 183389.5,
+    "netweight": 27190
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MUTIARA-PALU (U)",
+    "ctr": "THAILAND",
+    "value": 244955.99,
+    "netweight": 103125
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "THAILAND",
+    "value": 1082930.323,
+    "netweight": 102397.071
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "OBI ISLAND",
+    "ctr": "THAILAND",
+    "value": 107927.22,
+    "netweight": 13337.08
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "THAILAND",
+    "value": 2745,
+    "netweight": 1627
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "THAILAND",
+    "value": 41073,
+    "netweight": 66600
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "THAILAND",
+    "value": 8397.665,
+    "netweight": 388.665
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "THAILAND",
+    "value": 418873.69,
+    "netweight": 35423.66
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "THAILAND",
+    "value": 35965.9,
+    "netweight": 12413
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "THAILAND",
+    "value": 3674880.162,
+    "netweight": 1286801
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SIMPANG TIGA (U)",
+    "ctr": "THAILAND",
+    "value": 8660,
+    "netweight": 3100
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "THAILAND",
+    "value": 2801712.16,
+    "netweight": 332342.411
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG / JEFMAN (U)",
+    "ctr": "THAILAND",
+    "value": 46427.37,
+    "netweight": 16022
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "THAILAND",
+    "value": 175411.37,
+    "netweight": 12672
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "THAILAND",
+    "value": 1127400.778,
+    "netweight": 658046.699
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "THAILAND",
+    "value": 13202036.577,
+    "netweight": 6539362.78
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "THAILAND",
+    "value": 79049132.385,
+    "netweight": 43463357.288
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TARAKAN (U)",
+    "ctr": "THAILAND",
+    "value": 132095.35,
+    "netweight": 45362
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TERNATE",
+    "ctr": "THAILAND",
+    "value": 840112.476,
+    "netweight": 104106.63
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "WOLTER MONGINSIDI (U)",
+    "ctr": "THAILAND",
+    "value": 146178.85,
+    "netweight": 51032
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "YOGYAKARTA INTERNATIONAL AIRPORT",
+    "ctr": "THAILAND",
+    "value": 985.495,
+    "netweight": 460
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "TRINIDAD AND TOBAGO",
+    "value": 163309,
+    "netweight": 18409.09
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "TRINIDAD AND TOBAGO",
+    "value": 803.5,
+    "netweight": 120
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "TRINIDAD AND TOBAGO",
+    "value": 2019992.32,
+    "netweight": 286392.995
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "TRINIDAD AND TOBAGO",
+    "value": 502611,
+    "netweight": 61830.571
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "TUNISIA",
+    "value": 194.6,
+    "netweight": 24.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "TUNISIA",
+    "value": 115425,
+    "netweight": 81000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "TUNISIA",
+    "value": 5518068.08,
+    "netweight": 3711674
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "TURKEY",
+    "value": 159836.5,
+    "netweight": 35680
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "TURKEY",
+    "value": 12000,
+    "netweight": 1500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "TURKEY",
+    "value": 22339.125,
+    "netweight": 8731.049
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "TURKEY",
+    "value": 314198.169,
+    "netweight": 8452.783
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "TURKEY",
+    "value": 3816200,
+    "netweight": 2023000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "UKRAINE",
+    "value": 753300,
+    "netweight": 28000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "UKRAINE",
+    "value": 24045.55,
+    "netweight": 296
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "UKRAINE",
+    "value": 1344934.03,
+    "netweight": 213278
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 300407,
+    "netweight": 41320
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 76633.1,
+    "netweight": 2880
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 24465,
+    "netweight": 8125
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 693098.2,
+    "netweight": 71287.424
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 840060.716,
+    "netweight": 116269.733
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 414303.5,
+    "netweight": 114770
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 934021.61,
+    "netweight": 256154.86
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "UNITED ARAB EMIRATES",
+    "value": 891783.32,
+    "netweight": 210695
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "UNITED KINGDOM",
+    "value": 4411166.26,
+    "netweight": 758482.08
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "UNITED KINGDOM",
+    "value": 56,
+    "netweight": 11
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "UNITED KINGDOM",
+    "value": 10101.773,
+    "netweight": 2410
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "UNITED KINGDOM",
+    "value": 334407.025,
+    "netweight": 22437.433
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "UNITED KINGDOM",
+    "value": 5665929.828,
+    "netweight": 678810
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "UNITED KINGDOM",
+    "value": 2351977.074,
+    "netweight": 67443.388
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "UNITED KINGDOM",
+    "value": 159570.2,
+    "netweight": 23018.4
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "UNITED KINGDOM",
+    "value": 4235800.05,
+    "netweight": 867262.159
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "UNITED KINGDOM",
+    "value": 3187819.5,
+    "netweight": 477524.078
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "UNITED STATES",
+    "value": 160225.95,
+    "netweight": 16682.8
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "UNITED STATES",
+    "value": 159710013.735,
+    "netweight": 20778136.109
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "UNITED STATES",
+    "value": 30241508.44,
+    "netweight": 3187158.781
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "UNITED STATES",
+    "value": 850.63,
+    "netweight": 98.82
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "UNITED STATES",
+    "value": 96858.212,
+    "netweight": 1731.457
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KENDARI",
+    "ctr": "UNITED STATES",
+    "value": 1701651,
+    "netweight": 249997.93
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "UNITED STATES",
+    "value": 11230.583,
+    "netweight": 5150.378
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "UNITED STATES",
+    "value": 4825440.75,
+    "netweight": 254607.74
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "UNITED STATES",
+    "value": 18619923.417,
+    "netweight": 2478079.018
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "UNITED STATES",
+    "value": 10380931.839,
+    "netweight": 1105362.072
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PANJANG",
+    "ctr": "UNITED STATES",
+    "value": 23376299.91,
+    "netweight": 3387482.341
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PATTIMURA/LAHA (U)",
+    "ctr": "UNITED STATES",
+    "value": 391383.86,
+    "netweight": 27638.3
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAM RATULANGI (U)",
+    "ctr": "UNITED STATES",
+    "value": 566.29,
+    "netweight": 34.36
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "UNITED STATES",
+    "value": 8691222.356,
+    "netweight": 464707.663
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "UNITED STATES",
+    "value": 4618063.94,
+    "netweight": 448384.28
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "UNITED STATES",
+    "value": 442867179.33,
+    "netweight": 53277927.538
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "UNITED STATES",
+    "value": 392117087.045,
+    "netweight": 51138544.179
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "URUGUAY",
+    "value": 11490.76,
+    "netweight": 806.005
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "UZBEKISTAN",
+    "value": 1231.974,
+    "netweight": 260.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "UZBEKISTAN",
+    "value": 49166.54,
+    "netweight": 2322.111
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "UZBEKISTAN",
+    "value": 69014.34,
+    "netweight": 10500
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "AMBON",
+    "ctr": "VIET NAM",
+    "value": 4786624.78,
+    "netweight": 626877.05
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BELAWAN",
+    "ctr": "VIET NAM",
+    "value": 4371263.54,
+    "netweight": 1262196.94
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BITUNG",
+    "ctr": "VIET NAM",
+    "value": 2303426.242,
+    "netweight": 353039.459
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "BLANG BINTANG (U)",
+    "ctr": "VIET NAM",
+    "value": 85677.79,
+    "netweight": 13854
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "HASANUDDIN (U)",
+    "ctr": "VIET NAM",
+    "value": 46030.12,
+    "netweight": 17002.103
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "JUANDA (U)-SURABAYA",
+    "ctr": "VIET NAM",
+    "value": 15941.1,
+    "netweight": 3210.26
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "KUALA NAMU INTERNATIONAL AIRPORT (U)",
+    "ctr": "VIET NAM",
+    "value": 40744.7,
+    "netweight": 6383
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LABUANBAJO (U)",
+    "ctr": "VIET NAM",
+    "value": 2400,
+    "netweight": 480
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "LINGKAS TARAKAN",
+    "ctr": "VIET NAM",
+    "value": 250224,
+    "netweight": 30000
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "MAKASSAR",
+    "ctr": "VIET NAM",
+    "value": 399648.91,
+    "netweight": 88484
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "NGURAH RAI (U)",
+    "ctr": "VIET NAM",
+    "value": 304148.559,
+    "netweight": 9300.81
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "OBI ISLAND",
+    "ctr": "VIET NAM",
+    "value": 395780.87,
+    "netweight": 53360.11
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "PADANG / TABING (U)",
+    "ctr": "VIET NAM",
+    "value": 8027.8,
+    "netweight": 1373
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SAMSUDIN NOOR (U)",
+    "ctr": "VIET NAM",
+    "value": 4010.5,
+    "netweight": 376
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SEPINGGAN (U)",
+    "ctr": "VIET NAM",
+    "value": 840,
+    "netweight": 280
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SOEKARNO-HATTA (U)",
+    "ctr": "VIET NAM",
+    "value": 27971636.924,
+    "netweight": 162877.547
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SORONG",
+    "ctr": "VIET NAM",
+    "value": 72676,
+    "netweight": 9936
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "SUPADIO (U)",
+    "ctr": "VIET NAM",
+    "value": 349605.93,
+    "netweight": 21693.001
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG EMAS",
+    "ctr": "VIET NAM",
+    "value": 3561862.83,
+    "netweight": 1180220.301
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PERAK",
+    "ctr": "VIET NAM",
+    "value": 28809454.362,
+    "netweight": 6570847.169
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TANJUNG PRIOK",
+    "ctr": "VIET NAM",
+    "value": 257281109.036,
+    "netweight": 54180639.77
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TERNATE",
+    "ctr": "VIET NAM",
+    "value": 2164635.46,
+    "netweight": 297300.78
+   },
+   {
+    "tahun": "2024",
+    "kodehs": "[03] Fish, crustaceans and mollusca",
+    "pod": "TOBELO",
+    "ctr": "VIET NAM",
+    "value": 841178.07,
+    "netweight": 106717.24
+   }
+  ]
+ }
+}
