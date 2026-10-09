@@ -30,17 +30,30 @@ export const FREQ_LABELS: Record<Freq, string> = {
 };
 
 export type View = "chart" | "table";
+export type Tab = "series" | "map";
+export type RegionLevel = "province" | "regency";
 
-/** What the URL says (`null` = not chosen: the default applies). */
+/** What the URL says (`null` = not chosen: the default applies). `th`/`turth`/`level` belong
+ * to the map tab (its period and region level). */
 export type Selection = {
   vervars: number[] | null;
   turvars: number[] | null;
   freq: Freq | null;
   view: View;
+  tab: Tab;
+  th: number | null;
+  turth: number | null;
+  level: RegionLevel | null;
 };
 
 /** A selection with defaults filled in, valid for one variable. */
-export type Resolved = { vervars: number[]; turvars: number[]; freq: Freq | null; view: View };
+export type Resolved = {
+  vervars: number[];
+  turvars: number[];
+  freq: Freq | null;
+  view: View;
+  tab: Tab;
+};
 
 function parseInts(value: string | null): number[] | null {
   if (!value) return null;
@@ -51,18 +64,27 @@ function parseInts(value: string | null): number[] | null {
   return ints.length ? [...new Set(ints)] : null;
 }
 
+function parseInt0(value: string | null): number | null {
+  return value && /^\d+$/.test(value) ? Number(value) : null;
+}
+
 function isFreq(value: string | null): value is Freq {
   return FREQ_ORDER.includes(value as Freq);
 }
 
-/** `?vervar=9999,1100&turvar=0&freq=month&view=table` → selection. */
+/** `?vervar=9999,1100&turvar=0&freq=month&view=table&tab=map&level=&th=&turth=` → selection. */
 export function parseSelection(params: URLSearchParams): Selection {
   const freq = params.get("freq");
+  const level = params.get("level");
   return {
     vervars: parseInts(params.get("vervar")),
     turvars: parseInts(params.get("turvar")),
     freq: isFreq(freq) ? freq : null,
     view: params.get("view") === "table" ? "table" : "chart",
+    tab: params.get("tab") === "map" ? "map" : "series",
+    th: parseInt0(params.get("th")),
+    turth: parseInt0(params.get("turth")),
+    level: level === "province" || level === "regency" ? level : null,
   };
 }
 
@@ -73,6 +95,10 @@ export function selectionQueryString(sel: Selection): string {
   if (sel.turvars?.length) parts.push(`turvar=${sel.turvars.join(",")}`);
   if (sel.freq) parts.push(`freq=${sel.freq}`);
   if (sel.view !== "chart") parts.push(`view=${sel.view}`);
+  if (sel.tab !== "series") parts.push(`tab=${sel.tab}`);
+  if (sel.level) parts.push(`level=${sel.level}`);
+  if (sel.th !== null) parts.push(`th=${sel.th}`);
+  if (sel.turth !== null) parts.push(`turth=${sel.turth}`);
   return parts.length ? `?${parts.join("&")}` : "";
 }
 
@@ -111,7 +137,7 @@ export function resolveSelection(sel: Selection, detail: VariableDetail): Resolv
 
   const freqs = freqsOf(detail);
   const freq = sel.freq && freqs.includes(sel.freq) ? sel.freq : (freqs[0] ?? null);
-  return { vervars, turvars, freq, view: sel.view };
+  return { vervars, turvars, freq, view: sel.view, tab: sel.tab };
 }
 
 /** Legend/column name: the vervar label, plus the category when several are charted. */

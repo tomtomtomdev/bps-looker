@@ -24,12 +24,18 @@ describe("generated schema", () => {
       | "/variables"
       | "/variables/{domain}/{var}"
       | "/variables/{domain}/{var}/series"
+      | "/variables/{domain}/{var}/cross-section"
     >();
     expectTypeOf<components["schemas"]["Domain"]["level"]>().toEqualTypeOf<
       "pusat" | "prov" | "kab"
     >();
     expectTypeOf<keyof operations>().toEqualTypeOf<
-      "getHealth" | "listDomains" | "searchVariables" | "getVariable" | "getVariableSeries"
+      | "getHealth"
+      | "listDomains"
+      | "searchVariables"
+      | "getVariable"
+      | "getVariableSeries"
+      | "getVariableCrossSection"
     >();
     expectTypeOf<components["schemas"]["TurthMember"]["freq"]>().toEqualTypeOf<
       "month" | "quarter" | "semester" | "year" | "other"

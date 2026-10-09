@@ -11,8 +11,10 @@ from sqlalchemy.exc import DBAPIError
 
 from bps_fetcher.api.deps import Conn, get_engine
 from bps_fetcher.api.models import (
+    CrossSection,
     Domain,
     DomainLevel,
+    Freq,
     Health,
     SeriesResponse,
     VariableDetail,
@@ -20,7 +22,13 @@ from bps_fetcher.api.models import (
     VariableSummary,
 )
 from bps_fetcher.api.search import search_query
-from bps_fetcher.api.series import MAX_SERIES, dimensions, load_series, variable_row
+from bps_fetcher.api.series import (
+    MAX_SERIES,
+    dimensions,
+    load_cross_section,
+    load_series,
+    variable_row,
+)
 from bps_fetcher.db.schema import domain
 from bps_fetcher.redact import redact
 
@@ -166,4 +174,35 @@ def get_variable_series(
     series, truncated = load_series(conn, domain, var, vervars=vervar, turvars=turvar, turths=turth)
     return SeriesResponse.model_validate(
         {"series": series, "truncated": truncated, "max_series": MAX_SERIES}
+    )
+
+
+@router.get(
+    "/variables/{domain}/{var}/cross-section",
+    operation_id="getVariableCrossSection",
+    tags=["variables"],
+    summary="One value per region for one period (ranking + map)",
+    response_model=CrossSection,
+    responses={status.HTTP_404_NOT_FOUND: {"description": "Unknown variable"}},
+)
+def get_variable_cross_section(
+    conn: Conn,
+    domain: DomainId,
+    var: VarId,
+    th: Annotated[int | None, Query(description="Year (`th`); default: the latest.")] = None,
+    turvar: Annotated[int | None, Query(description="Turvar member; default: the first.")] = None,
+    turth: Annotated[
+        int | None, Query(description="Sub-period; default: the latest of the year.")
+    ] = None,
+    freq: Annotated[
+        Freq | None, Query(description="Only periods of this kind (slider + default).")
+    ] = None,
+) -> CrossSection:
+    """Every vervar member's value for one (``th``, ``turth``) period — by default the latest
+    with data (for ``turvar`` and ``freq``) — sorted by value, highest first (members without a
+    value last, ``null``). The national aggregate (9999 / ``INDONESIA``) comes as ``national``,
+    not ranked. ``periods`` lists every period with data, in time order, for a slider."""
+    _require_variable(conn, domain, var)
+    return CrossSection.model_validate(
+        load_cross_section(conn, domain, var, th=th, turvar=turvar, turth=turth, freq=freq)
     )

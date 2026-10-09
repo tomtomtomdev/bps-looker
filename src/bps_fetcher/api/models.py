@@ -121,3 +121,38 @@ class SeriesResponse(BaseModel):
     truncated: bool
     """More vervar x turvar combinations were requested than ``max_series``."""
     max_series: int
+
+
+class CrossSectionPeriod(BaseModel):
+    th: int
+    turth: int
+    period: str
+    """Same format as ``SeriesPoint.period`` (``2024-03``, ``2024-Q2``, ``2024``)."""
+    date: dt.date | None
+    label: str
+    """Human label: ``Maret 2024``, ``Triwulan II 2024``, ``2024``."""
+
+
+class CrossSectionRegion(BaseModel):
+    vervar: int
+    """Region code (provinces ``xx00``, regencies ``xxyy``) or another vervar member."""
+    label: str | None
+    """BPS label as stored (may contain HTML such as ``<b>ACEH</b>``)."""
+    value: float | None
+    """``None`` when the region has no value for the period."""
+
+
+class CrossSection(BaseModel):
+    """Every vervar member's value for one period: ranking + map."""
+
+    turvar: int | None
+    turvar_label: str | None
+    period: CrossSectionPeriod | None
+    """The period shown (``None`` when nothing matches the request)."""
+    periods: list[CrossSectionPeriod]
+    """Periods with data for this turvar (and ``freq``), in time order — the period slider."""
+    regions: list[CrossSectionRegion]
+    """Sorted by value, highest first; members without a value last. Excludes the national
+    aggregate."""
+    national: CrossSectionRegion | None
+    """The national aggregate (vervar 9999 / ``INDONESIA``), if the variable has one."""

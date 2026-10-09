@@ -24,16 +24,25 @@ const series = (vervar: number, label: string, values: [string, string | null, n
   points: values.map(([period, date, value], i) => ({ period, date, th: 124, turth: i + 1, value })),
 });
 
+const NO_MAP = { tab: "series", th: null, turth: null, level: null };
+
 describe("URL selection", () => {
   it("round-trips through the query string, omitting defaults", () => {
     const sel = parseSelection(new URLSearchParams("vervar=9999,1100&turvar=0&freq=month&view=table"));
-    expect(sel).toEqual({ vervars: [9999, 1100], turvars: [0], freq: "month", view: "table" });
+    expect(sel).toEqual({
+      vervars: [9999, 1100],
+      turvars: [0],
+      freq: "month",
+      view: "table",
+      ...NO_MAP,
+    });
     expect(selectionQueryString(sel)).toBe("?vervar=9999,1100&turvar=0&freq=month&view=table");
     expect(parseSelection(new URLSearchParams(""))).toEqual({
       vervars: null,
       turvars: null,
       freq: null,
       view: "chart",
+      ...NO_MAP,
     });
     expect(selectionQueryString(parseSelection(new URLSearchParams("")))).toBe("");
   });
@@ -44,7 +53,15 @@ describe("URL selection", () => {
       turvars: null,
       freq: null,
       view: "chart",
+      ...NO_MAP,
     });
+    expect(parseSelection(new URLSearchParams("tab=pie&th=x&turth=-1&level=world"))).toMatchObject(NO_MAP);
+  });
+
+  it("keeps the map tab, its period and region level", () => {
+    const sel = parseSelection(new URLSearchParams("tab=map&th=125&turth=0&level=regency&turvar=2"));
+    expect(sel).toMatchObject({ tab: "map", th: 125, turth: 0, level: "regency", turvars: [2] });
+    expect(selectionQueryString(sel)).toBe("?turvar=2&tab=map&level=regency&th=125&turth=0");
   });
 });
 
@@ -57,6 +74,7 @@ describe("resolveSelection", () => {
       turvars: [0],
       freq: "month",
       view: "chart",
+      tab: "series",
     });
   });
 

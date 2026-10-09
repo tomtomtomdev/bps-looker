@@ -39,3 +39,6 @@ export type Freq = TurthMember["freq"];
 export type SeriesResponse = Schemas["SeriesResponse"];
 export type Series = Schemas["Series"];
 export type SeriesPoint = Schemas["SeriesPoint"];
+export type CrossSection = Schemas["CrossSection"];
+export type CrossSectionRegion = Schemas["CrossSectionRegion"];
+export type CrossSectionPeriod = Schemas["CrossSectionPeriod"];

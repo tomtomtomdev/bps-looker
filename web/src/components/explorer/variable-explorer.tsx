@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { EChart } from "@/components/explorer/echart";
+import { MapRanking } from "@/components/explorer/map-ranking";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ import {
   toCsv,
   turthsFor,
   type Selection,
+  type Tab,
   type View,
 } from "@/lib/explorer/series";
 import { sanitizeHtml } from "@/lib/sanitize";
@@ -138,6 +140,7 @@ function VariableView({ detail }: { detail: VariableDetail }) {
     queryKey: ["series", detail.domain_id, detail.var_id, request],
     queryFn: () => fetchSeries(detail.domain_id, detail.var_id, request),
     placeholderData: keepPreviousData,
+    enabled: resolved.tab === "series",
   });
 
   const freqs = freqsOf(detail);
@@ -148,18 +151,18 @@ function VariableView({ detail }: { detail: VariableDetail }) {
     <div className="space-y-8">
       <VariableHeader detail={detail} />
 
-      <section aria-labelledby="time-series" className="space-y-4">
+      <section aria-label="Data" className="space-y-4">
         <div className="flex flex-wrap items-center gap-3">
-          <h2 id="time-series" className="mr-auto text-lg font-semibold">
-            Time series
-          </h2>
+          <Tabs value={resolved.tab} onChange={(tab) => update({ tab })} />
           {freqs.length ? (
             <label className="flex items-center gap-2 text-sm text-muted-foreground">
               Period type
               <select
                 aria-label="Period type"
                 value={resolved.freq ?? ""}
-                onChange={(e) => update({ freq: e.target.value as Selection["freq"] })}
+                onChange={(e) =>
+                  update({ freq: e.target.value as Selection["freq"], th: null, turth: null })
+                }
                 className="h-9 rounded-md border border-input bg-transparent px-2 text-sm text-foreground"
               >
                 {freqs.map((f) => (
@@ -170,50 +173,71 @@ function VariableView({ detail }: { detail: VariableDetail }) {
               </select>
             </label>
           ) : null}
-          <ViewToggle value={resolved.view} onChange={(view) => update({ view })} />
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!series.data?.series.some((s) => s.points.length)}
-            onClick={() =>
-              series.data &&
-              downloadCsv(series.data.series, `bps-${detail.domain_id}-${detail.var_id}.csv`)
-            }
-          >
-            <Download aria-hidden />
-            Download CSV
-          </Button>
+          {resolved.tab === "series" ? (
+            <>
+              <ViewToggle value={resolved.view} onChange={(view) => update({ view })} />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={!series.data?.series.some((s) => s.points.length)}
+                onClick={() =>
+                  series.data &&
+                  downloadCsv(series.data.series, `bps-${detail.domain_id}-${detail.var_id}.csv`)
+                }
+              >
+                <Download aria-hidden />
+                Download CSV
+              </Button>
+            </>
+          ) : null}
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]">
-          <div className="space-y-4">
-            <MemberPicker
-              legend="Region / breakdown"
-              filterLabel="Filter regions"
-              members={detail.vervars}
-              selected={resolved.vervars}
-              max={vervarMax}
-              onChange={(vervars) => update({ vervars })}
-            />
-            {detail.turvars.length > 1 ? (
+        {resolved.tab === "series" ? (
+          <div
+            role="tabpanel"
+            id="panel-series"
+            aria-labelledby="tab-series"
+            className="grid gap-6 lg:grid-cols-[18rem_minmax(0,1fr)]"
+          >
+            <div className="space-y-4">
               <MemberPicker
-                legend="Category"
-                filterLabel="Filter categories"
-                members={detail.turvars}
-                selected={resolved.turvars}
-                max={turvarMax}
-                onChange={(turvars) => update({ turvars })}
+                legend="Region / breakdown"
+                filterLabel="Filter regions"
+                members={detail.vervars}
+                selected={resolved.vervars}
+                max={vervarMax}
+                onChange={(vervars) => update({ vervars })}
               />
-            ) : null}
+              {detail.turvars.length > 1 ? (
+                <MemberPicker
+                  legend="Category"
+                  filterLabel="Filter categories"
+                  members={detail.turvars}
+                  selected={resolved.turvars}
+                  max={turvarMax}
+                  onChange={(turvars) => update({ turvars })}
+                />
+              ) : null}
+            </div>
+            <SeriesPanel
+              query={series}
+              view={resolved.view}
+              unit={detail.unit ?? null}
+              decimals={detail.decimal ?? null}
+              title={detail.title}
+            />
           </div>
-          <SeriesPanel
-            query={series}
-            view={resolved.view}
-            unit={detail.unit ?? null}
-            decimals={detail.decimal ?? null}
-            title={detail.title}
-          />
-        </div>
+        ) : (
+          <div role="tabpanel" id="panel-map" aria-labelledby="tab-map">
+            <MapRanking
+              detail={detail}
+              selection={selection}
+              turvar={resolved.turvars[0]}
+              freq={resolved.freq}
+              update={update}
+            />
+          </div>
+        )}
       </section>
 
       <HtmlNote title="Definition" html={detail.definition} />
@@ -241,6 +265,40 @@ function VariableHeader({ detail }: { detail: VariableDetail }) {
         </span>
       </div>
     </header>
+  );
+}
+
+const TABS: { value: Tab; label: string }[] = [
+  { value: "series", label: "Time series" },
+  { value: "map", label: "Map / ranking" },
+];
+
+function Tabs({ value, onChange }: { value: Tab; onChange: (tab: Tab) => void }) {
+  return (
+    <div role="tablist" aria-label="Data view" className="mr-auto flex gap-1 border-b">
+      {TABS.map((t) => (
+        <button
+          key={t.value}
+          type="button"
+          role="tab"
+          id={`tab-${t.value}`}
+          aria-controls={`panel-${t.value}`}
+          aria-selected={value === t.value}
+          tabIndex={value === t.value ? 0 : -1}
+          onClick={() => onChange(t.value)}
+          onKeyDown={(e) => {
+            if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+              const next = TABS[(TABS.findIndex((x) => x.value === value) + 1) % TABS.length];
+              onChange(next.value);
+              document.getElementById(`tab-${next.value}`)?.focus();
+            }
+          }}
+          className="-mb-px border-b-2 border-transparent px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground aria-selected:border-foreground aria-selected:text-foreground"
+        >
+          {t.label}
+        </button>
+      ))}
+    </div>
   );
 }
 

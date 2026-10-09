@@ -109,10 +109,71 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/variables/{domain}/{var}/cross-section": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * One value per region for one period (ranking + map)
+         * @description Every vervar member's value for one (``th``, ``turth``) period — by default the latest
+         *     with data (for ``turvar`` and ``freq``) — sorted by value, highest first (members without a
+         *     value last, ``null``). The national aggregate (9999 / ``INDONESIA``) comes as ``national``,
+         *     not ranked. ``periods`` lists every period with data, in time order, for a slider.
+         */
+        get: operations["getVariableCrossSection"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * CrossSection
+         * @description Every vervar member's value for one period: ranking + map.
+         */
+        CrossSection: {
+            /** Turvar */
+            turvar: number | null;
+            /** Turvar Label */
+            turvar_label: string | null;
+            period: components["schemas"]["CrossSectionPeriod"] | null;
+            /** Periods */
+            periods: components["schemas"]["CrossSectionPeriod"][];
+            /** Regions */
+            regions: components["schemas"]["CrossSectionRegion"][];
+            national: components["schemas"]["CrossSectionRegion"] | null;
+        };
+        /** CrossSectionPeriod */
+        CrossSectionPeriod: {
+            /** Th */
+            th: number;
+            /** Turth */
+            turth: number;
+            /** Period */
+            period: string;
+            /** Date */
+            date: string | null;
+            /** Label */
+            label: string;
+        };
+        /** CrossSectionRegion */
+        CrossSectionRegion: {
+            /** Vervar */
+            vervar: number;
+            /** Label */
+            label: string | null;
+            /** Value */
+            value: number | null;
+        };
         /** DimMember */
         DimMember: {
             /** Val */
@@ -500,6 +561,56 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SeriesResponse"];
+                };
+            };
+            /** @description Unknown variable */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    getVariableCrossSection: {
+        parameters: {
+            query?: {
+                /** @description Year (`th`); default: the latest. */
+                th?: number | null;
+                /** @description Turvar member; default: the first. */
+                turvar?: number | null;
+                /** @description Sub-period; default: the latest of the year. */
+                turth?: number | null;
+                /** @description Only periods of this kind (slider + default). */
+                freq?: ("month" | "quarter" | "semester" | "year" | "other") | null;
+            };
+            header?: never;
+            path: {
+                /** @description Domain id, e.g. `0000`. */
+                domain: string;
+                /** @description Variable id within the domain. */
+                var: number;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CrossSection"];
                 };
             };
             /** @description Unknown variable */

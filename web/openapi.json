@@ -419,10 +419,298 @@
           }
         }
       }
+    },
+    "/variables/{domain}/{var}/cross-section": {
+      "get": {
+        "tags": [
+          "variables"
+        ],
+        "summary": "One value per region for one period (ranking + map)",
+        "description": "Every vervar member's value for one (``th``, ``turth``) period — by default the latest\nwith data (for ``turvar`` and ``freq``) — sorted by value, highest first (members without a\nvalue last, ``null``). The national aggregate (9999 / ``INDONESIA``) comes as ``national``,\nnot ranked. ``periods`` lists every period with data, in time order, for a slider.",
+        "operationId": "getVariableCrossSection",
+        "parameters": [
+          {
+            "name": "domain",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}$",
+              "description": "Domain id, e.g. `0000`.",
+              "title": "Domain"
+            },
+            "description": "Domain id, e.g. `0000`."
+          },
+          {
+            "name": "var",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "description": "Variable id within the domain.",
+              "title": "Var"
+            },
+            "description": "Variable id within the domain."
+          },
+          {
+            "name": "th",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Year (`th`); default: the latest.",
+              "title": "Th"
+            },
+            "description": "Year (`th`); default: the latest."
+          },
+          {
+            "name": "turvar",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Turvar member; default: the first.",
+              "title": "Turvar"
+            },
+            "description": "Turvar member; default: the first."
+          },
+          {
+            "name": "turth",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Sub-period; default: the latest of the year.",
+              "title": "Turth"
+            },
+            "description": "Sub-period; default: the latest of the year."
+          },
+          {
+            "name": "freq",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "month",
+                    "quarter",
+                    "semester",
+                    "year",
+                    "other"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only periods of this kind (slider + default).",
+              "title": "Freq"
+            },
+            "description": "Only periods of this kind (slider + default)."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CrossSection"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown variable"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "CrossSection": {
+        "properties": {
+          "turvar": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turvar"
+          },
+          "turvar_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Turvar Label"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrossSectionPeriod"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "periods": {
+            "items": {
+              "$ref": "#/components/schemas/CrossSectionPeriod"
+            },
+            "type": "array",
+            "title": "Periods"
+          },
+          "regions": {
+            "items": {
+              "$ref": "#/components/schemas/CrossSectionRegion"
+            },
+            "type": "array",
+            "title": "Regions"
+          },
+          "national": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CrossSectionRegion"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "turvar",
+          "turvar_label",
+          "period",
+          "periods",
+          "regions",
+          "national"
+        ],
+        "title": "CrossSection",
+        "description": "Every vervar member's value for one period: ranking + map."
+      },
+      "CrossSectionPeriod": {
+        "properties": {
+          "th": {
+            "type": "integer",
+            "title": "Th"
+          },
+          "turth": {
+            "type": "integer",
+            "title": "Turth"
+          },
+          "period": {
+            "type": "string",
+            "title": "Period"
+          },
+          "date": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Date"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "th",
+          "turth",
+          "period",
+          "date",
+          "label"
+        ],
+        "title": "CrossSectionPeriod"
+      },
+      "CrossSectionRegion": {
+        "properties": {
+          "vervar": {
+            "type": "integer",
+            "title": "Vervar"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "type": "object",
+        "required": [
+          "vervar",
+          "label",
+          "value"
+        ],
+        "title": "CrossSectionRegion"
+      },
       "DimMember": {
         "properties": {
           "val": {

@@ -292,3 +292,118 @@ def load_series(
             }
         )
     return series, truncated
+
+
+# --- cross-section (U4) -------------------------------------------------------------------------
+
+NATIONAL_VERVAR = 9999
+"""BPS's vervar code for the national aggregate (``INDONESIA``)."""
+
+_TAG = re.compile(r"<[^>]*>")
+
+
+def is_national(val: int, label: str | None) -> bool:
+    """The national aggregate member: code 9999 or a label that is just ``Indonesia`` (labels
+    may carry HTML such as ``<b>INDONESIA</b>``)."""
+    text = _TAG.sub("", label or "").strip().lower()
+    return val == NATIONAL_VERVAR or text == "indonesia"
+
+
+def cross_section_query(
+    domain_id: str, var_id: int, *, turvar: int, th: int, turth: int
+) -> Select[Any]:
+    """Every region's value for one period — ``(domain_id, var_id, th)`` is the prefix of
+    ``ix_observation_domain_id_var_id_th``."""
+    return select(observation.c.vervar, observation.c.value).where(
+        _key(observation, domain_id, var_id),
+        observation.c.th == th,
+        observation.c.turvar == turvar,
+        observation.c.turth == turth,
+    )
+
+
+def _period_dict(
+    th: int, turth: int, year_label: str | None, turth_label: str | None
+) -> dict[str, Any]:
+    p = resolve_period(th, year_label, turth, turth_label)
+    year = year_label or f"th{th}"
+    label = year if p.freq == "year" else f"{turth_label or turth} {year}"
+    return {"th": th, "turth": turth, "period": p.period, "date": p.date, "label": label}
+
+
+def load_cross_section(
+    conn: Connection,
+    domain_id: str,
+    var_id: int,
+    *,
+    th: int | None,
+    turvar: int | None,
+    turth: int | None,
+    freq: Freq | None,
+) -> dict[str, Any]:
+    """One value per vervar member for one period (default: the latest with data), ranked by
+    value (desc, members without a value last); the national aggregate comes separately.
+    ``periods`` lists every (th, turth) with data for the turvar (and ``freq``), in time order."""
+    vervar_rows = conn.execute(
+        select(dim_vervar.c.val, dim_vervar.c.label).where(_key(dim_vervar, domain_id, var_id))
+    ).all()
+    turvar_labels = _labels(conn, dim_turvar.c.val, dim_turvar.c.label, domain_id, var_id)
+    turth_labels = _labels(conn, dim_turth.c.val, dim_turth.c.label, domain_id, var_id)
+    year_labels = _labels(conn, period.c.th_id, period.c.label, domain_id, var_id)
+    if turvar is None:
+        turvar = min(turvar_labels, default=None)
+
+    periods: list[dict[str, Any]] = []
+    if turvar is not None:
+        turths = [
+            t for t, lb in turth_labels.items() if freq is None or classify_turth(t, lb)[0] == freq
+        ]
+        pairs = conn.execute(
+            select(observation.c.th, observation.c.turth)
+            .where(
+                _key(observation, domain_id, var_id),
+                observation.c.turvar == turvar,
+                observation.c.turth.in_(turths),
+            )
+            .distinct()
+        ).all()
+        keyed = []
+        for p_th, p_turth in pairs:
+            year, tl = year_labels.get(p_th), turth_labels.get(p_turth)
+            key = resolve_period(p_th, year, p_turth, tl).sort_key
+            keyed.append(((key, p_th, p_turth), _period_dict(p_th, p_turth, year, tl)))
+        periods = [p for _, p in sorted(keyed, key=lambda x: x[0])]
+
+    chosen = [
+        p
+        for p in periods
+        if (th is None or p["th"] == th) and (turth is None or p["turth"] == turth)
+    ]
+    current: dict[str, Any] | None = chosen[-1] if chosen else None
+    if current is None and th is not None and turth is not None:
+        current = _period_dict(th, turth, year_labels.get(th), turth_labels.get(turth))
+
+    values: dict[int, float] = {}
+    if current is not None and turvar is not None:
+        stmt = cross_section_query(
+            domain_id, var_id, turvar=turvar, th=current["th"], turth=current["turth"]
+        )
+        values = {r.vervar: float(r.value) for r in conn.execute(stmt)}
+
+    national = None
+    regions = []
+    for val, label in vervar_rows:
+        row = {"vervar": val, "label": label, "value": values.get(val)}
+        if is_national(val, label):
+            national = national or row
+        else:
+            regions.append(row)
+    regions.sort(key=lambda r: (r["value"] is None, -(r["value"] or 0.0), r["vervar"]))
+    return {
+        "turvar": turvar,
+        "turvar_label": turvar_labels.get(turvar) if turvar is not None else None,
+        "period": current,
+        "periods": periods,
+        "regions": regions,
+        "national": national,
+    }
