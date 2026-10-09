@@ -25,25 +25,38 @@ async def paginate(client: _Getter, model: str, **params: Any) -> AsyncIterator[
     if model in _OWN_PATH_MODELS:
         body = await client.get(model, **params)
         if body.get("data-availability") != NOT_AVAILABLE:
-            for item in _items(body, model)[1]:
+            for item in items_of(body, model)[1]:
                 yield item
         return
 
-    page = int(params.pop("page", 1))
-    while True:
-        body = await client.get("list", model=model, **params, page=page)
+    async for _, body in paginate_pages(client, model, **params):
         if body.get("data-availability") == NOT_AVAILABLE:
             return
-        meta, items = _items(body, model)
-        for item in items:
+        for item in items_of(body, model)[1]:
             yield item
+
+
+async def paginate_pages(
+    client: _Getter, model: str, **params: Any
+) -> AsyncIterator[tuple[dict[str, Any], dict[str, Any]]]:
+    """Yield ``(request_params, body)`` for every page of ``/list?model=…`` — for callers that
+    keep raw responses. The last body may be a ``not-available`` one; malformed bodies raise.
+    """
+    page = int(params.pop("page", 1))
+    while True:
+        request = {"model": model, **params, "page": page}
+        body = await client.get("list", **request)
+        yield request, body
+        if body.get("data-availability") == NOT_AVAILABLE:
+            return
+        meta, _ = items_of(body, model)
         pages = meta.get("pages")
         if pages is None or page >= int(pages):
             return
         page += 1
 
 
-def _items(body: dict[str, Any], model: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+def items_of(body: dict[str, Any], model: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     data = body.get("data")
     if (
         not isinstance(data, list)

@@ -78,3 +78,28 @@ domain = Table(
     Column("level", Text, nullable=False),
     CheckConstraint("level IN ('pusat', 'prov', 'kab')", name="level"),
 )
+
+# Dynamic-table variable catalog, from ``/list?model=var`` (S9). ``decimal`` and ``last_update``
+# are not in the list response — they are filled from data responses by the loader (S12).
+variable = Table(
+    "variable",
+    metadata,
+    Column(
+        "domain_id",
+        String(4),
+        ForeignKey("domain.domain_id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
+    Column("var_id", Integer, primary_key=True),
+    Column("title", Text, nullable=False),
+    Column("unit", Text),
+    Column("sub_id", Integer),
+    Column("sub_name", Text),
+    Column("subcsa_id", Integer),
+    Column("subcsa_name", Text),
+    Column("def", Text),
+    Column("notes", Text),
+    Column("decimal", Integer),
+    Column("vertical", Integer),
+    Column("last_update", DateTime(timezone=False)),
+)

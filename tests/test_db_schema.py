@@ -11,7 +11,8 @@ from sqlalchemy.exc import IntegrityError
 from bps_fetcher.db.migrate import alembic_config, downgrade, upgrade
 from bps_fetcher.db.schema import domain, metadata, raw_response, task
 
-S5_TABLES = {"raw_response", "task", "domain"}
+# Every table the migrations create; grows with each slice that adds one.
+ALL_TABLES = {"raw_response", "task", "domain", "variable"}
 
 
 def _tables(url: str) -> set[str]:
@@ -48,8 +49,8 @@ def test_alembic_config_works_without_api_key(monkeypatch: pytest.MonkeyPatch) -
     )
 
 
-def test_metadata_defines_s5_tables() -> None:
-    assert set(metadata.tables) == S5_TABLES
+def test_metadata_defines_all_tables() -> None:
+    assert set(metadata.tables) == ALL_TABLES
 
 
 # --- migrations ----------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ def test_metadata_defines_s5_tables() -> None:
 def test_upgrade_from_empty_creates_all_tables(empty_db: str) -> None:
     assert _tables(empty_db) == set()
     upgrade(empty_db, "head")
-    assert _tables(empty_db) == S5_TABLES | {"alembic_version"}
+    assert _tables(empty_db) == ALL_TABLES | {"alembic_version"}
 
 
 def test_downgrade_removes_all_tables(empty_db: str) -> None:
@@ -71,7 +72,7 @@ def test_upgrade_downgrade_upgrade_roundtrip(empty_db: str) -> None:
     upgrade(empty_db, "head")
     downgrade(empty_db, "base")
     upgrade(empty_db, "head")
-    assert _tables(empty_db) >= S5_TABLES
+    assert _tables(empty_db) >= ALL_TABLES
 
 
 def test_migrations_match_metadata(db_engine: Engine) -> None:
