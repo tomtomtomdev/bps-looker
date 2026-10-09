@@ -26,8 +26,9 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 
 ## Current status — 2026-10-09
 
-- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client), S3 (pagination), S4 (fixture recorder; `make live` green). Plan includes backend S0–S21 and UI U0–U7.
-- **Next:** S5 — DB schema + migrations. **Ask the user before `brew install postgresql@16`.**
+- **Done:** S0 (scaffold, CI green), S1 (settings + key redaction), S2 (HTTP client), S3 (pagination), S4 (fixture recorder; `make live` green), S5 (DB schema + migrations). Plan includes backend S0–S21 and UI U0–U7.
+- **Next:** S6 — Task queue.
+- **Local DB:** Postgres 16 installed via Homebrew (`/opt/homebrew/opt/postgresql@16/bin`, not on PATH); role `bps`/`bps` owns `bps` (dev, `make migrate`) and `bps_test` (pytest, wiped by fixtures).
 - **Resume:** start a subagent for the next ☐ slice with its spec from this file, review its result, repeat.
 
 ## Progress
@@ -39,7 +40,7 @@ Repo: https://github.com/tomtomtomdev/bps-looker (public — `.env` must never b
 | S2 | HTTP client | ☑ | 2026-10-09: `client.py` `BpsClient.get(path, **params)` (httpx + tenacity + aiolimiter; `from_settings()`, async ctx manager). Errors: `BpsApiError(message)`, `BpsAuthError` ("re-check your key"/"not allowed", not retried), `BpsTransientError` after `max_attempts` (5xx, non-JSON/WAF HTML, transport errors/timeouts). 4xx JSON → `BpsApiError`. Limiter is strict `1 token / (1/rps)` (no burst). Backoff `wait` injectable (`wait_none()` in tests). Surprise: httpx logs full request URL incl. `key=` at INFO — client attaches a `RedactingFilter` to the `httpx`/`httpcore` loggers. |
 | S3 | Pagination | ☑ | 2026-10-09: `paginate.py` `paginate(client, model, **params)` async generator: `GET list?model=…&page=N` from `page` (default 1) to `data[0].pages`; yields `data[1]` items; stops on `data-availability: not-available` or missing `pages`. `model="domain"` hits `/domain` (own path, single call, no `page`). Malformed `data` → `BpsApiError`. Client typed via a `get` Protocol so tests use a fake client. Domain response meta shape not yet verified live — check in S4 fixture. |
 | S4 | Fixture recorder | ☑ | 2026-10-09: `recorder.py` (`FixtureSpec`, `FIXTURES` catalog, `record()` scrubs key from URL/params/body and refuses to write if it survives) + `scripts/record_fixture.py [NAME…]` (1 call/s). 13 fixtures in `tests/fixtures/` (largest `trade_exp_monthly_03_2024` 979 KB, 4590 rows — not trimmed). `test_api_facts.py` checks assumptions on fixtures; 2 live tests. Learned: `/domain` meta is `{page:1, pages:1, total:549}` (has `pages`; S3 test fixed, code unchanged). Bad key → JSON `status: Error` "…Please re-check your key" (matches `_AUTH_MARKERS`) — but some key strings (e.g. `000…0x`) trip the WAF instead (403 HTML → `BpsTransientError`; recorded as `error_waf_block`). Monthly var 2263: `turtahun` lists 1–13 (13 = `Tahunan`) but values only for 1–12 (39 regions × 12 = 468). `>3` th error: "The maximum allowed number of years … is 3. You provided 7…". |
-| S5 | DB schema + migrations | ☐ | |
+| S5 | DB schema + migrations | ☑ | 2026-10-09: `db/schema.py` (Core `metadata` with naming convention; `task` (+`created_at`/`updated_at`, `uq_task_kind_params_hash`, index `(status, next_run_at)`, self-FK `parent_id`), `raw_response` (FK `task_id` SET NULL), `domain` (check `level IN pusat/prov/kab`)). Alembic inside the package (`db/migrations`, revision `0001`; new ones `--rev-id 000N`); `db/migrate.py` `alembic_config/upgrade/downgrade(url)` — URL from arg else `DATABASE_URL` via new `DatabaseSettings` (no API key needed); root `alembic.ini` has no URL; `make migrate`. Test fixtures in `conftest.py`: `db_url` (TEST_DATABASE_URL, skip if unreachable), `empty_db`, `db_engine` (migrated to head, tables truncated after each test; DB reset to empty at session end). `test_migrations_match_metadata` fails if schema.py and migrations drift. Deps: sqlalchemy 2.1.4, alembic 1.20.0, psycopg 3.3.6. |
 | S6 | Task queue | ☐ | |
 | S7 | Worker runner | ☐ | |
 | S8 | Domains | ☐ | |
@@ -139,7 +140,7 @@ hs_chapter(hs2 pk, description)
 - **Build:** `scripts/record_fixture.py` (live). Record: `domain_all`, `var_0000_p1`, `th_0000_1804`, `data_0000_1804`, `data_0000_2263` (monthly), `indicators_0000_p1/p2`, `trade_exp_annual_03_2024`, `trade_exp_monthly_03_2024`, plus error samples (bad key, missing th, >3 years).
 
 ### S5 — DB schema + migrations
-- **Setup:** `brew install postgresql@16`, create `bps` and `bps_test` databases; tests read `DATABASE_URL`/`TEST_DATABASE_URL`.
+- **Setup:** (done) Homebrew `postgresql@16` with `bps` and `bps_test` databases; tests read `TEST_DATABASE_URL`.
 - **Tests first (local Postgres; CI service container):** `alembic upgrade head` from empty creates all tables; downgrade works; unique constraints enforced.
 - **Build:** SQLAlchemy 2 Core table definitions + Alembic migration for `raw_response`, `task`, `domain`.
 

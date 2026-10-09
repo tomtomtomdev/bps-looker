@@ -12,7 +12,12 @@ class MissingApiKeyError(RuntimeError):
     """Raised when ``BPS_API_KEY`` is not configured."""
 
 
-class Settings(BaseSettings):
+DEFAULT_DATABASE_URL = "postgresql+psycopg://bps:bps@localhost:5432/bps"
+
+
+class DatabaseSettings(BaseSettings):
+    """Just the database URL — usable without ``BPS_API_KEY`` (migrations, DB tools)."""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -20,11 +25,11 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
+    database_url: str = Field(default=DEFAULT_DATABASE_URL, validation_alias="DATABASE_URL")
+
+
+class Settings(DatabaseSettings):
     api_key: SecretStr = Field(validation_alias="BPS_API_KEY")
-    database_url: str = Field(
-        default="postgresql+psycopg://bps:bps@localhost:5432/bps",
-        validation_alias="DATABASE_URL",
-    )
     concurrency: int = Field(default=4, ge=1, validation_alias="BPS_CONCURRENCY")
     rps: float = Field(default=2.0, gt=0, validation_alias="BPS_RPS")
     user_agent: str = Field(

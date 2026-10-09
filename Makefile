@@ -1,4 +1,4 @@
-.PHONY: lint format typecheck test live build check
+.PHONY: lint format typecheck test live build check migrate
 
 lint:
 	uv run ruff check .
@@ -21,3 +21,6 @@ build:
 	uv build
 
 check: lint typecheck test build
+
+migrate:
+	uv run alembic upgrade head
