@@ -34,6 +34,10 @@ metadata = MetaData(naming_convention=NAMING_CONVENTION)
 
 DOMAIN_LEVELS = ("pusat", "prov", "kab")
 
+# Task lifecycle (see bps_fetcher.queue): pending -> running -> done, or back to pending on
+# failure (with backoff) until max attempts, then dead.
+TASK_STATUSES = ("pending", "running", "done", "dead")
+
 task = Table(
     "task",
     metadata,
@@ -50,6 +54,7 @@ task = Table(
     Column("updated_at", DateTime(timezone=True), nullable=False, server_default=func.now()),
     UniqueConstraint("kind", "params_hash"),
     Index("ix_task_status_next_run_at", "status", "next_run_at"),
+    CheckConstraint("status IN ('pending', 'running', 'done', 'dead')", name="status"),
 )
 
 raw_response = Table(
